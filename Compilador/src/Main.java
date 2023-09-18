@@ -6,5 +6,7 @@ public class Main {
     Scanner sc = new Scanner(System.in);
     System.out.println("Ingrese el nombre del archivo que desea leer");
     String archivo = sc.nextLine();
+    
+    sc.close();
     }
 }
