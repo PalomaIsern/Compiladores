@@ -1,3 +1,4 @@
+package compiladores;
 import java.util.Scanner;
 
 public class Main {
