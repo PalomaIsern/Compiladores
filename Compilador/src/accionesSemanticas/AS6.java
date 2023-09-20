@@ -24,8 +24,10 @@ public class AS6 extends AccionSemantica {
          * return new Token(getToken("!!"));
          * } else if (c1 == '#') {
          * return new Token(getToken("cadena")); //como devuelvo la cadena?
-         * } //la funcion getToken deberia ir a la tabla de tokens y devolver
-         * // el numero asociado a la entrada pasada por parametro
+         * }
+         * if !(TS.pertenece(lexema)) {
+         * TS.agregar(lexema);
+         * }
          */
         return null;
     }

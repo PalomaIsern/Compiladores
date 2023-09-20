@@ -18,7 +18,7 @@ public class AS1 extends AccionSemantica {
             lexema.append(c);
         } else {
             System.out.println("El caracter no es valido");
-        } // es necesario verificar?
+        }
         return null; // no retorno nada porque aun no forme completamente el token
     }
 

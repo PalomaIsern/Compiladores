@@ -9,14 +9,14 @@ import compiladores.Token;
 public class AS5 extends AccionSemantica {
     ArrayList<Character> caracteres = new ArrayList<>(Arrays.asList('/', '{', '}', '(', ')', ',', ';', '-'));
 
-    // devolver el caracter leido
+    // devuelve el caracter leido
     @Override
     public Token ejecutarAS(char c) throws IOException {
         /*
          * if (caracteres.contains(c)){
          * return new Token()
          * } else {
-         * System.out.println("El carcter "+ c +" ingresado no es valido");
+         * System.out.println("El caracter "+ c +" ingresado no es valido");
          * }
          */
         return null;
