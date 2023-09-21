@@ -4,6 +4,10 @@ public class Token {
     private int idToken;
     private String lexema; // con este string puedo acceder a la TS
 
+    public Token(int idToken) {
+        this.idToken = idToken;
+        this.lexema = "";
+    }
     public Token(int idToken, String valor) {
         this.idToken = idToken;
         this.lexema = valor;

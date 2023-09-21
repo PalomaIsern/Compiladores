@@ -29,7 +29,7 @@ public class TablaToken {
         tokens.put("+=", 19);// Especifico del grupo
         tokens.put("!!", 20);
         tokens.put("ID", 21);
-        tokens.put("CONST", 22);
+        tokens.put("CTE", 22);
         tokens.put("IF", 23);
         tokens.put("END_IF", 24);
         tokens.put("ELSE", 25);
@@ -43,7 +43,8 @@ public class TablaToken {
         tokens.put("UNTIL", 32);// Especifico del grupo
         tokens.put("IMPL", 33);// Especifico del grupo
         tokens.put("FOR", 34);// Especifico del grupo
-    }
+        tokens.put("CADENA", 34);
+    } 
 
     public Integer getId(String valor) {
         return tokens.get(valor);

@@ -12,13 +12,11 @@ public class TablaSimbolos {
         this.cont = 0;
     }
 
-    public Integer agregar(String valor, Integer ref) {
+    public void agregar(String valor) {
         if (!pertenece(valor)) {
             TS.put(valor, cont);
         }
         cont++;
-        return cont;// Devuelve la referencia a la tabla de simbolos, esto se hace al momento de
-                    // crear el objeto token al cual nos referimos
     }
 
     public boolean pertenece(String nombre) {

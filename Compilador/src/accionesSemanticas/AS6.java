@@ -11,24 +11,11 @@ public class AS6 extends AccionSemantica {
     public Token ejecutarAS(char c) throws IOException {
         lexema.append(c);
         char c1 = lexema.charAt(0);
-        /*
-         * if (c1 == '+') {
-         * return new Token(getToken("+="));
-         * } else if (c1 == '<') {
-         * return new Token(getToken("<="));
-         * } else if (c1 == '>') {
-         * return new Token(getToken(">="));
-         * } else if (c1 == '=') {
-         * return new Token(getToken("=="));
-         * } else if (c1 == '!') {
-         * return new Token(getToken("!!"));
-         * } else if (c1 == '#') {
-         * return new Token(getToken("cadena")); //como devuelvo la cadena?
-         * }
-         * if !(TS.pertenece(lexema)) {
-         * TS.agregar(lexema);
-         * }
-         */
+        if (c1 != '#') {
+            return new Token(getId(c1));  
+        } else {
+            return new Token(getId("CADENA"));
+        }
         return null;
     }
 

@@ -15,15 +15,10 @@ public class AS3 extends AccionSemantica {
             System.out.println("El identificador ha superado la longitud maxima permitida de 20 caracteres");
             id = id.substring(0, 20);
         }
-        /*
-         * if (!id existe en TS){
-         * TS.agregar(id);
-         * }
-         * return new Token(getToken(from TT), getLex(from TS))
-         */
-
-        return null; // por ahora retorna null, cuando este todo implementado deberia retornar token
-                     // + lexema
+        if (! TS.pertenece(id)) {
+            TS.agregar(id);
+        } 
+        return new Token(tokens.getId("ID"), id);
     }
 
 }

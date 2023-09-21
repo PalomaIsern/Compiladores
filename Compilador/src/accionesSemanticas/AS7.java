@@ -11,25 +11,7 @@ public class AS7 extends AccionSemantica {
         // reconoce '+', '<', '>', '=','*', '.'
         // DEVOLVER EL ULTIMO CARACTER
         char c1 = lexema.charAt(0);
-        /*
-         * if (c1 == '+') {
-         * return new Token(getToken('+'));
-         * } else if (c1 == '<') {
-         * return new Token(getToken('<'));
-         * } else if (c1 == '>') {
-         * return new Token(getToken('>'));
-         * } else if (c1 == '=') {
-         * return new Token(getToken('='));
-         * } else if (c1 == '*') {
-         * return new Token(getToken('*'));
-         * } else if (c1 == '.') {
-         * return new Token(getToken('.'));
-         * }
-         * if !(TS.pertenece(lexema)) {
-         * TS.agregar(lexema);
-         * }
-         */
-        return null;
+        return new Token(getId(c1));
     }
 }
 /*

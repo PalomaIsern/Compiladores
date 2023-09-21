@@ -9,7 +9,7 @@ public class AS10 extends AccionSemantica {
     // comprobar que su estructura sea correcta. Devolver el último caracter leído
     private double min = 1.7976931348623157E+308;
     private double max = 2.2250738585072014E-308;
-    double d;
+    double d = 0.0;
 
     @Override
     public Token ejecutarAS(char c) throws IOException {
@@ -36,22 +36,18 @@ public class AS10 extends AccionSemantica {
 
         // verifico el rango
         if (d < min && d != 0.0) {
-            d = min;
             System.out.println("El numero es menor al rango permitido. Consideramos el valor minimo");
+            d = min;
         }
         if (d > max && d != 0.0) {
-            d = max;
             System.out.println("El numero es mayor al rango permitido. Consideramos el valor maximo");
+            d = max;
         }
 
-        /*
-         * if !(TS.pertenece(lexema)) {
-         * TS.agregar(lexema);
-         * }
-         */
-        // return new Token("CTE");
-        return null; // esto lo pongo para que no de error, pero luego se reemplaza por lo de arriba
-
+        if (TS.pertenece(d) == false) {
+            TS.agregar(d);
+        }
+        return new Token(getId("CTE", d));
     }
 }
 
