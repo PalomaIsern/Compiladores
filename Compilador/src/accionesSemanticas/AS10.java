@@ -3,6 +3,8 @@ package accionesSemanticas;
 import java.io.IOException;
 
 import compiladores.Token;
+import compiladores.TablaSimbolos;
+import compiladores.TablaToken;
 
 public class AS10 extends AccionSemantica {
     // Verificar el rango de la constante (pto flot) y
@@ -44,10 +46,10 @@ public class AS10 extends AccionSemantica {
             d = max;
         }
 
-        if (TS.pertenece(d) == false) {
-            TS.agregar(d);
+        if (TablaSimbolos.pertenece(Double.toString(d)) == false) {
+            TablaSimbolos.agregar(Double.toString(d));
         }
-        return new Token(getId("CTE", d));
+        return new Token(TablaToken.getId("CTE"), Double.toString(d));
     }
 }
 

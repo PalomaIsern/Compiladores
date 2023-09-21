@@ -3,6 +3,8 @@ package accionesSemanticas;
 import java.io.IOException;
 
 import compiladores.Token;
+import compiladores.TablaSimbolos;
+import compiladores.TablaToken;
 
 public class AS3 extends AccionSemantica {
     // devolver a la entrada el ultimo caracter leido, verificar rango del string,
@@ -15,10 +17,10 @@ public class AS3 extends AccionSemantica {
             System.out.println("El identificador ha superado la longitud maxima permitida de 20 caracteres");
             id = id.substring(0, 20);
         }
-        if (! TS.pertenece(id)) {
-            TS.agregar(id);
-        } 
-        return new Token(tokens.getId("ID"), id);
+        if (!TablaSimbolos.pertenece(id)) {
+            TablaSimbolos.agregar(id);
+        }
+        return new Token(TablaToken.getId("ID"), id);
     }
 
 }

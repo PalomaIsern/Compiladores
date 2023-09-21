@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 public class TablaToken {
 
-    private HashMap<String, Integer> tokens;
+    private static HashMap<String, Integer> tokens;
 
     public TablaToken() {
         tokens = new HashMap<String, Integer>();
@@ -44,9 +44,9 @@ public class TablaToken {
         tokens.put("IMPL", 33);// Especifico del grupo
         tokens.put("FOR", 34);// Especifico del grupo
         tokens.put("CADENA", 34);
-    } 
+    }
 
-    public Integer getId(String valor) {
+    public static Integer getId(String valor) {
         return tokens.get(valor);
     }
 

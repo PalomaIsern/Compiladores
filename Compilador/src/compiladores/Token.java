@@ -1,27 +1,28 @@
 package compiladores;
 
 public class Token {
-    private int idToken;
-    private String lexema; // con este string puedo acceder a la TS
+    private static int idToken;
+    private static String lexema; // con este string puedo acceder a la TS
 
-    public Token(int idToken) {
-        this.idToken = idToken;
-        this.lexema = "";
-    }
-    public Token(int idToken, String valor) {
-        this.idToken = idToken;
-        this.lexema = valor;
+    public Token(int id) {
+        idToken = id;
+        lexema = "";
     }
 
-    public String getLexema(TablaSimbolos TS, TablaToken TT) {
+    public Token(int id, String valor) {
+        idToken = id;
+        lexema = valor;
+    }
+
+    public static String getLexema() {
         return lexema;
     }
 
-    public void setIdToken(int idToken) {
-        this.idToken = idToken;
+    public static void setIdToken(int id) {
+        idToken = id;
     }
 
-    public int getIdToken() {
+    public static int getIdToken() {
         return idToken;
     }
 }

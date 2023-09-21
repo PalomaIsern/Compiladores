@@ -5,17 +5,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import compiladores.Token;
+import compiladores.TablaToken;
 
 public class AS5 extends AccionSemantica {
-    ArrayList<Character> caracteres = new ArrayList<>(Arrays.asList('/', '{', '}', '(', ')', ',', ';', '-'));
+    private ArrayList<Character> caracteres = new ArrayList<>(Arrays.asList('/', '{', '}', '(', ')', ',', ';', '-'));
 
     // devuelve el caracter leido. Reconoce '/', '{', '}', '(', ')', ',', ';', '-'
     @Override
     public Token ejecutarAS(char c) throws IOException {
-        if (caracteres.contains(c)){
-            return new Token(getId(c)); // revisar 
+        if (caracteres.contains(c)) {
+            return new Token(TablaToken.getId(Character.toString(c))); // revisa
         } else {
-            System.out.println("El caracter "+ c +" ingresado no es valido");
+            System.out.println("El caracter " + c + " ingresado no es valido");
         }
         return null;
     }

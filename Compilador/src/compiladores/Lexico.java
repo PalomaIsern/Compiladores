@@ -8,6 +8,9 @@ public class Lexico {
         private int pos = 0;
         private String cod;
         private int linea = 1;
+        private TablaSimbolos TS = new TablaSimbolos();
+        private TablaToken TT = new TablaToken();
+        private TablaPR TPR = new TablaPR();
 
         private static int[][] transiciones = new int[][] {
                         // Suponemos el estado 100 como el estado final y -1 estado de error (el error
@@ -130,6 +133,7 @@ public class Lexico {
 
         public String Leer() {// lee del archivo
 
+                return "";
         }
 
         public void ejecutarAS() {// Ejecuta la accion semántica correspondiente
@@ -138,6 +142,7 @@ public class Lexico {
 
         public Token generarToken() {// Devuelve el token
 
+                return null;
         }
 
         // Hay que ver como vamos contando los saltos de linea, mas que nada para ver si

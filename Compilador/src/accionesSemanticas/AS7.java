@@ -2,6 +2,7 @@ package accionesSemanticas;
 
 import java.io.IOException;
 
+import compiladores.TablaToken;
 import compiladores.Token;
 
 public class AS7 extends AccionSemantica {
@@ -11,7 +12,7 @@ public class AS7 extends AccionSemantica {
         // reconoce '+', '<', '>', '=','*', '.'
         // DEVOLVER EL ULTIMO CARACTER
         char c1 = lexema.charAt(0);
-        return new Token(getId(c1));
+        return new Token(TablaToken.getId(Character.toString(c1)));
     }
 }
 /*

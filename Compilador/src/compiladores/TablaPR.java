@@ -3,7 +3,7 @@ package compiladores;
 import java.util.ArrayList;
 
 public class TablaPR {
-    private ArrayList<String> TPR = new ArrayList<String>();
+    private static ArrayList<String> TPR = new ArrayList<String>();
 
     public TablaPR() {
         TPR.add("IF");
@@ -21,7 +21,7 @@ public class TablaPR {
         TPR.add("FOR");
     }
 
-    public boolean pertenece(String valor) {
+    public static boolean pertenece(String valor) {
         if (TPR.contains(valor))
             return true;
         else
