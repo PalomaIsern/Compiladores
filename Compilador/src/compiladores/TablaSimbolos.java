@@ -26,4 +26,11 @@ public class TablaSimbolos {
             return true;
     }
 
+    public void imprimirContenido(){
+        System.out.println("   TABLA DE SIMBOLOS\n");
+        for (String i : TS.keySet()){
+            System.out.println("Lexema: "+ i + ", id: " + cont + "\n");
+        }
+    }
+
 }
