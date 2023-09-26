@@ -15,9 +15,3 @@ public class AS7 extends AccionSemantica {
         return new Token(TablaToken.getId(Character.toString(c1)));
     }
 }
-/*
- * Para esta AS, falta determinar cómo se genera el Token,
- * para saber como buscarlo en la tabla de tokens
- * 
- * 
- */

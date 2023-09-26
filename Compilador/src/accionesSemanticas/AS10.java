@@ -2,9 +2,9 @@ package accionesSemanticas;
 
 import java.io.IOException;
 
-import compiladores.Token;
 import compiladores.TablaSimbolos;
 import compiladores.TablaToken;
+import compiladores.Token;
 
 public class AS10 extends AccionSemantica {
     // Verificar el rango de la constante (pto flot) y
@@ -31,7 +31,7 @@ public class AS10 extends AccionSemantica {
         }
         if (lexema.length() == 1 && lexema.charAt(0) == '.') {
             System.out.println("El digito no posee parte entera ni decimal");
-            d = 0.0;
+            d = 0.0;// Evitamos el error informamos con warning
         } else {
             d = Double.parseDouble(lexema.toString());
         }

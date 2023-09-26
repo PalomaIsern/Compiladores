@@ -2,9 +2,9 @@ package accionesSemanticas;
 
 import java.io.IOException;
 
-import compiladores.Token;
 import compiladores.TablaSimbolos;
 import compiladores.TablaToken;
+import compiladores.Token;
 
 public class AS9 extends AccionSemantica {
     // Verificar rango del entero y obtener el número
@@ -17,9 +17,11 @@ public class AS9 extends AccionSemantica {
             entero = Integer.parseInt(lexema.substring(0, (lexema.length() - 3)));
             if (entero < Integer.MIN_VALUE) {
                 System.out.println("El entero es menor al valor mínimo permitido");
+                entero = Integer.MIN_VALUE;
             }
             if (entero > Integer.MAX_VALUE) {
                 System.out.println("El entero es mayor al valor máximo permitido");
+                entero = Integer.MAX_VALUE;
             }
             if (!TablaSimbolos.pertenece(Integer.toString(entero))) {
                 TablaSimbolos.agregar(Integer.toString(entero));

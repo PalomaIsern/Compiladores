@@ -1,5 +1,8 @@
 package compiladores;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+
 import accionesSemanticas.AccionSemantica;
 
 public class Lexico {
@@ -75,8 +78,11 @@ public class Lexico {
         private static accionesSemanticas.AS6 AS6 = new accionesSemanticas.AS6();
         private static accionesSemanticas.AS7 AS7 = new accionesSemanticas.AS7();
         private static accionesSemanticas.AS8 AS8 = new accionesSemanticas.AS8();
+        private static accionesSemanticas.AS9 AS9 = new accionesSemanticas.AS9();
+        private static accionesSemanticas.AS10 AS10 = new accionesSemanticas.AS10();
 
         // La accion semántica 8 es error
+
         private static AccionSemantica[][] Matriz_Acciones = new AccionSemantica[][] {
                         { AS7, AS7, AS1, AS1, AS1, AS4, AS4, AS4, AS4, AS4, AS4, AS1, AS4, AS1, AS1, AS8, AS1, AS1, AS1,
                                         AS1, AS4,
@@ -131,9 +137,25 @@ public class Lexico {
                                         AS8, AS8, AS8, AS8, AS5, AS8, AS8, AS8 }
         };
 
-        public String Leer() {// lee del archivo
-
-                return "";
+        public void Leer(int numero_linea) {// lee del archivo
+                // Scanner sc = new Scanner(System.in);
+                // System.out.println("Ingrese el nombre del archivo que desea leer");
+                // String narchivo = sc.nextLine();
+                String nombreArchivo = "C:\\Users\\Paloma\\Trabajo Compiladores\\Compiladores\\Compilador\\Prueba.txt";
+                FileReader archivo = new FileReader(nombreArchivo);
+                BufferedReader lector = new BufferedReader(archivo);
+                String linea;
+                while ((linea = lector.readLine()) != null) {
+                        // Procesa cada línea del archivo
+                        System.out.println("Línea " + numero_linea + ": " + linea);
+                        // Divide la línea en palabras usando espacios en blanco como delimitador
+                        String[] palabras = linea.split("");
+                        for (String palabra : palabras) {
+                                System.out.println("Palabra: " + palabra);
+                        }
+                        numero_linea = numero_linea + 1;
+                }
+                lector.close();
         }
 
         public void ejecutarAS() {// Ejecuta la accion semántica correspondiente
@@ -144,8 +166,5 @@ public class Lexico {
 
                 return null;
         }
-
-        // Hay que ver como vamos contando los saltos de linea, mas que nada para ver si
-        // hacemos una clase linea o la vamos contando aca mismo
 
 }

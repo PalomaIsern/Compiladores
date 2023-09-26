@@ -43,7 +43,7 @@ public class TablaToken {
         tokens.put("UNTIL", 32);// Especifico del grupo
         tokens.put("IMPL", 33);// Especifico del grupo
         tokens.put("FOR", 34);// Especifico del grupo
-        tokens.put("CADENA", 34);
+        tokens.put("CADENA", 35);// Especifico del grupo
     }
 
     public static Integer getId(String valor) {
