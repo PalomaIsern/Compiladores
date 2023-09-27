@@ -9,7 +9,7 @@ import compiladores.Token;
 public class AS1 extends AccionSemantica {
     // agregar caracter , verificar caracter valido
 
-    ArrayList<Character> caracteres = new ArrayList<>(Arrays.asList('+', '<', '>', '!', '.', '*'));
+    ArrayList<Character> caracteres = new ArrayList<>(Arrays.asList('+', '<', '>', '!', '.', '*', '#'));
 
     @Override
     public Token ejecutarAS(char c) throws IOException {
