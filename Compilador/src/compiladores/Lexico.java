@@ -8,7 +8,7 @@ import accionesSemanticas.AccionSemantica;
 
 public class Lexico {
 
-        private int estado = 0;
+        private static int estado = 0;
         private int pos = 0;
         private String cod;
         private static int linea = 1;
@@ -66,48 +66,123 @@ public class Lexico {
         private static accionesSemanticas.AS8 AS8 = new accionesSemanticas.AS8();
         private static accionesSemanticas.AS9 AS9 = new accionesSemanticas.AS9();
         private static accionesSemanticas.AS10 AS10 = new accionesSemanticas.AS10();
+        private static accionesSemanticas.AS11 AS11 = new accionesSemanticas.AS11();
 
         // La accion semántica 8 es error
 
         private static AccionSemantica[][] Matriz_Acciones = new AccionSemantica[][] {
                         // bl,tab nl l _ d / { } ( ) , . ; + = : < > ! L - "d" "D" * # "u" "s" "l" otro
                         { AS8, AS8, AS1, AS1, AS1, AS5, AS5, AS5, AS5, AS5, AS5, AS1, AS5, AS1, AS1, AS8, AS1, AS1, AS1,
-                                        AS1, AS5, AS1, AS1, AS1, AS1, AS1, AS1, AS1, AS1 },
+                                        AS1, AS5, AS1, AS1, AS1, AS1, AS1, AS1, AS1, AS1 }, // Estado 0
                         { AS3, AS3, AS2, AS2, AS2, AS3, AS3, AS3, AS3, AS3, AS3, AS3, AS3, AS3, AS3, AS3, AS3, AS3, AS3,
-                                        AS3, AS3, AS2, AS3, AS3, AS3, AS2, AS2, AS2, AS3 },
+                                        AS3, AS3, AS2, AS3, AS3, AS3, AS2, AS2, AS2, AS3 }, // Estado 1
                         { AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS6, AS7, AS7, AS7, AS7,
-                                        AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7 },
+                                        AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7 }, // Estado 2
                         { AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS6, AS7, AS7, AS7, AS7,
-                                        AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7 },
+                                        AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7 }, // Estado 3
                         { AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS6, AS7, AS7, AS7, AS7,
-                                        AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7 },
-                        { AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS6,
-                                        AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8 }, // dudas aca
+                                        AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7 }, // Estado 4
+                        { AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11,
+                                        AS11, AS11, AS11, AS6,
+                                        AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11 }, // Estado 5
                         { AS4, AS4, AS4, AS2, AS4, AS4, AS4, AS4, AS4, AS4, AS4, AS4, AS4, AS4, AS4, AS4, AS4, AS4, AS4,
-                                        AS2, AS4, AS4, AS2, AS4, AS4, AS4, AS4, AS4, AS4 },
-                        { AS8, AS8, AS8, AS2, AS2, AS8, AS8, AS8, AS8, AS8, AS8, AS2, AS8, AS8, AS8, AS8, AS8, AS8, AS8,
-                                        AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8 }, // dudas aca
+                                        AS2, AS4, AS4, AS2, AS4, AS4, AS4, AS4, AS4, AS4 }, // Estado 6
+                        { AS11, AS11, AS11, AS2, AS2, AS11, AS11, AS11, AS11, AS11, AS11, AS2, AS11, AS11, AS11, AS11,
+                                        AS11, AS11, AS11,
+                                        AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11 }, // Estado 7
                         { AS7, AS7, AS7, AS7, AS2, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7,
-                                        AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7 },
+                                        AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7 }, // Estado 8
                         { AS10, AS10, AS10, AS10, AS2, AS10, AS10, AS10, AS10, AS10, AS10, AS10, AS10, AS10, AS10, AS10,
-                                        AS10, AS10, AS10, AS10, AS10, AS2, AS2, AS10, AS10, AS10, AS10, AS10, AS10 },
-                        { AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS2, AS8, AS8, AS8, AS8, AS8,
-                                        AS8, AS2, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8 }, // dudas aca
+                                        AS10, AS10, AS10, AS10, AS10, AS2, AS2, AS10, AS10, AS10, AS10, AS10, AS10 }, // Estado
+                                                                                                                      // 9
+                        { AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS2, AS11, AS11,
+                                        AS11, AS11, AS11,
+                                        AS11, AS2, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11 }, // Estado 10
                         { AS10, AS10, AS10, AS10, AS2, AS10, AS10, AS10, AS10, AS10, AS10, AS10, AS10, AS10, AS10, AS10,
-                                        AS10, AS10, AS10, AS10, AS10, AS10, AS10, AS10, AS10, AS10, AS10, AS10, AS10 },
+                                        AS10, AS10, AS10, AS10, AS10, AS10, AS10, AS10, AS10, AS10, AS10, AS10, AS10 }, // Estado
+                                                                                                                        // 11
                         { AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7,
-                                        AS7, AS7, AS7, AS7, AS8, AS7, AS7, AS7, AS7, AS7 },
+                                        AS7, AS7, AS7, AS7, AS8, AS7, AS7, AS7, AS7, AS7 }, // Estado 12
                         { AS2, AS8, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2,
-                                        AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2 }, // dudas aca
-                        { AS2, AS8, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2,
-                                        AS2, AS2, AS2, AS2, AS2, AS6, AS2, AS2, AS2, AS2 }, // dudas con nl
-                        { AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8,
-                                        AS8, AS8, AS8, AS8, AS8, AS8, AS2, AS8, AS9, AS8 },
-                        { AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS8,
-                                        AS8, AS8, AS8, AS8, AS8, AS8, AS8, AS9, AS8, AS8 }// Dudas con los ultimos dos
-                                                                                          // lineas de la matriz, van a
-                                                                                          // AS8?
+                                        AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2 }, // Estado 13
+                        { AS2, AS6, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2, AS2,
+                                        AS2, AS2, AS2, AS2, AS2, AS6, AS2, AS2, AS2, AS2 }, // Estado 14
+                        { AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11,
+                                        AS11, AS11, AS11, AS11,
+                                        AS11, AS11, AS11, AS11, AS11, AS11, AS2, AS11, AS9, AS11 }, // Estado 15
+                        { AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS11,
+                                        AS11, AS11, AS11, AS11,
+                                        AS11, AS11, AS11, AS11, AS11, AS11, AS11, AS9, AS11, AS11 }// Estado 16
         };
+
+        public int nuevoEstado(int estado, char caracter) {
+                int columna = 0;
+                switch (caracter) {
+                        case ' ':
+                        case '\t':
+                                columna = 0;
+                                break;
+                        case '\n':
+                                columna = 1;
+                                break;
+                        case '_':
+                                columna = 3;
+                        case '/':
+                                columna = 5;
+                        case '{':
+                                columna = 6;
+                        case '}':
+                                columna = 7;
+                        case '(':
+                                columna = 8;
+                        case ')':
+                                columna = 9;
+                        case ',':
+                                columna = 10;
+                        case '.':
+                                columna = 11;
+                        case ';':
+                                columna = 12;
+                        case '+':
+                                columna = 13;
+                        case '=':
+                                columna = 14;
+                        case ':':
+                                columna = 15;
+                        case '<':
+                                columna = 16;
+                        case '>':
+                                columna = 17;
+                        case '!':
+                                columna = 18;
+                        case '-':
+                                columna = 20;
+                        case 'd':
+                                columna = 21;
+                        case 'D':
+                                columna = 22;
+                        case '*':
+                                columna = 23;
+                        case '#':
+                                columna = 24;
+                        case 'u':
+                                columna = 25;
+                        case 's':
+                                columna = 26;
+                        case 'l':
+                                columna = 27;
+                }
+                if (Character.isLowerCase(caracter)) {
+                        columna = 2;
+                } else if (Character.isDigit(caracter)) {
+                        columna = 4;
+                } else if (Character.isUpperCase(caracter)) {
+                        columna = 19;
+                } else {
+                        columna = 28;
+                }
+                return transiciones[estado][columna];
+        }
 
         public void Leer(int numero_linea) throws IOException {// lee del archivo
                 // Scanner sc = new Scanner(System.in);
@@ -120,11 +195,13 @@ public class Lexico {
                 while ((linea = lector.readLine()) != null) {
                         // Procesa cada línea del archivo
                         System.out.println("Línea " + numero_linea + ": " + linea);
-                        // Divide la línea en palabras usando espacios en blanco como delimitador
                         String[] caracteres = linea.split("");
                         int i = 0;
+                        int siguienteEstado = 0;
                         while (i < caracteres.length) {
                                 System.out.println("Caracter: " + caracteres[i]);
+                                siguienteEstado = nuevoEstado(estado, caracteres[i]);
+
                                 // cambiar de estado
                                 // ejecutar AS
                                 if (volverALeer) {
@@ -155,7 +232,8 @@ public class Lexico {
                 return volverALeer;
         }
 
-        public static int getLinea() {
-                return linea;
+        public static int getEstadoActual() {
+                return estado;
         }
+
 }
