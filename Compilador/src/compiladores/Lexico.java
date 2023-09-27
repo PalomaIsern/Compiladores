@@ -1,7 +1,9 @@
 package compiladores;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 
 import accionesSemanticas.AccionSemantica;
 
@@ -10,10 +12,11 @@ public class Lexico {
         private int estado = 0;
         private int pos = 0;
         private String cod;
-        private int linea = 1;
+        private static int linea = 1;
         private TablaSimbolos TS = new TablaSimbolos();
         private TablaToken TT = new TablaToken();
         private TablaPR TPR = new TablaPR();
+        private static boolean volverALeer = false;
 
         private static int[][] transiciones = new int[][] {
                         // Suponemos el estado 100 como el estado final y -1 estado de error (el error
@@ -137,7 +140,7 @@ public class Lexico {
                                         AS8, AS8, AS8, AS8, AS5, AS8, AS8, AS8 }
         };
 
-        public void Leer(int numero_linea) {// lee del archivo
+        public void Leer(int numero_linea) throws IOException {// lee del archivo
                 // Scanner sc = new Scanner(System.in);
                 // System.out.println("Ingrese el nombre del archivo que desea leer");
                 // String narchivo = sc.nextLine();
@@ -149,9 +152,17 @@ public class Lexico {
                         // Procesa cada línea del archivo
                         System.out.println("Línea " + numero_linea + ": " + linea);
                         // Divide la línea en palabras usando espacios en blanco como delimitador
-                        String[] palabras = linea.split("");
-                        for (String palabra : palabras) {
-                                System.out.println("Palabra: " + palabra);
+                        String[] caracteres = linea.split("");
+                        int i = 0;
+                        while (i < caracteres.length) {
+                                System.out.println("Caracter: " + caracteres[i]);
+                                // cambiar de estado
+                                // ejecutar AS
+                                if (volverALeer) {
+                                        i--;
+                                        volverALeer = false;
+                                }
+                                i++;
                         }
                         numero_linea = numero_linea + 1;
                 }
@@ -167,4 +178,15 @@ public class Lexico {
                 return null;
         }
 
+        public static void setVolverALeer(boolean value) {
+                volverALeer = value;
+        }
+
+        public boolean getVolverALeer() {
+                return volverALeer;
+        }
+
+        public static int getLinea() {
+                return linea;
+        }
 }

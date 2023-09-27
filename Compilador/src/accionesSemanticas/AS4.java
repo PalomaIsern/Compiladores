@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import compiladores.Token;
 import compiladores.TablaToken;
+import compiladores.Lexico;
 import compiladores.TablaPR;
 
 public class AS4 extends AccionSemantica {
@@ -11,7 +12,7 @@ public class AS4 extends AccionSemantica {
     // devolver PR
     @Override
     public Token ejecutarAS(char c) throws IOException {
-        // devolver lo ultimo leido
+        Lexico.setVolverALeer(true);// devolver lo ultimo leido
         String pRes = lexema.toString();
         if (TablaPR.pertenece(pRes)) {
             return new Token(TablaToken.getId(pRes));

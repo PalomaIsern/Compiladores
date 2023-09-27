@@ -2,6 +2,7 @@ package accionesSemanticas;
 
 import java.io.IOException;
 
+import compiladores.Lexico;
 import compiladores.TablaSimbolos;
 import compiladores.TablaToken;
 import compiladores.Token;
@@ -15,7 +16,7 @@ public class AS10 extends AccionSemantica {
 
     @Override
     public Token ejecutarAS(char c) throws IOException {
-
+        Lexico.setVolverALeer(true); // devolver lo ultimo leido
         if (lexema.length() > 1 && lexema.charAt(lexema.length() - 1) == '.') { // 1.
             lexema.append('0');
             d = Double.parseDouble(lexema.toString());
