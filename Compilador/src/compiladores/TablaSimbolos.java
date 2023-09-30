@@ -5,18 +5,14 @@ import java.util.HashMap;
 public class TablaSimbolos {
 
     private static HashMap<String, Integer> TS;
-    private static Integer cont;
 
     public TablaSimbolos() {
         TS = new HashMap<String, Integer>();
-        cont = 0;
     }
 
-    public static void agregar(String valor) {
-        if (!pertenece(valor)) {
-            TS.put(valor, cont);
-        }
-        cont++;
+    public static void agregar(String valor, Integer id) {
+        if (!pertenece(valor))
+            TS.put(valor, id);
     }
 
     public static boolean pertenece(String nombre) {
@@ -26,10 +22,10 @@ public class TablaSimbolos {
             return true;
     }
 
-    public void imprimirContenido(){
+    public void imprimirContenido() {
         System.out.println("   TABLA DE SIMBOLOS\n");
-        for (String i : TS.keySet()){
-            System.out.println("Lexema: "+ i + ", id: " + cont + "\n");
+        for (HashMap.Entry<String, Integer> i : TS.entrySet()) {
+            System.out.println("Lexema: " + i.getKey() + ", id: " + i.getValue() + "\n");
         }
     }
 

@@ -16,12 +16,12 @@ public class AS3 extends AccionSemantica {
         Lexico.setVolverALeer(true); // devolver lo ultimo leido
         String id = lexema.toString();
         if (id.length() > 20) {
-            System.out.println("Error en la linea " + Main.getLinea()
+            System.out.println("Linea " + Main.getLinea()
                     + ", el identificador ha superado la longitud maxima permitida de 20 caracteres");
             id = id.substring(0, 20);
         }
         if (!TablaSimbolos.pertenece(id)) {
-            TablaSimbolos.agregar(id);
+            TablaSimbolos.agregar(id, TablaToken.getId("ID"));
         }
         return new Token(TablaToken.getId("ID"), id);
     }

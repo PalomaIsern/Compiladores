@@ -40,7 +40,7 @@ public class TablaToken {
         tokens.put("USHORT", 30);// Especifico del grupo
         tokens.put("DOUBLE", 31);// Especifico del grupo
         tokens.put("DO", 32);// Especifico del grupo
-        tokens.put("UNTIL", 32);// Especifico del grupo
+        tokens.put("UNTIL", 36);// Especifico del grupo
         tokens.put("IMPL", 33);// Especifico del grupo
         tokens.put("FOR", 34);// Especifico del grupo
         tokens.put("CADENA", 35);// Especifico del grupo

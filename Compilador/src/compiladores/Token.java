@@ -4,6 +4,11 @@ public class Token {
     private static int idToken;
     private static String lexema; // con este string puedo acceder a la TS
 
+    public Token() {
+        idToken = -1;
+        lexema = "";
+    }
+
     public Token(int id) {
         idToken = id;
         lexema = "";

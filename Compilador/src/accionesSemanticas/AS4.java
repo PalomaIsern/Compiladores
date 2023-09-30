@@ -2,10 +2,10 @@ package accionesSemanticas;
 
 import java.io.IOException;
 
-import compiladores.Token;
-import compiladores.TablaToken;
 import compiladores.Lexico;
 import compiladores.TablaPR;
+import compiladores.TablaToken;
+import compiladores.Token;
 
 public class AS4 extends AccionSemantica {
     // devolver a la entrada el ultimo caracter leido, verificar si es PR,
@@ -19,7 +19,6 @@ public class AS4 extends AccionSemantica {
         } else {
             System.out.println(pRes + "no es una palabra reservada valida");
         }
-
         return null;
     }
 

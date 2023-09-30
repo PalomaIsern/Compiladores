@@ -1,3 +1,2 @@
-IF (1<=10)
-    
-	"Es menor"
+IF (1_us<=10_us)
+	entero = 1.0;

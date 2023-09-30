@@ -11,8 +11,8 @@ import compiladores.Token;
 public class AS10 extends AccionSemantica {
     // Verificar el rango de la constante (pto flot) y
     // comprobar que su estructura sea correcta. Devolver el último caracter leído
-    private double min = 1.7976931348623157E+308;
-    private double max = 2.2250738585072014E-308;
+    private double min = 2.2250738585072014e-308;
+    private double max = 1.7976931348623157e+308;
     double d = 0.0;
 
     @Override
@@ -32,7 +32,7 @@ public class AS10 extends AccionSemantica {
             lexema.insert(lexema.toString().indexOf('D'), 'E');
         }
         if (lexema.length() == 1 && lexema.charAt(0) == '.') {
-            System.out.println("Error en la linea " + Main.getLinea() + ", el digito no posee parte entera ni decimal");
+            System.out.println("Linea " + Main.getLinea() + ", el digito no posee parte entera ni decimal");
             d = 0.0;// Evitamos el error informamos con warning
         } else {
             d = Double.parseDouble(lexema.toString());
@@ -40,24 +40,18 @@ public class AS10 extends AccionSemantica {
 
         // verifico el rango
         if (d < min && d != 0.0) {
-            System.out.println("Error en la linea " + Main.getLinea()
+            System.out.println("Linea " + Main.getLinea()
                     + ", el numero es menor al rango permitido. Consideramos el valor minimo");
             d = min;
-        }
-        if (d > max && d != 0.0) {
-            System.out.println("Error en la linea " + Main.getLinea()
+        } else if (d > max && d != 0.0) {
+            System.out.println("Linea " + Main.getLinea()
                     + ", el numero es mayor al rango permitido. Consideramos el valor maximo");
             d = max;
         }
 
         if (TablaSimbolos.pertenece(Double.toString(d)) == false) {
-            TablaSimbolos.agregar(Double.toString(d));
+            TablaSimbolos.agregar(Double.toString(d), TablaToken.getId("DOUBLE"));
         }
-        return new Token(TablaToken.getId("CTE"), Double.toString(d));
+        return new Token(TablaToken.getId("DOUBLE"), Double.toString(d));
     }
 }
-
-/*
- * En JAVA se usa e y no d para los numeros de punto flotante
- * hay que reemplazar las D por E
- */

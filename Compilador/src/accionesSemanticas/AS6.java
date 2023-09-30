@@ -22,7 +22,7 @@ public class AS6 extends AccionSemantica {
             } else {
                 lexemaCadena = lexema.substring(1, lexema.charAt(c2));
             }
-            TablaSimbolos.agregar(lexemaCadena);
+            TablaSimbolos.agregar(lexemaCadena, TablaToken.getId("CADENA"));
             return new Token(TablaToken.getId("CADENA"));
         }
     }

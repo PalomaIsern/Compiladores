@@ -8,52 +8,79 @@ import accionesSemanticas.AccionSemantica;
 
 public class Lexico {
 
-        private static int estado = 0;
-        private int pos = 0;
-        private String cod;
-        private static int linea = 1;
-        private TablaSimbolos TS = new TablaSimbolos();
-        private TablaToken TT = new TablaToken();
-        private TablaPR TPR = new TablaPR();
-        private static boolean volverALeer = false;
+        private static int estado;
+        private int columna;
+        private static int linea;
+        private TablaSimbolos TS;
+        private TablaToken TT;
+        private TablaPR TPR;
+        private static boolean volverALeer;
+
+        public Lexico() {
+                this.estado = 0;
+                this.columna = -1;
+                this.linea = 1;
+                this.TS = new TablaSimbolos();
+                this.TT = new TablaToken();
+                this.TPR = new TablaPR();
+                this.volverALeer = false;
+        }
 
         private static int[][] transiciones = new int[][] {
                         // Suponemos el estado 100 como el estado final y -1 estado de error (el error
                         // se informa no corta la ejecucion)
-                        { 0, 0, 1, 1, 9, 100, 100, 100, 100, 100, 100, 10, 100, 2, 5, 4, 4, 6, 7, 100, 1, 7, 14, 16, 1,
+                        // bl,tab nl l _ d / { } ( ) , . ; + = : < > ! L - "d" "D" * # "u" "s" "l" otro
+                        { 0, 0, 1, 1, 7, 100, 100, 100, 100, 100, 100, 8, 100, 2, 4, 100, 3, 3, 5, 6, 100, 1, 6, 12,
+                                        14, 1,
                                         1, 1, 0 },
                         { 100, 100, 1, 1, 1, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                                        100,
                                         100, 100, 100, 100, 1, 1, 1, 100 },
                         { 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                                        100,
                                         100, 100, 100, 100, 100, 100, 100, 100, 100 },
                         { 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                                        100,
                                         100, 100, 100, 100, 100, 100, 100, 100, 100 },
                         { 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                                        100,
                                         100, 100, 100, 100, 100, 100, 100, 100, 100 },
-                        { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 100, -1, -1, -1, -1, -1,
+                        { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 100, -1, -1, -1, -1,
+                                        -1,
                                         -1, -1, -1, -1, -1 },
-                        { 100, 100, 100, 6, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 6,
+                        { 100, 100, 100, 6, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                                        6,
                                         100, 100, 6, 100, 100, 100, 100, 100, 100 },
                         { -1, -1, -1, 15, 7, -1, -1, -1, -1, -1, -1, 9, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+                                        -1,
                                         -1, -1, -1, 100 },
                         { 100, 100, 100, 100, 9, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                                        100,
                                         100, 100, 100, 100, 100, 100, 100, 100, 100 },
                         { 100, 100, 100, 100, 9, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                                        100,
                                         100, 10, 10, 100, 100, 100, 100, 100, 100 },
-                        { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 11, -1, -1, -1, -1, -1, 11, -1, -1, -1,
+                        { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 11, -1, -1, -1, -1, -1, -1, 11, -1, -1,
+                                        -1,
                                         -1, -1, -1, -1, -1 },
                         { 100, 100, 100, 100, 11, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                                        100,
                                         100, 100, 100, 100, 100, 100, 100, 100, 100 },
                         { 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                                        100,
                                         100, 100, 100, 13, 100, 100, 100, 100, 100 },
                         { 13, 0, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13,
+                                        13,
                                         13, 13, 13, 13 },
                         { 14, -1, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14,
+                                        14,
                                         100, 14, 14, 14, 14 },
                         { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                                        -1, 100, 16, -1, -1 },
+                                        -1,
+                                        -1, 16, -1, 100, -1 },
                         { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                                        -1, -1, -1, 100, -1 }
+                                        -1,
+                                        -1, -1, 100, -1, -1 }
         };
 
         private static accionesSemanticas.AS1 AS1 = new accionesSemanticas.AS1();
@@ -116,71 +143,91 @@ public class Lexico {
         };
 
         public int nuevoEstado(int estado, char caracter) {
-                int columna = 0;
-                switch (caracter) {
-                        case ' ':
-                        case '\t':
-                                columna = 0;
-                                break;
-                        case '\n':
-                                columna = 1;
-                                break;
-                        case '_':
-                                columna = 3;
-                        case '/':
-                                columna = 5;
-                        case '{':
-                                columna = 6;
-                        case '}':
-                                columna = 7;
-                        case '(':
-                                columna = 8;
-                        case ')':
-                                columna = 9;
-                        case ',':
-                                columna = 10;
-                        case '.':
-                                columna = 11;
-                        case ';':
-                                columna = 12;
-                        case '+':
-                                columna = 13;
-                        case '=':
-                                columna = 14;
-                        case ':':
-                                columna = 15;
-                        case '<':
-                                columna = 16;
-                        case '>':
-                                columna = 17;
-                        case '!':
-                                columna = 18;
-                        case '-':
-                                columna = 20;
-                        case 'd':
-                                columna = 21;
-                        case 'D':
-                                columna = 22;
-                        case '*':
-                                columna = 23;
-                        case '#':
-                                columna = 24;
-                        case 'u':
-                                columna = 25;
-                        case 's':
-                                columna = 26;
-                        case 'l':
-                                columna = 27;
-                }
-                if (Character.isLowerCase(caracter)) {
-                        columna = 2;
-                } else if (Character.isDigit(caracter)) {
+                columna = 28;
+                if (Character.isDigit(caracter)) {
                         columna = 4;
+                } else if (Character.isLowerCase(caracter)) {
+                        if (caracter == 'u')
+                                columna = 25;
+                        else if (caracter == 's')
+                                columna = 26;
+                        else if (caracter == 'l')
+                                columna = 27;
+                        else if (caracter == 'd')
+                                columna = 21;
+                        else
+                                columna = 2;
                 } else if (Character.isUpperCase(caracter)) {
-                        columna = 19;
-                } else {
-                        columna = 28;
-                }
+                        if (caracter == 'D')
+                                columna = 22;
+                        else
+                                columna = 19;
+                } else
+                        switch (caracter) {
+                                case ' ':
+                                        columna = 0;
+                                        break;
+                                case '\t':
+                                        columna = 0;
+                                        break;
+                                case '\n':
+                                        columna = 1;
+                                        break;
+                                case '_':
+                                        columna = 3;
+                                        break;
+                                case '/':
+                                        columna = 5;
+                                        break;
+                                case '{':
+                                        columna = 6;
+                                        break;
+                                case '}':
+                                        columna = 7;
+                                        break;
+                                case '(':
+                                        columna = 8;
+                                        break;
+                                case ')':
+                                        columna = 9;
+                                        break;
+                                case ',':
+                                        columna = 10;
+                                        break;
+                                case '.':
+                                        columna = 11;
+                                        break;
+                                case ';':
+                                        columna = 12;
+                                        break;
+                                case '+':
+                                        columna = 13;
+                                        break;
+                                case '=':
+                                        columna = 14;
+                                        break;
+                                case ':':
+                                        columna = 15;
+                                        break;
+                                case '<':
+                                        columna = 16;
+                                        break;
+                                case '>':
+                                        columna = 17;
+                                        break;
+                                case '!':
+                                        columna = 18;
+                                        break;
+                                case '-':
+                                        columna = 20;
+                                        break;
+                                case '*':
+                                        columna = 23;
+                                        break;
+                                case '#':
+                                        columna = 24;
+                                        break;
+                        }
                 return transiciones[estado][columna];
         }
 
@@ -200,28 +247,40 @@ public class Lexico {
                         int siguienteEstado = 0;
                         while (i < caracteres.length) {
                                 System.out.println("Caracter: " + caracteres[i]);
-                                siguienteEstado = nuevoEstado(estado, caracteres[i]);
-
-                                // cambiar de estado
-                                // ejecutar AS
+                                char caracter = caracteres[i].charAt(0);// dudoso
+                                siguienteEstado = nuevoEstado(estado, caracter);
+                                System.out.println("Siguiente estado: " + siguienteEstado);
+                                System.out.println("Estado: " + estado + " columna: " + columna);
+                                Token aux = ejecutarAS(estado, caracter);
+                                if (aux == null)
+                                        System.out.println("Todavia no es un token");
+                                else
+                                        System.out.println(aux.getIdToken());
                                 if (volverALeer) {
                                         i--;
                                         volverALeer = false;
                                 }
+                                if (siguienteEstado == 100 || siguienteEstado == -1)
+                                        estado = 0;
+                                else
+                                        estado = siguienteEstado;
                                 i++;
                         }
-                        numero_linea = numero_linea + 1;
+                        Main.setLinea();
                 }
                 lector.close();
+                TS.imprimirContenido();
         }
 
-        public void ejecutarAS() {// Ejecuta la accion semántica correspondiente
-
+        public Token ejecutarAS(int estado, char caracter) throws IOException {
+                AccionSemantica AS = Matriz_Acciones[estado][columna];
+                return generarToken(AS, caracter);
         }
 
-        public Token generarToken() {// Devuelve el token
-
-                return null;
+        public Token generarToken(AccionSemantica AS, char caracter) throws IOException {// Devuelve el token
+                Token tk = new Token();
+                tk = AS.ejecutarAS(caracter);
+                return tk;
         }
 
         public static void setVolverALeer(boolean value) {
