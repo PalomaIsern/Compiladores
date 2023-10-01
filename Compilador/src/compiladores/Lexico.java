@@ -3,6 +3,7 @@ package compiladores;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Scanner;
 
 import accionesSemanticas.AccionSemantica;
 
@@ -232,10 +233,11 @@ public class Lexico {
         }
 
         public void Leer(int numero_linea) throws IOException {// lee del archivo
-                // Scanner sc = new Scanner(System.in);
-                // System.out.println("Ingrese el nombre del archivo que desea leer");
-                // String narchivo = sc.nextLine();
-                String nombreArchivo = "C:\\Users\\Paloma\\Trabajo Compiladores\\Compiladores\\Compilador\\Prueba.txt";
+                Scanner sc = new Scanner(System.in);
+                System.out.println("Ingrese el nombre del archivo que desea leer");
+                String nombreArchivo = sc.nextLine();
+                // String nombreArchivo =
+                // "C:\\Users\\Paloma\\Trabajo\\Compiladores\\Compiladores\\Compilador\\Prueba.txt";
                 FileReader archivo = new FileReader(nombreArchivo);
                 BufferedReader lector = new BufferedReader(archivo);
                 String linea;
@@ -270,6 +272,7 @@ public class Lexico {
                 }
                 lector.close();
                 TS.imprimirContenido();
+
         }
 
         public Token ejecutarAS(int estado, char caracter) throws IOException {

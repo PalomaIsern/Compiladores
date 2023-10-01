@@ -16,7 +16,7 @@ public class AS3 extends AccionSemantica {
         Lexico.setVolverALeer(true); // devolver lo ultimo leido
         String id = lexema.toString();
         if (id.length() > 20) {
-            System.out.println("Linea " + Main.getLinea()
+            System.out.println("Warning: Linea " + Main.getLinea()
                     + ", el identificador ha superado la longitud maxima permitida de 20 caracteres");
             id = id.substring(0, 20);
         }
