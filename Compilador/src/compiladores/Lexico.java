@@ -1,6 +1,7 @@
 package compiladores;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Scanner;
@@ -16,6 +17,7 @@ public class Lexico {
         private TablaToken TT;
         private TablaPR TPR;
         private static boolean volverALeer;
+        private static BufferedReader lector;
 
         public Lexico() {
                 this.estado = 0;
@@ -25,6 +27,11 @@ public class Lexico {
                 this.TT = new TablaToken();
                 this.TPR = new TablaPR();
                 this.volverALeer = false;
+                try {
+                        this.lector = abrirArchivo();
+                } catch (FileNotFoundException e) {
+                        System.err.println("El archivo no se encontró o no se puede acceder.");
+                }
         }
 
         private static int[][] transiciones = new int[][] {
@@ -232,47 +239,48 @@ public class Lexico {
                 return transiciones[estado][columna];
         }
 
-        public void Leer(int numero_linea) throws IOException {// lee del archivo
+        public BufferedReader abrirArchivo() throws FileNotFoundException {
                 Scanner sc = new Scanner(System.in);
                 System.out.println("Ingrese el nombre del archivo que desea leer");
                 String nombreArchivo = sc.nextLine();
-                // String nombreArchivo =
-                // "C:\\Users\\Paloma\\Trabajo\\Compiladores\\Compiladores\\Compilador\\Prueba.txt";
                 FileReader archivo = new FileReader(nombreArchivo);
-                BufferedReader lector = new BufferedReader(archivo);
-                String linea;
-                while ((linea = lector.readLine()) != null) {
-                        // Procesa cada línea del archivo
-                        System.out.println("Línea " + numero_linea + ": " + linea);
-                        String[] caracteres = linea.split("");
-                        int i = 0;
-                        int siguienteEstado = 0;
-                        while (i < caracteres.length) {
-                                System.out.println("Caracter: " + caracteres[i]);
-                                char caracter = caracteres[i].charAt(0);// dudoso
-                                siguienteEstado = nuevoEstado(estado, caracter);
-                                System.out.println("Siguiente estado: " + siguienteEstado);
-                                System.out.println("Estado: " + estado + " columna: " + columna);
-                                Token aux = ejecutarAS(estado, caracter);
-                                if (aux == null)
-                                        System.out.println("Todavia no es un token");
-                                else
-                                        System.out.println(aux.getIdToken());
-                                if (volverALeer) {
-                                        i--;
-                                        volverALeer = false;
-                                }
-                                if (siguienteEstado == 100 || siguienteEstado == -1)
-                                        estado = 0;
-                                else
-                                        estado = siguienteEstado;
-                                i++;
-                        }
-                        Main.setLinea();
-                }
-                lector.close();
-                TS.imprimirContenido();
+                sc.close();
+                return new BufferedReader(archivo);
+        }
 
+        public static void VolverAtras() throws IOException {
+                lector.reset();
+        }
+
+        public Token getToken() throws IOException {// lee del archivo
+                lector.mark(1);
+                int num_caracter = lector.read();
+                estado = 0;
+                while (estado != -1 && estado != 100 && num_caracter != -1) {
+                        char caracter = Character.toChars(num_caracter)[0];
+                        if (caracter == '\n')
+                                Main.setLinea();
+                        int siguienteEstado = 0;
+                        siguienteEstado = nuevoEstado(estado, caracter);
+                        System.out.println("Siguiente estado: " + siguienteEstado);
+                        System.out.println("Estado: " + estado + " columna: " + columna);
+                        Token aux = ejecutarAS(estado, caracter);
+                        if (volverALeer) {
+                                lector.reset();
+                                volverALeer = false;
+                        }
+                        estado = siguienteEstado;
+                        lector.mark(1);
+                        num_caracter = lector.read();
+                        if (aux == null)
+                                System.out.println("Todavia no es un token");
+                        else {
+                                TS.imprimirContenido();
+                                System.out.println(aux.getIdToken());
+                                return aux;
+                        }
+                }
+                return null;
         }
 
         public Token ejecutarAS(int estado, char caracter) throws IOException {

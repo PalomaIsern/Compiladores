@@ -2,6 +2,7 @@ package accionesSemanticas;
 
 import java.io.IOException;
 
+import compiladores.Lexico;
 import compiladores.Main;
 import compiladores.TablaSimbolos;
 import compiladores.TablaToken;
@@ -14,6 +15,7 @@ public class AS9 extends AccionSemantica {
         lexema.append(c);
         char last = lexema.charAt(lexema.length() - 1);
         int entero;
+        Lexico.setVolverALeer(true);
         if (last == 'l') { // entero largo _l
             entero = Integer.parseInt(lexema.substring(0, (lexema.length() - 2)));
             if (entero < Integer.MIN_VALUE) {

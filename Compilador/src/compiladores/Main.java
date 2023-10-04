@@ -5,7 +5,9 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         Lexico lex = new Lexico();
-        lex.Leer(numero_linea);
+        while (numero_linea < 10) {
+            lex.getToken();
+        }
     }
 
     public static int getLinea() {

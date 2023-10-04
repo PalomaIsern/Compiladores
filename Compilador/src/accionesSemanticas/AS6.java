@@ -2,6 +2,7 @@ package accionesSemanticas;
 
 import java.io.IOException;
 
+import compiladores.Lexico;
 import compiladores.TablaSimbolos;
 import compiladores.TablaToken;
 import compiladores.Token;
@@ -11,6 +12,7 @@ public class AS6 extends AccionSemantica {
     @Override
     public Token ejecutarAS(char c) throws IOException {
         lexema.append(c);
+        Lexico.setVolverALeer(true);
         char c1 = lexema.charAt(0); // primer caracter del StringBuilder
         char c2 = lexema.charAt(lexema.length() - 1); // ultimo caracter del StringBuilder
         if (c1 != '#') {
