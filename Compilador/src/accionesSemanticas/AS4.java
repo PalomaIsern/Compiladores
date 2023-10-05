@@ -13,6 +13,7 @@ public class AS4 extends AccionSemantica {
     @Override
     public Token ejecutarAS(char c) throws IOException {
         Lexico.setVolverALeer(true);// devolver lo ultimo leido
+        Lexico.VolverAtras();
         String pRes = lexema.toString();
         if (TablaPR.pertenece(pRes)) {
             return new Token(TablaToken.getId(pRes));

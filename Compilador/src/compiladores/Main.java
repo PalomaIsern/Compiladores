@@ -5,9 +5,10 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         Lexico lex = new Lexico();
-        while (numero_linea < 10) {
+        while (!Lexico.finArchivo()) {
             lex.getToken();
         }
+        lex.cerrarArchivo();
     }
 
     public static int getLinea() {

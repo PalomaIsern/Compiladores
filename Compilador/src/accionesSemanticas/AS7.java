@@ -11,7 +11,8 @@ public class AS7 extends AccionSemantica {
     public Token ejecutarAS(char c) throws IOException {
         // devuelve el ultimo caracter leido y
         // reconoce '+', '<', '>', '=','*', '.'
-        Lexico.setVolverALeer(true); // devolver lo ultimo leido
+        Lexico.VolverAtras();
+        // Lexico.setVolverALeer(true); // devolver lo ultimo leido
         char c1 = lexema.charAt(0);
         System.out.print(lexema.charAt(0));
         if (c1 == '=')

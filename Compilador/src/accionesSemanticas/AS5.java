@@ -15,7 +15,7 @@ public class AS5 extends AccionSemantica {
     @Override
     public Token ejecutarAS(char c) throws IOException {
         if (caracteres.contains(c)) {
-            Lexico.setVolverALeer(true);
+            Lexico.VolverAtras();
             return new Token(TablaToken.getId(Character.toString(c)));
         } else {
             System.out.println("El caracter " + c + " ingresado no es valido");

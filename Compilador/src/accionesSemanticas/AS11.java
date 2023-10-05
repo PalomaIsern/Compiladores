@@ -28,6 +28,7 @@ public class AS11 extends AccionSemantica {
             System.out.print("Linea" + Main.getLinea() + " no puede haber un " + lexema.charAt(0)
                     + "dentro de un entero, en este estado debe llegar una 's' unicamente");
         Lexico.setVolverALeer(true);
+        Lexico.VolverAtras();
         return null;
     }
 }

@@ -12,17 +12,16 @@ public class Lexico {
 
         private static int estado;
         private int columna;
-        private static int linea;
         private TablaSimbolos TS;
         private TablaToken TT;
         private TablaPR TPR;
         private static boolean volverALeer;
         private static BufferedReader lector;
+        private static boolean finArchivo;
 
         public Lexico() {
                 this.estado = 0;
                 this.columna = -1;
-                this.linea = 1;
                 this.TS = new TablaSimbolos();
                 this.TT = new TablaToken();
                 this.TPR = new TablaPR();
@@ -32,6 +31,7 @@ public class Lexico {
                 } catch (FileNotFoundException e) {
                         System.err.println("El archivo no se encontró o no se puede acceder.");
                 }
+                this.finArchivo = false;
         }
 
         private static int[][] transiciones = new int[][] {
@@ -252,35 +252,49 @@ public class Lexico {
                 lector.reset();
         }
 
+        public void cerrarArchivo() throws IOException {
+                lector.close();
+        }
+
+        public static boolean finArchivo() {
+                return finArchivo;
+        }
+
         public Token getToken() throws IOException {// lee del archivo
                 lector.mark(1);
                 int num_caracter = lector.read();
-                estado = 0;
+                Token aux = null;
                 while (estado != -1 && estado != 100 && num_caracter != -1) {
                         char caracter = Character.toChars(num_caracter)[0];
-                        if (caracter == '\n')
+                        System.out.print("Caracter: " + caracter + " ");
+                        System.out.print("Numero: " + num_caracter + " ");
+                        if (num_caracter == 10)// Indica el salto de linea
                                 Main.setLinea();
+                        System.out.print(Main.numero_linea);
                         int siguienteEstado = 0;
                         siguienteEstado = nuevoEstado(estado, caracter);
                         System.out.println("Siguiente estado: " + siguienteEstado);
                         System.out.println("Estado: " + estado + " columna: " + columna);
-                        Token aux = ejecutarAS(estado, caracter);
+                        aux = ejecutarAS(estado, caracter);
+                        estado = siguienteEstado;
+                        lector.mark(1);
+                        num_caracter = lector.read();
                         if (volverALeer) {
                                 lector.reset();
                                 volverALeer = false;
                         }
-                        estado = siguienteEstado;
-                        lector.mark(1);
-                        num_caracter = lector.read();
-                        if (aux == null)
-                                System.out.println("Todavia no es un token");
-                        else {
-                                TS.imprimirContenido();
-                                System.out.println(aux.getIdToken());
-                                return aux;
-                        }
+                        // if (aux != null) {
+                        // TS.imprimirContenido();
+                        // System.out.println(aux.getIdToken());
+                        // return aux;
+                        // }
                 }
-                return null;
+                estado = 0;
+                TS.imprimirContenido();
+                if (num_caracter == -1)
+                        finArchivo = true;
+                System.out.println(aux.getIdToken());
+                return aux;
         }
 
         public Token ejecutarAS(int estado, char caracter) throws IOException {

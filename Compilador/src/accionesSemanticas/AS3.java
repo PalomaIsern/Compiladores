@@ -14,6 +14,7 @@ public class AS3 extends AccionSemantica {
     @Override
     public Token ejecutarAS(char c) throws IOException {
         Lexico.setVolverALeer(true); // devolver lo ultimo leido
+        Lexico.VolverAtras();
         String id = lexema.toString();
         if (id.length() > 20) {
             System.out.println("Warning: Linea " + Main.getLinea()
