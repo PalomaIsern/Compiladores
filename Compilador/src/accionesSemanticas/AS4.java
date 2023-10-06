@@ -18,7 +18,7 @@ public class AS4 extends AccionSemantica {
         if (TablaPR.pertenece(pRes)) {
             return new Token(TablaToken.getId(pRes));
         } else {
-            System.out.println(pRes + "no es una palabra reservada valida");
+            System.out.println(pRes + " no es una palabra reservada valida");
         }
         return null;
     }

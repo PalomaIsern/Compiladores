@@ -14,29 +14,26 @@ public class AS9 extends AccionSemantica {
     public Token ejecutarAS(char c) throws IOException {
         lexema.append(c);
         char last = lexema.charAt(lexema.length() - 1);
-        int entero;
         Lexico.VolverAtras();
+        long limite = 2147483648L;
         if (last == 'l') { // entero largo _l
-            entero = Integer.parseInt(lexema.substring(0, (lexema.length() - 2)));
-            if (entero < Integer.MIN_VALUE) {
+            long entero = Long.parseUnsignedLong(lexema.substring(0, (lexema.length() - 2)));
+            if (entero > limite) {
                 System.out.println(
-                        "WARNING - Linea " + Main.getLinea() + ": el entero es menor al valor mínimo permitido");
-                entero = Integer.MIN_VALUE;
+                        "WARNING - Linea " + Main.getLinea() + ": el entero largo está fuera del rango permitido");
+                entero = limite;
+            } // Integer.MIN_VALUE se establece en -2,147,483,648.
+              // Integer.MAX_VALUE se establece en 2,147,483,647.
+            if (!TablaSimbolos.pertenece(Long.toString(entero))) {
+                TablaSimbolos.agregar(Long.toString(entero), TablaToken.getId("LONG"));
             }
-            if (entero > Integer.MAX_VALUE) {
-                System.out.println(
-                        "WARNING - Linea " + Main.getLinea() + ": el entero es mayor al valor máximo permitido");
-                entero = Integer.MAX_VALUE;
-            }
-            if (!TablaSimbolos.pertenece(Integer.toString(entero))) {
-                TablaSimbolos.agregar(Integer.toString(entero), TablaToken.getId("LONG"));
-            }
-            return new Token(TablaToken.getId("LONG"), Integer.toString(entero));
+            return new Token(TablaToken.getId("LONG"), Long.toString(entero));
         } else if (last == 's') { // entero corto _us
-            entero = Integer.parseInt(lexema.substring(0, (lexema.length() - 3)));
+            int entero = Integer.parseInt(lexema.substring(0, (lexema.length() - 3)));
             if (entero > 255) {
                 System.out.println(
-                        "WARNING - Linea " + Main.getLinea() + ": el entero se encuentra fuera del rango permitido");
+                        "WARNING - Linea " + Main.getLinea()
+                                + ": el entero corto se encuentra fuera del rango permitido");
                 entero = 255;
             }
             if (!TablaSimbolos.pertenece(Integer.toString(entero))) {

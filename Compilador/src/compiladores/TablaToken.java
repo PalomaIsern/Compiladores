@@ -8,42 +8,42 @@ public class TablaToken {
 
     public TablaToken() {
         tokens = new HashMap<String, Integer>();
-        tokens.put("+", 1);
-        tokens.put(".", 2);
-        tokens.put(">", 3);
-        tokens.put("<", 4);
-        tokens.put(">=", 5);
-        tokens.put("<=", 6);
-        tokens.put("(", 7);
-        tokens.put(")", 8);
-        tokens.put("{", 9);
-        tokens.put("}", 10);
-        tokens.put("-", 11);
-        tokens.put("/", 12);
-        tokens.put("*", 13);
-        tokens.put(";", 14);
-        tokens.put(",", 15);
-        tokens.put(":", 16);
-        tokens.put("=", 17);
-        tokens.put("==", 18);
-        tokens.put("+=", 19);// Especifico del grupo
-        tokens.put("!!", 20);
-        tokens.put("ID", 21);
-        tokens.put("IF", 22);
-        tokens.put("END_IF", 23);
-        tokens.put("ELSE", 24);
-        tokens.put("PRINT", 25);
-        tokens.put("CLASS", 26);
-        tokens.put("VOID", 27);
-        tokens.put("LONG", 28);// Especifico del grupo
-        tokens.put("USHORT", 29);// Especifico del grupo
-        tokens.put("DOUBLE", 30);// Especifico del grupo
-        tokens.put("DO", 31);// Especifico del grupo
-        tokens.put("UNTIL", 32);// Especifico del grupo
-        tokens.put("IMPL", 33);// Especifico del grupo
-        tokens.put("FOR", 34);// Especifico del grupo
-        tokens.put("CADENA", 35);// Especifico del grupo
-        tokens.put("RETURN", 36);
+        tokens.put("+", 260);
+        tokens.put(".", 261);
+        tokens.put(">", 262);
+        tokens.put("<", 263);
+        tokens.put(">=", 264);
+        tokens.put("<=", 265);
+        tokens.put("(", 266);
+        tokens.put(")", 267);
+        tokens.put("{", 268);
+        tokens.put("}", 269);
+        tokens.put("-", 270);
+        tokens.put("/", 271);
+        tokens.put("*", 272);
+        tokens.put(";", 273);
+        tokens.put(",", 274);
+        tokens.put(":", 275);
+        tokens.put("=", 276);
+        tokens.put("==", 277);
+        tokens.put("+=", 278);// Especifico del grupo
+        tokens.put("!!", 279);
+        tokens.put("ID", 280);
+        tokens.put("IF", 281);
+        tokens.put("END_IF", 282);
+        tokens.put("ELSE", 283);
+        tokens.put("PRINT", 284);
+        tokens.put("CLASS", 285);
+        tokens.put("VOID", 286);
+        tokens.put("LONG", 287);// Especifico del grupo
+        tokens.put("USHORT", 288);// Especifico del grupo
+        tokens.put("DOUBLE", 289);// Especifico del grupo
+        tokens.put("DO", 290);// Especifico del grupo
+        tokens.put("UNTIL", 291);// Especifico del grupo
+        tokens.put("IMPL", 292);// Especifico del grupo
+        tokens.put("FOR", 293);// Especifico del grupo
+        tokens.put("CADENA", 294);// Especifico del grupo
+        tokens.put("RETURN", 295);
     }
 
     public static Integer getId(String valor) {

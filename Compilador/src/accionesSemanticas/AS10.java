@@ -37,11 +37,11 @@ public class AS10 extends AccionSemantica {
         }
 
         // verifico el rango
-        if (d < min && d != 0.0) {
+        if (d <= min) {
             System.out.println("WARNING - Linea " + Main.getLinea()
                     + ": el numero es menor al rango permitido. Consideramos el valor minimo");
             d = min;
-        } else if (d > max && d != 0.0) {
+        } else if (d >= max) {
             System.out.println("WARNING - Linea " + Main.getLinea()
                     + ": el numero es mayor al rango permitido. Consideramos el valor maximo");
             d = max;

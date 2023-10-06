@@ -296,6 +296,7 @@ public class Lexico {
 
         public Token ejecutarAS(int estado, char caracter) throws IOException {
                 System.out.println("AS a ejecutar : " + Matriz_Acciones[estado][columna]);
+                System.out.println(" ");
                 AccionSemantica AS = Matriz_Acciones[estado][columna];
                 return generarToken(AS, caracter);
         }
