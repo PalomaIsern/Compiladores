@@ -27,19 +27,10 @@ public class AS10 extends AccionSemantica {
             lexema.insert(0, '0'); // Lo convierto en 0.6
             d = Double.parseDouble(lexema.toString());
         }
-        /*
-         * if (lexema.toString().contains(String.valueOf('d'))) { // reemplazo las 'd'
-         * por 'e'
-         * lexema.insert(lexema.toString().indexOf('d'), 'e');
-         * } else if (lexema.toString().contains(String.valueOf('D'))) {
-         * lexema.insert(lexema.toString().indexOf('D'), 'E');
-         * }
-         */
         String lexemaStr = lexema.toString();
         lexemaStr = lexemaStr.replace('d', 'e').replace('D', 'E');
-        System.out.println("lexemaStr -> " + lexemaStr);
         if (lexema.length() == 1 && lexema.charAt(0) == '.') {
-            System.out.println("Linea " + Main.getLinea() + ", el digito no posee parte entera ni decimal");
+            System.out.println("WARNING - Linea " + Main.getLinea() + ": el digito no posee parte entera ni decimal");
             d = 0.0;// Evitamos el error informamos con warning
         } else {
             d = Double.parseDouble(lexemaStr);
@@ -47,12 +38,12 @@ public class AS10 extends AccionSemantica {
 
         // verifico el rango
         if (d < min && d != 0.0) {
-            System.out.println("Linea " + Main.getLinea()
-                    + ", el numero es menor al rango permitido. Consideramos el valor minimo");
+            System.out.println("WARNING - Linea " + Main.getLinea()
+                    + ": el numero es menor al rango permitido. Consideramos el valor minimo");
             d = min;
         } else if (d > max && d != 0.0) {
-            System.out.println("Linea " + Main.getLinea()
-                    + ", el numero es mayor al rango permitido. Consideramos el valor maximo");
+            System.out.println("WARNING - Linea " + Main.getLinea()
+                    + ": el numero es mayor al rango permitido. Consideramos el valor maximo");
             d = max;
         }
 
