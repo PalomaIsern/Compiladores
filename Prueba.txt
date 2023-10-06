@@ -1,2 +1,2 @@
 IF(1_us<=10_us)
-	entero= 1.0;
+	entero=1.0;

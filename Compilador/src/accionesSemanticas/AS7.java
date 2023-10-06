@@ -8,13 +8,13 @@ import compiladores.Token;
 
 public class AS7 extends AccionSemantica {
     @Override
+
+    // devuelve el ultimo caracter leido y reconoce '+', '<', '>', '=','*', '.'
+
     public Token ejecutarAS(char c) throws IOException {
-        // devuelve el ultimo caracter leido y
-        // reconoce '+', '<', '>', '=','*', '.'
         Lexico.VolverAtras();
         // Lexico.setVolverALeer(true); // devolver lo ultimo leido
         char c1 = lexema.charAt(0);
-        System.out.print(lexema.charAt(0));
         if (c1 == '=')
             return new Token(TablaToken.getId("="));
         else

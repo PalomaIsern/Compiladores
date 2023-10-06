@@ -43,7 +43,7 @@ public class Lexico {
                                         1, 1, 0 },
                         { 100, 100, 1, 1, 1, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
                                         100,
-                                        100, 100, 100, 100, 1, 1, 1, 100 },
+                                        1, 100, 100, 100, 1, 1, 1, 100 },
                         { 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
                                         100,
                                         100, 100, 100, 100, 100, 100, 100, 100, 100 },
@@ -108,7 +108,7 @@ public class Lexico {
         private static AccionSemantica[][] Matriz_Acciones = new AccionSemantica[][] {
                         // bl,tab nl l _ d / { } ( ) , . ; + = : < > ! L - "d" "D" * # "u" "s" "l" otro
                         { AS8, AS8, AS1, AS1, AS1, AS5, AS5, AS5, AS5, AS5, AS5, AS1, AS5, AS1, AS1, AS8, AS1, AS1, AS1,
-                                        AS1, AS5, AS1, AS1, AS1, AS1, AS1, AS1, AS1, AS1 }, // Estado 0
+                                        AS1, AS5, AS1, AS1, AS1, AS1, AS1, AS1, AS1, AS8 }, // Estado 0
                         { AS3, AS3, AS2, AS2, AS2, AS3, AS3, AS3, AS3, AS3, AS3, AS3, AS3, AS3, AS3, AS3, AS3, AS3, AS3,
                                         AS3, AS3, AS2, AS3, AS3, AS3, AS2, AS2, AS2, AS3 }, // Estado 1
                         { AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS7, AS6, AS7, AS7, AS7, AS7,
@@ -236,6 +236,8 @@ public class Lexico {
                                         columna = 24;
                                         break;
                         }
+                System.out.println("ESTADO: " + estado + " - COLUMNA : " + columna + " - SIGUIENTE ESTADO : "
+                                + transiciones[estado][columna]);
                 return transiciones[estado][columna];
         }
 
@@ -266,15 +268,15 @@ public class Lexico {
                 Token aux = null;
                 while (estado != -1 && estado != 100 && num_caracter != -1) {
                         char caracter = Character.toChars(num_caracter)[0];
-                        System.out.print("Caracter: " + caracter + " ");
-                        System.out.print("Numero: " + num_caracter + " ");
+                        System.out.println("Caracter: " + caracter + " - Linea: " + Main.numero_linea);
+                        // System.out.println("Numero: " + num_caracter + " ");
                         if (num_caracter == 10)// Indica el salto de linea
                                 Main.setLinea();
-                        System.out.print(Main.numero_linea);
+                        // System.out.println("linea: " + Main.numero_linea);
                         int siguienteEstado = 0;
                         siguienteEstado = nuevoEstado(estado, caracter);
-                        System.out.println("Siguiente estado: " + siguienteEstado);
-                        System.out.println("Estado: " + estado + " columna: " + columna);
+                        // System.out.println("Siguiente estado: " + siguienteEstado);
+                        // System.out.println("Estado: " + estado + " columna: " + columna);
                         aux = ejecutarAS(estado, caracter);
                         estado = siguienteEstado;
                         lector.mark(1);
@@ -285,14 +287,15 @@ public class Lexico {
                         }
                 }
                 estado = 0;
+                System.out.println("TOKEN RECONOCIDO: " + aux.getIdToken());
                 TS.imprimirContenido();
                 if (num_caracter == -1)
                         finArchivo = true;
-                System.out.println(aux.getIdToken());
                 return aux;
         }
 
         public Token ejecutarAS(int estado, char caracter) throws IOException {
+                System.out.println("AS a ejecutar : " + Matriz_Acciones[estado][columna]);
                 AccionSemantica AS = Matriz_Acciones[estado][columna];
                 return generarToken(AS, caracter);
         }

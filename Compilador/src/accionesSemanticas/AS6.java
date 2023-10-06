@@ -18,13 +18,9 @@ public class AS6 extends AccionSemantica {
         if (c1 != '#') {
             return new Token(TablaToken.getId(lexema.toString()));
         } else {
-            String lexemaCadena;
-            if (lexema.charAt(c2) == '#') {
-                lexemaCadena = lexema.substring(1, lexema.charAt(c2 - 1));
-            } else {
-                lexemaCadena = lexema.substring(1, lexema.charAt(c2));
-            }
-            TablaSimbolos.agregar(lexemaCadena, TablaToken.getId("CADENA"));
+            String lexemaStr = lexema.toString();
+            lexemaStr = lexemaStr.replaceAll("^#+", "").replaceAll("#+$", "");
+            TablaSimbolos.agregar(lexemaStr.trim(), TablaToken.getId("CADENA"));
             return new Token(TablaToken.getId("CADENA"));
         }
     }

@@ -20,12 +20,12 @@ public class AS9 extends AccionSemantica {
             entero = Integer.parseInt(lexema.substring(0, (lexema.length() - 2)));
             if (entero < Integer.MIN_VALUE) {
                 System.out.println(
-                        "Linea " + Main.getLinea() + ", el entero es menor al valor mínimo permitido");
+                        "WARNING - Linea " + Main.getLinea() + ": el entero es menor al valor mínimo permitido");
                 entero = Integer.MIN_VALUE;
             }
             if (entero > Integer.MAX_VALUE) {
                 System.out.println(
-                        "Linea " + Main.getLinea() + ", el entero es mayor al valor máximo permitido");
+                        "WARNING - Linea " + Main.getLinea() + ": el entero es mayor al valor máximo permitido");
                 entero = Integer.MAX_VALUE;
             }
             if (!TablaSimbolos.pertenece(Integer.toString(entero))) {
@@ -34,9 +34,10 @@ public class AS9 extends AccionSemantica {
             return new Token(TablaToken.getId("LONG"), Integer.toString(entero));
         } else if (last == 's') { // entero corto _us
             entero = Integer.parseInt(lexema.substring(0, (lexema.length() - 3)));
-            if (entero < 0 || entero > 255) {
+            if (entero > 255) {
                 System.out.println(
-                        "Linea " + Main.getLinea() + ", el entero se encuentra fuera del rango permitido");
+                        "WARNING - Linea " + Main.getLinea() + ": el entero se encuentra fuera del rango permitido");
+                entero = 255;
             }
             if (!TablaSimbolos.pertenece(Integer.toString(entero))) {
                 TablaSimbolos.agregar(Integer.toString(entero), TablaToken.getId("USHORT"));

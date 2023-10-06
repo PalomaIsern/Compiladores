@@ -11,7 +11,7 @@ import compiladores.Token;
 public class AS5 extends AccionSemantica {
     private ArrayList<Character> caracteres = new ArrayList<>(Arrays.asList('/', '{', '}', '(', ')', ',', ';', '-'));
 
-    // devuelve el caracter leido. Reconoce '/', '{', '}', '(', ')', ',', ';', '-'
+    // Reconoce '/', '{', '}', '(', ')', ',', ';', '-'
     @Override
     public Token ejecutarAS(char c) throws IOException {
         if (caracteres.contains(c)) {

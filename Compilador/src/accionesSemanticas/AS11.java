@@ -16,7 +16,7 @@ public class AS11 extends AccionSemantica {
             System.out.print("Linea " + Main.getLinea() + " no puede haber un " + lexema.charAt(0) +
                     " despues de un !");
         else if (estado == 7)
-            System.out.print("Linea " + Main.getLinea() + " no puede haber un " + lexema.charAt(0)
+            System.out.print("Linea " + Main.getLinea() + " no puede haber un " + c
                     + "dentro de un entero");
         else if (estado == 10)
             System.out.print("Linea" + Main.getLinea() + " no puede haber un " + lexema.charAt(0)

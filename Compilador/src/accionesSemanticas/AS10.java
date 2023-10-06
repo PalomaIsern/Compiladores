@@ -27,16 +27,22 @@ public class AS10 extends AccionSemantica {
             lexema.insert(0, '0'); // Lo convierto en 0.6
             d = Double.parseDouble(lexema.toString());
         }
-        if (lexema.toString().contains(String.valueOf('d'))) { // reemplazo las 'd' por 'e'
-            lexema.insert(lexema.toString().indexOf('d'), 'e');
-        } else if (lexema.toString().contains(String.valueOf('D'))) {
-            lexema.insert(lexema.toString().indexOf('D'), 'E');
-        }
+        /*
+         * if (lexema.toString().contains(String.valueOf('d'))) { // reemplazo las 'd'
+         * por 'e'
+         * lexema.insert(lexema.toString().indexOf('d'), 'e');
+         * } else if (lexema.toString().contains(String.valueOf('D'))) {
+         * lexema.insert(lexema.toString().indexOf('D'), 'E');
+         * }
+         */
+        String lexemaStr = lexema.toString();
+        lexemaStr = lexemaStr.replace('d', 'e').replace('D', 'E');
+        System.out.println("lexemaStr -> " + lexemaStr);
         if (lexema.length() == 1 && lexema.charAt(0) == '.') {
             System.out.println("Linea " + Main.getLinea() + ", el digito no posee parte entera ni decimal");
             d = 0.0;// Evitamos el error informamos con warning
         } else {
-            d = Double.parseDouble(lexema.toString());
+            d = Double.parseDouble(lexemaStr);
         }
 
         // verifico el rango
