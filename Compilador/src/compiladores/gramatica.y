@@ -7,7 +7,7 @@ import java.io.IOException;
 
 %}
 
-%token ID CTE IF END_IF ELSE PRINT CLASS VOID LONG USHORT DOUBLE DO UNTIL IMPL FOR CADENA <= >= == += !!
+%token ID CTE IF END_IF ELSE PRINT CLASS VOID LONG USHORT DOUBLE DO UNTIL IMPL FOR CADENA RETURN <= >= == += !!
 %start program
 
 %%
@@ -21,6 +21,8 @@ sentencia  : sentenciaDeclarativa ','
 ;
 
 asignacion : ID simboloAsignacion expresion
+            | atributo_objeto '=' atributo_objeto
+            | atributo_objeto '=' factor
 ;
 
 simboloAsignacion : '='
@@ -58,16 +60,29 @@ numero: digito
       | double
 ;
 
-sentenciaDeclarativa: declaracion
-                    | declaracionFuncion
-                    | declaracionClase
-;
 
 declaracionClase : CLASS ID '{' conjuntoSentenciasDeclarativas declaracionFuncion '}'
+                 | CLASS ID '{' conjuntoSentenciasDeclarativas declaracionFuncion ID ',' '}'  
+                 | CLASS ID '{' declaracionFuncion '}'
+                 | CLASS ID 
 ;
+
+declaracionObjeto : ID lista_Variables
 
 declaracionFuncion: funcion_VOID
 ;
+
+funcion_VOID: VOID ID '(' parametro_formal ')' '{' cuerpo_funcion RETURN'}'
+            | VOID ID '(' ')' '{' cuerpo_funcion RETURN'}'
+            | VOID ID '(' ')' 
+;
+
+cuerpo_funcion: conjuntoSentenciasDeclarativas 
+              | conjuntoSentenciasDeclarativas conjuntoSentenciasEjecutables
+              | conjuntoSentenciasEjecutables
+;
+
+clausula_IMPL : IMPL FOR ID ':' '{' declaracionFuncion '}'
 
 conjuntoSentenciasDeclarativas : conjuntoSentenciasDeclarativas declaracion
                                | sentenciaDeclarativa
@@ -86,10 +101,24 @@ bloque_de_Sentencias_declarativas: '{' conjuntoSentenciasDeclarativas '}'
 sentenciaEjecutable : asignacion
                     | invocacionFuncion
                     | clausula_seleccion
+                    | metodo_objeto
+                    | atributo_objeto
+;
+
+sentenciaDeclarativa: declaracion
+                    | declaracionFuncion
+                    | declaracionClase
+                    | declaracionObjeto
+;
+
+metodo_objeto : ID '.' invocacionFuncion
+;
+
+atributo_objeto : ID '.' ID '=' 
 ;
 
 clausula_seleccion : IF '(' condicion ')' bloque_de_Sentencias_ejecutables ELSE bloque_de_Sentencias_ejecutables END_IF
-                   | IF '(' condicion ')' bloque_de_Sentencias_ejecutables
+                   | IF '(' condicion ')' bloque_de_Sentencias_ejecutables 
 ;
 
 condicion : expresion comparador expresion
@@ -120,9 +149,7 @@ invocacionFuncion : ID '(' parametro_real ')'
 parametro_real  : expresion
 ;
 
-funcion_VOID: VOID ID '(' parametro_formal ')' '{' cuerpo_funcion '}'
-            | VOID ID '(' ')' '{' cuerpo_funcion '}'
-;
+
 
 funcion:
 ;
@@ -135,10 +162,6 @@ tipo : DOUBLE
      | LONG
 ;
 
-cuerpo_funcion: conjuntoSentenciasDeclarativas
-              | conjuntoSentenciasDeclarativas conjuntoSentenciasEjecutables
-              | conjuntoSentenciasEjecutables
-;
 
 print : PRINT CADENA
 ;
@@ -146,3 +169,15 @@ print : PRINT CADENA
 
 %%
 
+    Lexico lex;
+
+    private int yylex() {
+        Token token = new Token();
+        try {
+            token = lexico.getToken();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        . . . 
+    }
+    

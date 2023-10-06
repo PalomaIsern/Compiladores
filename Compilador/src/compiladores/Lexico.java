@@ -283,11 +283,6 @@ public class Lexico {
                                 lector.reset();
                                 volverALeer = false;
                         }
-                        // if (aux != null) {
-                        // TS.imprimirContenido();
-                        // System.out.println(aux.getIdToken());
-                        // return aux;
-                        // }
                 }
                 estado = 0;
                 TS.imprimirContenido();
