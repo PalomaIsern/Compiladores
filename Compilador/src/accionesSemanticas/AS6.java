@@ -3,6 +3,7 @@ package accionesSemanticas;
 import java.io.IOException;
 
 import compiladores.Lexico;
+import compiladores.Main;
 import compiladores.TablaSimbolos;
 import compiladores.TablaToken;
 import compiladores.Token;
@@ -18,6 +19,8 @@ public class AS6 extends AccionSemantica {
         if (c1 != '#') {
             return new Token(TablaToken.getId(lexema.toString()));
         } else {
+            if (lexema.charAt(lexema.length() - 1) != '#')
+                System.out.println("WARNING - Linea " + Main.getLinea() + ": la cadena debe finalizar con '#'");
             String lexemaStr = lexema.toString();
             lexemaStr = lexemaStr.replaceAll("^#+", "").replaceAll("#+$", "");
             TablaSimbolos.agregar(lexemaStr.trim(), TablaToken.getId("CADENA"));

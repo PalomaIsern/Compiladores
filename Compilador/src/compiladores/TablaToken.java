@@ -29,18 +29,17 @@ public class TablaToken {
         tokens.put("+=", 19);// Especifico del grupo
         tokens.put("!!", 20);
         tokens.put("ID", 21);
-        tokens.put("CTE", 22);
-        tokens.put("IF", 23);
-        tokens.put("END_IF", 24);
-        tokens.put("ELSE", 25);
-        tokens.put("PRINT", 26);
-        tokens.put("CLASS", 27);
-        tokens.put("VOID", 28);
-        tokens.put("LONG", 29);// Especifico del grupo
-        tokens.put("USHORT", 30);// Especifico del grupo
-        tokens.put("DOUBLE", 31);// Especifico del grupo
-        tokens.put("DO", 32);// Especifico del grupo
-        tokens.put("UNTIL", 36);// Especifico del grupo
+        tokens.put("IF", 22);
+        tokens.put("END_IF", 23);
+        tokens.put("ELSE", 24);
+        tokens.put("PRINT", 25);
+        tokens.put("CLASS", 26);
+        tokens.put("VOID", 27);
+        tokens.put("LONG", 28);// Especifico del grupo
+        tokens.put("USHORT", 29);// Especifico del grupo
+        tokens.put("DOUBLE", 30);// Especifico del grupo
+        tokens.put("DO", 31);// Especifico del grupo
+        tokens.put("UNTIL", 32);// Especifico del grupo
         tokens.put("IMPL", 33);// Especifico del grupo
         tokens.put("FOR", 34);// Especifico del grupo
         tokens.put("CADENA", 35);// Especifico del grupo

@@ -19,6 +19,7 @@ public class TablaPR {
         TPR.add("UNTIL");
         TPR.add("IMPL");
         TPR.add("FOR");
+        TPR.add("RETURN");
     }
 
     public static boolean pertenece(String valor) {
