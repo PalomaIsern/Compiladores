@@ -12,11 +12,17 @@ import java.io.IOException;
 
 %%
 
-program : { sentencia }
+program : '{' conjuntoSentencias '}'
+;
+
+conjuntoSentencias: conjuntoSentencias sentencia
+                  | sentencia
+;
+
+bloque_de_Sentencias: '{' conjuntoSentencias '}'
 ;
         
 sentencia  : sentenciaDeclarativa ','
-           | sentenciaDeclarativa sentenciaEjecutable
            | sentenciaEjecutable ','
 ;
 
@@ -49,22 +55,9 @@ operadorMasMenos : '+'
                  | '-'
 ;
 
-letras:
-;
-
-digito:
-;
-
-numero: digito
-      | entero
-      | double
-;
-
-
-declaracionClase : CLASS ID '{' conjuntoSentenciasDeclarativas declaracionFuncion '}'
-                 | CLASS ID '{' conjuntoSentenciasDeclarativas declaracionFuncion ID ',' '}'  
-                 | CLASS ID '{' declaracionFuncion '}'
-                 | CLASS ID 
+declaracionClase : CLASS ID '{' conjuntoSentencias '}' {System.out.print("Se reconoció una clase")}
+                 | CLASS ID '{' conjuntoSentencias ID ',' '}' {System.out.print("Se reconoció una clase")}
+                 | CLASS ID {System.out.print("Se reconoció una clase")}
 ;
 
 declaracionObjeto : ID lista_Variables
@@ -72,37 +65,24 @@ declaracionObjeto : ID lista_Variables
 declaracionFuncion: funcion_VOID
 ;
 
-funcion_VOID: VOID ID '(' parametro_formal ')' '{' cuerpo_funcion RETURN'}'
-            | VOID ID '(' ')' '{' cuerpo_funcion RETURN'}'
-            | VOID ID '(' ')' 
+funcion_VOID: VOID ID '(' parametro_formal ')' '{' cuerpo_funcion '}' {System.out.print("Se reconoció una funcion void")}
+            | VOID ID '(' ')' '{' cuerpo_funcion '}' {System.out.print("Se reconoció una funcion void")}
+            | VOID ID '(' ')' {System.out.print("Se reconoció una funcion void")} 
 ;
 
-cuerpo_funcion: conjuntoSentenciasDeclarativas 
-              | conjuntoSentenciasDeclarativas conjuntoSentenciasEjecutables
-              | conjuntoSentenciasEjecutables
+cuerpo_funcion: cuerpo_funcion conjuntoSentencias
+              | sentencia
 ;
 
-clausula_IMPL : IMPL FOR ID ':' '{' declaracionFuncion '}'
-
-conjuntoSentenciasDeclarativas : conjuntoSentenciasDeclarativas declaracion
-                               | sentenciaDeclarativa
-;
-
-conjuntoSentenciasEjecutables : conjuntoSentenciasEjecutables sentenciaEjecutable
-                              | sentenciaEjecutable
-;
-
-bloque_de_Sentencias_ejecutables: '{' conjuntoSentenciasEjecutables '}'
-;
-
-bloque_de_Sentencias_declarativas: '{' conjuntoSentenciasDeclarativas '}'
-;
+clausula_IMPL : IMPL FOR ID ':' '{' declaracionFuncion '}' {System.out.print("Se reconocio sentencia IMPL FOR")}
 
 sentenciaEjecutable : asignacion
                     | invocacionFuncion
                     | clausula_seleccion
+                    | print
                     | metodo_objeto
                     | atributo_objeto
+                    | RETURN
 ;
 
 sentenciaDeclarativa: declaracion
@@ -114,11 +94,14 @@ sentenciaDeclarativa: declaracion
 metodo_objeto : ID '.' invocacionFuncion
 ;
 
-atributo_objeto : ID '.' ID '=' 
+atributo_objeto : ID '.' ID '=' expresion
+                : ID '.' ID '=' ID '.' ID
 ;
 
-clausula_seleccion : IF '(' condicion ')' bloque_de_Sentencias_ejecutables ELSE bloque_de_Sentencias_ejecutables END_IF
-                   | IF '(' condicion ')' bloque_de_Sentencias_ejecutables 
+clausula_seleccion : IF '(' condicion ')' bloque_de_Sentencias ELSE bloque_de_Sentencias END_IF {System.out.print("Se reconoció un IF")}
+                   | IF '(' condicion ')' bloque_de_Sentencias END_IF {System.out.print("Se reconoció un IF")}
+                   | IF '(' condicion ')' bloque_de_Sentencias {System.out.print("Falta el END_IF")}
+                   | IF '(' condicion ')' bloque_de_Sentencias ELSE bloque_de_Sentencias {System.out.print("Falta el END_IF")}
 ;
 
 condicion : expresion comparador expresion
@@ -132,7 +115,7 @@ comparador : '>'
            | '=='
 ;
 
-sentencia_de_Control : DO bloque_de_Sentencias_ejecutables UNTIL '(' condicion ')'
+sentencia_de_Control : DO bloque_de_Sentencias UNTIL '(' condicion ')' {System.out.print("Se reconoció sentencia DO UNTIL)}
 ;
 
 declaracion:  tipo lista_Variables
@@ -142,16 +125,11 @@ lista_Variables : lista_Variables ';' ID
                 | ID
 ;
 
-invocacionFuncion : ID '(' parametro_real ')'
-                  | ID '(' ')'
+invocacionFuncion : ID '(' parametro_real ')' {System.out.print("Se reconoció una invocación de una function")}
+                  | ID '(' ')' {System.out.print("Se reconoció una invocación de una function")}
 ;
 
 parametro_real  : expresion
-;
-
-
-
-funcion:
 ;
 
 parametro_formal: tipo ID
@@ -162,8 +140,7 @@ tipo : DOUBLE
      | LONG
 ;
 
-
-print : PRINT CADENA
+print : PRINT CADENA {System.out.print("Se reconoció una impresion por pantalla")}
 ;
 
 
@@ -178,6 +155,6 @@ print : PRINT CADENA
         } catch (IOException e) {
             e.printStackTrace();
         }
-        . . . 
+        . . .
     }
     
