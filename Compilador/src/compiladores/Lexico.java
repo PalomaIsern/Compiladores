@@ -240,7 +240,7 @@ public class Lexico {
         public BufferedReader abrirArchivo() throws FileNotFoundException {
                 Scanner sc = new Scanner(System.in);
                 System.out.println("Ingrese el nombre del archivo que desea leer");
-                String nombreArchivo = "Pruebas\\" + sc.nextLine();
+                String nombreArchivo = sc.nextLine();
                 FileReader archivo = new FileReader(nombreArchivo);
                 sc.close();
                 return new BufferedReader(archivo);
