@@ -31,17 +31,17 @@ CLASS ca {
 			ww = zz + xx + a,
 		},
 	},
-}  
+}
 
 //Tambien deberia reconocerlas
 
 IF (40_us >= 50_us){
 	t = 4.0 * 5.0 + x,
 	DOUBLE x = 3.0,//No puede asignar mientras declara
-	IF ( x < (t + -1.0)) //no reconoceria los parentesis del t + 1.0
-		{CLASS ca, 
+	IF ( x < t + -1.0 - 3.0) //no reconoceria los parentesis del t + 1.0
+		{CLASS ca,
 		ca.m(),
-		a1.a = 23_l,//Aca tiene dos caminos para elegir 
+		a1.a = 23_l,//Aca tiene dos caminos para elegir
 		}
 	ELSE
 		{PRINT "hello",}

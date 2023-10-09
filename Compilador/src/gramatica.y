@@ -23,15 +23,10 @@ cuerpo_funcion: conjuntoSentencias
 ;
 
 bloque_de_Sentencias: '{' conjuntoSentencias '}'
-                    | '{' conjuntoSentencias error {System.out.print("Falta llave que cierra en linea " + Main.getLinea());}
-                    | conjuntoSentencias '}' error {System.out.print("Falta llave que abre en linea" + Main.getLinea());}
-                    | error {System.out.print("error en linea " + Main.getLinea());}
 ;
         
 sentencia  : sentenciaDeclarativa ','
            | sentenciaEjecutable ','
-           | sentenciaDeclarativa error {System.out.print("Falta , en linea " + Main.getLinea());}
-           | sentenciaEjecutable error {System.out.print("Falta , en linea " + Main.getLinea());}
 ;
 
 asignacion : ID simboloAsignacion expresion
@@ -71,6 +66,7 @@ declaracionClase : CLASS ID bloque_de_Sentencias {System.out.print("Se reconocio
 ;
 
 declaracionObjeto : ID lista_Variables
+;
 
 declaracionFuncion: funcion_VOID
                   | funcion_VOID_vacia
@@ -91,6 +87,8 @@ sentenciaEjecutable : asignacion
                     | print
                     | metodo_objeto
                     | atributo_objeto
+                    | clausula_IMPL
+                    | sentencia_de_Control
                     | RETURN
 ;
 
@@ -114,7 +112,6 @@ clausula_seleccion : IF condicion bloque_de_Sentencias ELSE bloque_de_Sentencias
                    | IF condicion bloque_de_Sentencias ELSE sentencia END_IF {System.out.print("Se reconocio un IF");}
                    | IF condicion sentencia ELSE sentencia END_IF {System.out.print("Se reconocio un IF");}
                    | IF bloque_de_Sentencias error {System.out.print("Falto la condicion del IF");}
-                   | IF sentencia error {System.out.print("Falto la condicion del IF");}
 ;
 
 condicion : '(' expresion comparador expresion ')'
@@ -136,7 +133,7 @@ sentencia_de_Control : DO bloque_de_Sentencias UNTIL condicion {System.out.print
                      | DO sentencia UNTIL error {System.out.print("Falta la condicion en linea: " + Main.getLinea());}
 ;
 
-declaracion:  tipo lista_Variables
+declaracion: tipo lista_Variables
 ;
 
 lista_Variables : lista_Variables ';' ID
@@ -175,7 +172,11 @@ print : PRINT CADENA {System.out.print("Se reconocio una impresion por pantalla"
 %%
 
     Lexico lex;
-    TablaSimbolos TS;
+    TablaSimbolos TS = new TablaSimbolos();
+
+    public Parser(Lexico lexico){
+        this.lex = lexico;
+    }
 
     private int yylex() {
         Token token = new Token();
