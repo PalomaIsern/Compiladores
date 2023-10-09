@@ -44,6 +44,8 @@ public class TablaToken {
         tokens.put("FOR", 293);// Especifico del grupo
         tokens.put("CADENA", 294);// Especifico del grupo
         tokens.put("RETURN", 295);
+        tokens.put("CTE", 296);
+        tokens.put("CTEPOS", 297);
     }
 
     public static Integer getId(String valor) {

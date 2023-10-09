@@ -48,8 +48,8 @@ public class AS10 extends AccionSemantica {
         }
 
         if (TablaSimbolos.pertenece(Double.toString(d)) == false) {
-            TablaSimbolos.agregar(Double.toString(d), TablaToken.getId("DOUBLE"));
+            TablaSimbolos.agregar(Double.toString(d), TablaToken.getId("CTE"));
         }
-        return new Token(TablaToken.getId("DOUBLE"), Double.toString(d));
+        return new Token(TablaToken.getId("CTE"), Double.toString(d));
     }
 }

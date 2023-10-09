@@ -13,25 +13,21 @@ public class Lexico {
         private static int estado;
         private int columna;
         private TablaSimbolos TS;
-        private TablaToken TT;
-        private TablaPR TPR;
         private static boolean volverALeer;
         private static BufferedReader lector;
         private static boolean finArchivo;
 
         public Lexico() {
-                this.estado = 0;
+                estado = 0;
                 this.columna = -1;
                 this.TS = new TablaSimbolos();
-                this.TT = new TablaToken();
-                this.TPR = new TablaPR();
-                this.volverALeer = false;
+                volverALeer = false;
                 try {
-                        this.lector = abrirArchivo();
+                        lector = abrirArchivo();
                 } catch (FileNotFoundException e) {
                         System.err.println("El archivo no se encontró o no se puede acceder.");
                 }
-                this.finArchivo = false;
+                finArchivo = false;
         }
 
         private static int[][] transiciones = new int[][] {

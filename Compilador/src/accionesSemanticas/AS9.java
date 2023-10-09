@@ -25,9 +25,9 @@ public class AS9 extends AccionSemantica {
             } // Integer.MIN_VALUE se establece en -2,147,483,648.
               // Integer.MAX_VALUE se establece en 2,147,483,647.
             if (!TablaSimbolos.pertenece(Long.toString(entero))) {
-                TablaSimbolos.agregar(Long.toString(entero), TablaToken.getId("LONG"));
+                TablaSimbolos.agregar(Long.toString(entero), TablaToken.getId("CTE"));
             }
-            return new Token(TablaToken.getId("LONG"), Long.toString(entero));
+            return new Token(TablaToken.getId("CTE"), Long.toString(entero));
         } else if (last == 's') { // entero corto _us
             int entero = Integer.parseInt(lexema.substring(0, (lexema.length() - 3)));
             if (entero > 255) {
@@ -37,9 +37,9 @@ public class AS9 extends AccionSemantica {
                 entero = 255;
             }
             if (!TablaSimbolos.pertenece(Integer.toString(entero))) {
-                TablaSimbolos.agregar(Integer.toString(entero), TablaToken.getId("USHORT"));
+                TablaSimbolos.agregar(Integer.toString(entero), TablaToken.getId("CTEPOS"));
             }
-            return new Token(TablaToken.getId("USHORT"), Integer.toString(entero));
+            return new Token(TablaToken.getId("CTEPOS"), Integer.toString(entero));
         }
         return null;
     }

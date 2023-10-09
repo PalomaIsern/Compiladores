@@ -15,7 +15,6 @@ public class AS6 extends AccionSemantica {
         lexema.append(c);
         Lexico.VolverAtras();
         char c1 = lexema.charAt(0); // primer caracter del StringBuilder
-        char c2 = lexema.charAt(lexema.length() - 1); // ultimo caracter del StringBuilder
         if (c1 != '#') {
             return new Token(TablaToken.getId(lexema.toString()));
         } else {
