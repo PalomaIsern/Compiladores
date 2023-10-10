@@ -3,7 +3,7 @@ package accionesSemanticas;
 import java.io.IOException;
 
 import compiladores.Lexico;
-import compiladores.Main;
+import compiladores.Linea;
 import compiladores.TablaSimbolos;
 import compiladores.TablaToken;
 import compiladores.Token;
@@ -20,7 +20,7 @@ public class AS9 extends AccionSemantica {
             long entero = Long.parseUnsignedLong(lexema.substring(0, (lexema.length() - 2)));
             if (entero > limite) {
                 System.out.println(
-                        "WARNING - Linea " + Main.getLinea() + ": el entero largo está fuera del rango permitido");
+                        "WARNING - Linea " + Linea.getLinea() + ": el entero largo está fuera del rango permitido");
                 entero = limite;
             } // Integer.MIN_VALUE se establece en -2,147,483,648.
               // Integer.MAX_VALUE se establece en 2,147,483,647.
@@ -32,7 +32,7 @@ public class AS9 extends AccionSemantica {
             int entero = Integer.parseInt(lexema.substring(0, (lexema.length() - 3)));
             if (entero > 255) {
                 System.out.println(
-                        "WARNING - Linea " + Main.getLinea()
+                        "WARNING - Linea " + Linea.getLinea()
                                 + ": el entero corto se encuentra fuera del rango permitido");
                 entero = 255;
             }

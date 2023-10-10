@@ -3,7 +3,7 @@ package accionesSemanticas;
 import java.io.IOException;
 
 import compiladores.Lexico;
-import compiladores.Main;
+import compiladores.Linea;
 import compiladores.TablaSimbolos;
 import compiladores.TablaToken;
 import compiladores.Token;
@@ -17,7 +17,7 @@ public class AS3 extends AccionSemantica {
         Lexico.VolverAtras();
         String id = lexema.toString();
         if (id.length() > 20) {
-            System.out.println("Warning: Linea " + Main.getLinea()
+            System.out.println("Warning: Linea " + Linea.getLinea()
                     + ", el identificador ha superado la longitud maxima permitida de 20 caracteres");
             id = id.substring(0, 20);
         }

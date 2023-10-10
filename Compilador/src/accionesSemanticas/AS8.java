@@ -2,7 +2,7 @@ package accionesSemanticas;
 
 import java.io.IOException;
 
-import compiladores.Main;
+import compiladores.Linea;
 import compiladores.Token;
 
 public class AS8 extends AccionSemantica {
@@ -12,7 +12,7 @@ public class AS8 extends AccionSemantica {
         // son blancos/saltos de linea
         // no devuelve ningun token
         if (c == '*')
-            System.out.println("Se reconoció un comentario en la linea " + Main.getLinea());
+            System.out.println("Se reconoció un comentario en la linea " + Linea.getLinea());
         return null;
     }
 }

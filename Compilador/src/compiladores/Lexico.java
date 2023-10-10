@@ -13,6 +13,8 @@ public class Lexico {
         private static int estado;
         private int columna;
         private TablaSimbolos TS;
+        private TablaToken TT;
+        private TablaPR TPR;
         private static boolean volverALeer;
         private static BufferedReader lector;
         private static boolean finArchivo;
@@ -21,6 +23,8 @@ public class Lexico {
                 estado = 0;
                 this.columna = -1;
                 this.TS = new TablaSimbolos();
+                this.TPR = new TablaPR();
+                this.TT = new TablaToken();
                 volverALeer = false;
                 try {
                         lector = abrirArchivo();
@@ -232,8 +236,6 @@ public class Lexico {
                                         columna = 24;
                                         break;
                         }
-                System.out.println("ESTADO: " + estado + " - COLUMNA : " + columna + " - SIGUIENTE ESTADO : "
-                                + transiciones[estado][columna]);
                 return transiciones[estado][columna];
         }
 
@@ -264,15 +266,11 @@ public class Lexico {
                 Token aux = null;
                 while (estado != -1 && estado != 100 && num_caracter != -1) {
                         char caracter = Character.toChars(num_caracter)[0];
-                        System.out.println("Caracter: " + caracter + " - Linea: " + Main.numero_linea);
-                        // System.out.println("Numero: " + num_caracter + " ");
+                        System.out.println("Caracter: " + caracter + " - Linea: " + Linea.numero_linea);
                         if (num_caracter == 10)// Indica el salto de linea
-                                Main.setLinea();
-                        // System.out.println("linea: " + Main.numero_linea);
+                                Linea.setLinea();
                         int siguienteEstado = 0;
                         siguienteEstado = nuevoEstado(estado, caracter);
-                        // System.out.println("Siguiente estado: " + siguienteEstado);
-                        // System.out.println("Estado: " + estado + " columna: " + columna);
                         aux = ejecutarAS(estado, caracter);
                         estado = siguienteEstado;
                         lector.mark(1);
@@ -284,14 +282,14 @@ public class Lexico {
                 }
                 estado = 0;
                 System.out.println("TOKEN RECONOCIDO: " + aux.getIdToken());
-                TS.imprimirContenido();
+                // TS.imprimirContenido();
                 if (num_caracter == -1)
                         finArchivo = true;
                 return aux;
         }
 
         public Token ejecutarAS(int estado, char caracter) throws IOException {
-                System.out.println("AS a ejecutar : " + Matriz_Acciones[estado][columna]);
+                // System.out.println("AS a ejecutar : " + Matriz_Acciones[estado][columna]);
                 System.out.println(" ");
                 AccionSemantica AS = Matriz_Acciones[estado][columna];
                 return generarToken(AS, caracter);
