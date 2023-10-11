@@ -1,5 +1,5 @@
 {
 	IF(1_us<=10_us)
-		entero == 2.0
+		entero == 2.0,
 	END_IF,
 }

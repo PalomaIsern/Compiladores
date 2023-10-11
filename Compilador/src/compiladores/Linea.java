@@ -1,10 +1,9 @@
 package compiladores;
 
 public class Linea {
-    public static int numero_linea;
+    public static int numero_linea = 1;
 
     public Linea() {
-        numero_linea = 1;
     }
 
     public static int getLinea() {

@@ -266,7 +266,8 @@ public class Lexico {
                 Token aux = null;
                 while (estado != -1 && estado != 100 && num_caracter != -1) {
                         char caracter = Character.toChars(num_caracter)[0];
-                        System.out.println("Caracter: " + caracter + " - Linea: " + Linea.numero_linea);
+                        // System.out.println("Caracter: " + caracter + " - Linea: " +
+                        // Linea.numero_linea);
                         if (num_caracter == 10)// Indica el salto de linea
                                 Linea.setLinea();
                         int siguienteEstado = 0;

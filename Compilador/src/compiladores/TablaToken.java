@@ -8,6 +8,7 @@ public class TablaToken {
 
     public TablaToken() {
         tokens = new HashMap<String, Integer>();
+        // Antes del 256 se asigna codigo ASCII correspondiente
         tokens.put("+", 43);
         tokens.put(".", 46);
         tokens.put(">", 62);

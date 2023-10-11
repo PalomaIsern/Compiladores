@@ -7,7 +7,7 @@ import java.io.IOException;
 
 %}
 
-%token ID CTE CTEPOS IF END_IF ELSE PRINT CLASS VOID LONG USHORT DOUBLE DO UNTIL IMPL FOR CADENA RETURN
+%token ID CTE CTEPOS IF END_IF ELSE PRINT CLASS VOID LONG USHORT DOUBLE DO UNTIL IMPL FOR CADENA RETURN 
 %start programa
 
 %%
@@ -200,7 +200,6 @@ print : PRINT CADENA {System.out.println("Se reconocio una impresion por pantall
         }
         if (token != null){
             yylval = new ParserVal(token.getLexema());
-            System.out.println("Token" + token.getIdToken());
             return token.getIdToken();
         }
         else
