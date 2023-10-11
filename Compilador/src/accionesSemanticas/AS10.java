@@ -30,7 +30,8 @@ public class AS10 extends AccionSemantica {
         String lexemaStr = lexema.toString();
         lexemaStr = lexemaStr.replace('d', 'e').replace('D', 'E');
         if (lexema.length() == 1 && lexema.charAt(0) == '.') {
-            System.out.println("WARNING - Linea " + Linea.getLinea() + ": el digito no posee parte entera ni decimal");
+            System.out.println("Linea " + Linea.getLinea() +
+                    ": WARNING - el digito no posee parte entera ni decimal");
             d = 0.0;// Evitamos el error informamos con warning
         } else {
             d = Double.parseDouble(lexemaStr);
@@ -38,12 +39,12 @@ public class AS10 extends AccionSemantica {
 
         // verifico el rango
         if (d <= min && d != 0.0) {
-            System.out.println("WARNING - Linea " + Linea.getLinea()
-                    + ": el numero es menor al rango permitido. Consideramos el valor minimo");
+            System.out.println("Linea " + Linea.getLinea() +
+                    ": WARNING - el numero es menor al rango permitido. Consideramos el valor minimo");
             d = min;
         } else if (d >= max) {
-            System.out.println("WARNING - Linea " + Linea.getLinea()
-                    + ": el numero es mayor al rango permitido. Consideramos el valor maximo");
+            System.out.println("Linea " + Linea.getLinea() +
+                    ": WARNING - el numero es mayor al rango permitido. Consideramos el valor maximo");
             d = max;
         }
 

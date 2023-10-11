@@ -3,6 +3,7 @@ package accionesSemanticas;
 import java.io.IOException;
 
 import compiladores.Lexico;
+import compiladores.Linea;
 import compiladores.TablaPR;
 import compiladores.TablaToken;
 import compiladores.Token;
@@ -18,7 +19,8 @@ public class AS4 extends AccionSemantica {
         if (TablaPR.pertenece(pRes)) {
             return new Token(TablaToken.getId(pRes));
         } else {
-            System.out.println(pRes + " no es una palabra reservada valida");
+            System.out.println("Linea " + Linea.getLinea() + ": WARNING -" +
+                    pRes + "no es una palabra reservada valida");
         }
         return null;
     }

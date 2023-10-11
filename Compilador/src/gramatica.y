@@ -12,23 +12,24 @@ import java.io.IOException;
 
 %%
 
-programa : bloque_de_Sentencias {System.out.println("progrm");}
+programa : bloque_de_Sentencias {System.out.println("Programa completamente reconocido");}
 ;
 
 conjuntoSentencias: conjuntoSentencias sentencia
                   | sentencia
 ;
 
+conjuntoSentenciasEjecutables: conjuntoSentenciasEjecutables sentenciaEjecutable
+                             | sentenciaEjecutable
+;
+
 cuerpo_funcion: conjuntoSentencias
 ;
 
-llave_que_abre: '{' {System.out.println("Se reconocio una llave que abre");}
+bloque_de_Sentencias : '{' conjuntoSentencias '}' {System.out.println("Bloque de Sentencias reconocido");}
 ;
 
-llave_que_cierra: '}' {System.out.println("Se reconocio una llave que cierra");}
-;
-
-bloque_de_Sentencias : llave_que_abre conjuntoSentencias llave_que_cierra {System.out.println("Bloque reconocido");}
+bloque_de_SentenciasEjecutables : '{' conjuntoSentenciasEjecutables '}'
 ;
         
 sentencia  : sentenciaDeclarativa fin_sentencia
@@ -72,9 +73,9 @@ operadorMasMenos : '+'
 ;
 
 
-declaracionClase : CLASS ID bloque_de_Sentencias {System.out.println("Se reconocio una clase");}
-                 | CLASS ID llave_que_abre conjuntoSentencias ID ',' llave_que_cierra {System.out.println("Se reconocio una clase con herencia por composicion");}
-                 | CLASS ID {System.out.println("Se reconocio una clase");}
+declaracionClase : CLASS ID bloque_de_Sentencias
+                 | CLASS ID '{' conjuntoSentencias ID ',' '}' {System.out.println("Clase con herencia por composicion");}
+                 | CLASS ID
 ;
 
 declaracionObjeto : ID lista_Variables
@@ -84,33 +85,32 @@ declaracionFuncion: funcion_VOID
                   | funcion_VOID_vacia
 ;
 
-funcion_VOID: VOID ID parametro_formal llave_que_abre cuerpo_funcion llave_que_cierra {System.out.println("Se reconocio una funcion void");}
+funcion_VOID: VOID ID parametro_formal '{' cuerpo_funcion '}' {System.out.println("Funcion VOID");}
 ;
 
-funcion_VOID_vacia: VOID ID parametro_formal {System.out.println("Se reconocio una funcion void vacia");}
+funcion_VOID_vacia: VOID ID parametro_formal {System.out.println("Funcion VOID vacia");}
 ;
 
-clausula_IMPL : IMPL FOR ID ':' llave_que_abre funcion_VOID llave_que_cierra {System.out.println("Se reconocio sentencia IMPL FOR");}
+clausula_IMPL : IMPL FOR ID ':' '{' funcion_VOID '}'
 ;
 
 sentenciaEjecutable : asignacion
-                    | invocacionFuncion
-                    | clausula_seleccion
-                    | print
-                    | metodo_objeto
-                    | atributo_objeto
-                    | clausula_IMPL
-                    | sentencia_de_Control
-                    | RETURN
+                    | invocacionFuncion {System.out.println("Se reconocio una invocacion de una funcion en linea "+ Linea.getLinea());}
+                    | clausula_seleccion {System.out.println("Se reconocio una clausula de seleccion IF en linea "+ Linea.getLinea());}
+                    | print  {System.out.println("Se reconocio una impresion por pantalla en linea "+ Linea.getLinea());}
+                    | metodo_objeto {System.out.println("Se reconocio la invocacion de un metodo de un objeto en linea " + Linea.getLinea());}
+                    | clausula_IMPL {System.out.println("Se reconocio sentencia IMPL FOR en linea "+ Linea.getLinea());}
+                    | sentencia_de_Control {System.out.println("Se reconocio sentencia de control DO UNTIL en linea "+ Linea.getLinea());}
+                    | RETURN {System.out.println("Se reconocio sentencia de retorno RETURN en linea "+ Linea.getLinea());}
 ;
 
-sentenciaDeclarativa: declaracion
-                    | declaracionFuncion
-                    | declaracionObjeto
-                    | declaracionClase
+sentenciaDeclarativa: declaracion {System.out.println("Se reconocio una declaracion simple en linea "+ Linea.getLinea());}
+                    | declaracionFuncion {System.out.println("Se reconocio una funcion en linea "+ Linea.getLinea());}
+                    | declaracionObjeto {System.out.println("Se reconocio una declaracion de un objeto de una clase en linea "+ Linea.getLinea());}
+                    | declaracionClase {System.out.println("Se reconocio una clase en linea "+ Linea.getLinea());}
 ;
 
-metodo_objeto : ID '.' invocacionFuncion {System.out.println("se reconocio la invocacion de un metodo de un objeto en linea " + Linea.getLinea());}
+metodo_objeto : ID '.' invocacionFuncion
 ;
 
 atributo_objeto : ID '.' ID
@@ -122,38 +122,38 @@ comparador : '>'
            | '<='
            | '!!'
            | '=='
-           | error {System.out.println("No se reconoce como comparador");}
+           | error {System.out.println("Error: El caracter no se reconoce como comparador  en linea "+ Linea.getLinea());}
 ;
 
-condicion : '(' expresion comparador expresion ')' {System.out.println("Se reconoció una condicion");}
+condicion : '(' expresion comparador expresion ')' {System.out.println("Se reconoció una condicion  en linea "+ Linea.getLinea());}
           | '(' expresion comparador expresion error  {System.out.println("Falta el parentesis que cierra en linea: " + Linea.getLinea());}
           |  expresion comparador expresion ')' error {System.out.println("Falta el parentesis que abre en linea: " + Linea.getLinea());}
 ;
 
-clausula_seleccion : IF condicion bloque_de_Sentencias ELSE bloque_de_Sentencias END_IF {System.out.println("Se reconocio un IF");}
-                   | IF condicion bloque_de_Sentencias END_IF {System.out.println("Se reconocio un IF");}
+clausula_seleccion : IF condicion bloque_de_Sentencias ELSE bloque_de_Sentencias END_IF
+                   | IF condicion bloque_de_Sentencias END_IF
                    | IF condicion bloque_de_Sentencias error {System.out.println("Falta el END_IF");}
                    | IF condicion bloque_de_Sentencias ELSE bloque_de_Sentencias error {System.out.println("Falta el END_IF");}
-                   | IF condicion sentencia ELSE bloque_de_Sentencias END_IF {System.out.println("Se reconocio un IF");}
-                   | IF condicion bloque_de_Sentencias ELSE sentencia END_IF {System.out.println("Se reconocio un IF");}
-                   | IF condicion sentencia ELSE sentencia END_IF {System.out.println("Se reconocio un IF");}
+                   | IF condicion sentencia ELSE bloque_de_Sentencias END_IF
+                   | IF condicion bloque_de_Sentencias ELSE sentencia END_IF
+                   | IF condicion sentencia ELSE sentencia END_IF
                    | IF bloque_de_Sentencias error {System.out.println("Falto la condicion del IF");}
-                   | IF condicion sentencia END_IF {System.out.println("Se reconocio un IF");}
+                   | IF condicion sentencia END_IF
 ;
 
-sentencia_de_Control : DO bloque_de_Sentencias UNTIL condicion {System.out.println("Se reconocio sentencia DO UNTIL");}
-                     | DO sentencia UNTIL condicion {System.out.println("Se reconocio sentencia DO UNTIL");}
-                     | DO sentencia UNTIL error {System.out.println("Falta la condicion en linea: " + Linea.getLinea());}
+sentencia_de_Control : DO bloque_de_SentenciasEjecutables UNTIL condicion
+                     | DO sentenciaEjecutable UNTIL condicion
+                     | DO sentenciaEjecutable UNTIL error {System.out.println("Falta la condicion de la sentencia de control");}
 ;
 
-declaracion: tipo lista_Variables {System.out.println("Se reconocio una declaracion");}
+declaracion: tipo lista_Variables
 ;
 
 lista_Variables : lista_Variables ';' ID
                 | ID
 ;
 
-invocacionFuncion : ID parametro_real {System.out.println("Se reconocio una invocacion de una funcion");}
+invocacionFuncion : ID parametro_real
 ;
 
 parametro_real  : '(' expresion ')'
@@ -175,12 +175,11 @@ parametro_formal: '(' tipo ID ')'
 tipo : DOUBLE
      | USHORT
      | LONG
-     | error {System.out.println("No es un tipo definido");}
+     | error {System.out.println("Error: No es un tipo definido en linea "+ Linea.getLinea());}
 ;
 
-print : PRINT CADENA {System.out.println("Se reconocio una impresion por pantalla");}
+print : PRINT CADENA
 ;
-
 
 %%
 
