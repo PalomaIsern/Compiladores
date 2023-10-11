@@ -22,8 +22,7 @@ public class AS9 extends AccionSemantica {
                 System.out.println("Linea " + Linea.getLinea() +
                         ": WARNING - el entero largo está fuera del rango permitido");
                 entero = limite;
-            } // Integer.MIN_VALUE se establece en -2,147,483,648.
-              // Integer.MAX_VALUE se establece en 2,147,483,647.
+            }
             if (!TablaSimbolos.pertenece(Long.toString(entero))) {
                 TablaSimbolos.agregar(Long.toString(entero), TablaToken.getId("CTE"));
             }

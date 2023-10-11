@@ -7,6 +7,7 @@ import compiladores.Linea;
 import compiladores.TablaPR;
 import compiladores.TablaToken;
 import compiladores.Token;
+import compiladores.Linea;
 
 public class AS4 extends AccionSemantica {
     // devolver a la entrada el ultimo caracter leido, verificar si es PR,
