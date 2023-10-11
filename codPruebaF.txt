@@ -1,28 +1,39 @@
 {
-DOUBLE x; y,
 
-x = 1.2,
-y = 2.5,
+USHORT us,
+us = 280_us,
 
-VOID func(DOUBLE l) 
-{
-	PRINT # hello world
-	RETURN,
+CLASS clase {
+	LONG largo,
+	largo = 1000099_l,
+
+	VOID func(LONG l) {
+		l += 100000_l,
+	},
 },
 
-IF (x >= y) 
-{
-	VOID func(x),
+CLASS clase2 {
+	DOUBLE dob1; dob2,
+	dob1 = 4.5D-1,
+	dob2 = 0.6-d2,
+	VOID func2(),
 
-} ELSE {
-	VOID func(y),
-}
-END_IF,
+	clase,
 
-LONG largo,
-largo = 1000099_l,
-largo += 10000_l,
+},
 
+clase2 objeto1; objeto2,
+objeto1.largo = -3000000000_l,
+objeto2.func(200000_l),
 
+IMPL FOR clase2: {
+	VOID func2() {
+		PRINT #cadena de prueba#
+	},
+},
+
+** comentario de prueba
+identificador_muy_largo = 1.0,
+IDENTIFICADOR_MAL = 2.0
 
 }
