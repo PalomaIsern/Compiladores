@@ -1,0 +1,19 @@
+{
+ USHORT variablecuyonombre___esmayoralpermitido1; nombrecorto2,
+
+ VOID funcion_main (USHORT x){
+    IF (x <= 5_us){
+        x += 270_us,    **Deberia dar Warning ya que es un numero mayor al permitido
+        PRINT #No es una suma valida#,
+    }
+    ELSE {
+        PRINT #NO es un cadena valida,
+        &hola = 3_us,
+    }
+    END_IF,
+    RETURN,
+ },
+
+    DO {y += 1.0} UNTIL (y == 133.0),
+
+}
