@@ -266,8 +266,6 @@ public class Lexico {
                 Token aux = null;
                 while (estado != -1 && estado != 100 && num_caracter != -1) {
                         char caracter = Character.toChars(num_caracter)[0];
-                        // System.out.println("Caracter: " + caracter + " - Linea: " +
-                        // Linea.numero_linea);
                         if (num_caracter == 10)// Indica el salto de linea
                                 Linea.setLinea();
                         int siguienteEstado = 0;
@@ -288,8 +286,6 @@ public class Lexico {
         }
 
         public Token ejecutarAS(int estado, char caracter) throws IOException {
-                // System.out.println("AS a ejecutar : " + Matriz_Acciones[estado][columna]);
-                System.out.println(" ");
                 AccionSemantica AS = Matriz_Acciones[estado][columna];
                 return generarToken(AS, caracter);
         }

@@ -1,0 +1,28 @@
+{
+DOUBLE x; y,
+
+x = 1.2,
+y = 2.5,
+
+VOID func(DOUBLE l) 
+{
+	PRINT # hello world
+	RETURN,
+},
+
+IF (x >= y) 
+{
+	VOID func(x),
+
+} ELSE {
+	VOID func(y),
+}
+END_IF,
+
+LONG largo,
+largo = 1000099_l,
+largo += 10000_l,
+
+
+
+}

@@ -63,8 +63,10 @@ simboloTermino : '*'
 ;
 
 factor : ID
-       | CTE
-       | '-' CTE {System.out.println("Se reconocio constante negativa en linea "+ Linea.getLinea());}
+       | CTE    {System.out.println("Se reconocio una constante"); 
+                chequearRangoPositivo($1.sval);}
+       | '-' CTE {System.out.println("Se reconocio constante negativa en linea "+ Linea.getLinea());
+                chequearRangoNegativo($2.sval);}
        | CTEPOS
 ;
 
@@ -209,5 +211,111 @@ print : PRINT CADENA
         System.out.println(error);
     }
     
+    public void actualizarTS(String numero){
+        //Se saca el positivo de la TS y se agrega el negativo
+        System.out.println("Se agregara la constante "+numero+" como negativa");
+        if (TS.pertenece(numero)){
+            TS.eliminar(numero);  
+            TS.agregar('-'+numero, 258);
+        }else System.out.println("El numero "+numero+" no esta en la TS");
 
-    
+    }
+
+    public void chequearRangoPositivo(String numero) {
+        if (numero.contains(".")) //DOUBLE 
+        {
+            double num = Double.parseDouble(numero);
+            if (num < 2.2250738585072014e-308)
+                {
+                    if (num != 0.0)
+                    {
+                        System.out.println("El double positivo es menor al limite permitido. Tiene valor: "+num);
+                        if (TS.pertenece(Double.toString(num))) {
+                            TS.eliminar(Double.toString(num));
+                            String nuevo = "2.2250738585072014e-308"  ;
+                            TS.agregar(nuevo, 258);
+                        }
+                    }
+                    System.out.println("El numero fue actualizado en la TS a un valor permitido");
+                }
+            else if (num > 1.7976931348623157e+308)
+            {
+                System.out.println("El double positivo es mayor al limite permitido. Tiene valor: "+num);
+                    if (TS.pertenece(Double.toString(num))) {
+                        TS.eliminar(Double.toString(num));
+                        String nuevo = "1.7976931348623157e+308";
+                        TS.agregar(nuevo, 258);
+                    } 
+            }
+        }
+        else
+        {   Long entero = Long.valueOf(numero);
+            if (entero > 2147483647L) {
+                System.out.println("El entero largo positivo es mayor al limite permitido. Tiene valor: "+entero);
+                if (TS.pertenece(Long.toString(entero))) {
+                    TS.eliminar(Long.toString(entero));
+                    String nuevo = "2147483647";
+                    TS.agregar(nuevo, 258);
+                }
+                System.out.println("El numero fue actualizado en la TS a un valor permitido");
+            }
+        }
+    }
+
+public void chequearRangoNegativo(String numero) {
+    if (numero.contains(".")) //DOUBLE 
+    {
+        double num = Double.parseDouble(numero) * (-1.0); 
+            if (num > -2.2250738585072014e-308)
+                {
+                    if (num != 0.0)
+                    {
+                        System.out.println("El double negativo es mayor al limite permitido. Tiene valor: "+num);
+                        if (TS.pertenece(Double.toString(num*(-1.0)))) {
+                            TS.eliminar(Double.toString(num * (-1.0)));
+                            String nuevo = "-2.2250738585072014e-308";
+                            TS.agregar(nuevo, 258);
+                        }
+                    }
+                    System.out.println("El numero fue actualizado en la TS a un valor permitido");
+                }
+            else if (num < -1.7976931348623157e+308)
+            {
+                System.out.println("El double positivo es menor al limite permitido. Tiene valor: "+num);
+                    if (TS.pertenece(Double.toString(num*(-1.0)))) {
+                        TS.eliminar(Double.toString(num *(-1.0)));
+                        String nuevo = "-1.7976931348623157e+308";
+                        TS.agregar(nuevo, 258);
+                    } 
+            }
+            else 
+            {
+                if (TS.pertenece(Double.toString(num * (-1.0)))) {
+                        TS.eliminar(Double.toString(num *(-1.0)));
+                        String nuevo = Double.toString(num);
+                        TS.agregar(nuevo, 258);
+                }
+                System.out.println("Se actualizo el double dentro del rango a negativo");
+            }
+    }
+        else //LONG
+        {   
+            Long entero = Long.valueOf(numero);
+            entero = entero * (-1);
+            if (entero < -2147483648L) {
+                System.out.println("El entero largo negativo es menor al limite permitido. Tiene valor: "+entero);
+                if (TS.pertenece(Long.toString(entero * (-1)))) {
+                    TS.eliminar(Long.toString(entero*(-1)));
+                    String nuevo = "-2147483648";
+                    TS.agregar(nuevo, 258);
+                }
+            } else 
+            { if (TS.pertenece(Long.toString(entero * (-1)))) {
+                    TS.eliminar(Long.toString(entero*(-1)));
+                    String nuevo = Long.toString(entero);
+                    TS.agregar(nuevo, 258);
+                }
+
+            }
+        }
+    }

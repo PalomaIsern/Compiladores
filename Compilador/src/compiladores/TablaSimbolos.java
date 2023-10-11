@@ -22,6 +22,11 @@ public class TablaSimbolos {
             return true;
     }
 
+    public static void eliminar(String valor) {
+        if (pertenece(valor))
+            TS.remove(valor);
+    }
+
     public void imprimirContenido() {
         System.out.println("   TABLA DE SIMBOLOS\n");
         for (HashMap.Entry<String, Integer> i : TS.entrySet()) {
