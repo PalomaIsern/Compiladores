@@ -12,7 +12,7 @@ public class AS8 extends AccionSemantica {
         // son blancos/saltos de linea
         // no devuelve ningun token
         if (c == '*')
-            System.out.println("Se reconoció un comentario en la linea " + Linea.getLinea());
+            System.out.println("Linea " + Linea.getLinea() + ": Se reconocio un comentario");
         return null;
     }
 }

@@ -1,9 +1,9 @@
 {
 aux1 = 257_us,
 
-IF (aux1 >= 256)
-	# cadena de prueba 1#,
+IF (aux1 >= 256_us)
+	# cadena de prueba 1#
 ELSE
-	# cadena de prueba 2,
+	# cadena de prueba 2
 END_IF,
 }

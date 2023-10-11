@@ -494,6 +494,7 @@ public class Parser {
     }
     if (token != null) {
       yylval = new ParserVal(token.getLexema());
+      System.out.println(token.toString());
       return token.getIdToken();
     } else
       TS.imprimirContenido();

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import compiladores.Linea;
 import compiladores.Token;
 
 public class AS1 extends AccionSemantica {
@@ -17,7 +18,7 @@ public class AS1 extends AccionSemantica {
             lexema.setLength(0);
             lexema.append(c);
         } else {
-            System.out.println("El caracter no es valido");
+            System.out.println("Linea " + Linea.getLinea() + ": WARNING - El caracter no es valido");
         }
         return null; // no retorno nada porque aun no forme completamente el token
     }

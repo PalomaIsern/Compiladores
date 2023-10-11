@@ -19,11 +19,10 @@ public class AS9 extends AccionSemantica {
         if (last == 'l') { // entero largo _l
             long entero = Long.parseUnsignedLong(lexema.substring(0, (lexema.length() - 2)));
             if (entero > limite) {
-                System.out.println(
-                        "WARNING - Linea " + Linea.getLinea() + ": el entero largo está fuera del rango permitido");
+                System.out.println("Linea " + Linea.getLinea() +
+                        ": WARNING - el entero largo está fuera del rango permitido");
                 entero = limite;
-            } // Integer.MIN_VALUE se establece en -2,147,483,648.
-              // Integer.MAX_VALUE se establece en 2,147,483,647.
+            }
             if (!TablaSimbolos.pertenece(Long.toString(entero))) {
                 TablaSimbolos.agregar(Long.toString(entero), TablaToken.getId("CTE"));
             }
@@ -31,9 +30,8 @@ public class AS9 extends AccionSemantica {
         } else if (last == 's') { // entero corto _us
             int entero = Integer.parseInt(lexema.substring(0, (lexema.length() - 3)));
             if (entero > 255) {
-                System.out.println(
-                        "WARNING - Linea " + Linea.getLinea()
-                                + ": el entero corto se encuentra fuera del rango permitido");
+                System.out.println("Linea " + Linea.getLinea() +
+                        ": WARNING - el entero corto se encuentra fuera del rango permitido");
                 entero = 255;
             }
             if (!TablaSimbolos.pertenece(Integer.toString(entero))) {

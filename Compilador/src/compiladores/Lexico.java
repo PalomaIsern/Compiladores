@@ -282,8 +282,6 @@ public class Lexico {
                         }
                 }
                 estado = 0;
-                System.out.println("TOKEN RECONOCIDO: " + aux.getIdToken());
-                // TS.imprimirContenido();
                 if (num_caracter == -1)
                         finArchivo = true;
                 return aux;
