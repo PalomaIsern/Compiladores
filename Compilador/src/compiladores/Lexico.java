@@ -107,7 +107,7 @@ public class Lexico {
 
         private static AccionSemantica[][] Matriz_Acciones = new AccionSemantica[][] {
                         // bl,tab nl l _ d / { } ( ) , . ; + = : < > ! L - "d" "D" * # "u" "s" "l" otro
-                        { AS8, AS8, AS1, AS1, AS1, AS5, AS5, AS5, AS5, AS5, AS5, AS1, AS5, AS1, AS1, AS8, AS1, AS1, AS1,
+                        { AS8, AS8, AS1, AS1, AS1, AS5, AS5, AS5, AS5, AS5, AS5, AS1, AS5, AS1, AS1, AS5, AS1, AS1, AS1,
                                         AS1, AS5, AS1, AS1, AS1, AS1, AS1, AS1, AS1, AS8 }, // Estado 0
                         { AS3, AS3, AS2, AS2, AS2, AS3, AS3, AS3, AS3, AS3, AS3, AS3, AS3, AS3, AS3, AS3, AS3, AS3, AS3,
                                         AS3, AS3, AS2, AS3, AS3, AS3, AS2, AS2, AS2, AS3 }, // Estado 1

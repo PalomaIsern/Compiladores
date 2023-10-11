@@ -37,7 +37,7 @@ public class AS10 extends AccionSemantica {
         }
 
         // verifico el rango
-        if (d <= min) {
+        if (d <= min && d != 0.0) {
             System.out.println("WARNING - Linea " + Linea.getLinea()
                     + ": el numero es menor al rango permitido. Consideramos el valor minimo");
             d = min;

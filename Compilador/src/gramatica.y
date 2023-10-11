@@ -7,7 +7,7 @@ import java.io.IOException;
 
 %}
 
-%token ID CTE CTEPOS IF END_IF ELSE PRINT CLASS VOID LONG USHORT DOUBLE DO UNTIL IMPL FOR CADENA RETURN 
+%token ID CTE CTEPOS IF END_IF ELSE PRINT CLASS VOID LONG USHORT DOUBLE DO UNTIL IMPL FOR CADENA RETURN '<=' '>=' '!!' '+=' '==' '>' '<'
 %start programa
 
 %%
@@ -146,7 +146,7 @@ sentencia_de_Control : DO bloque_de_Sentencias UNTIL condicion {System.out.print
                      | DO sentencia UNTIL error {System.out.println("Falta la condicion en linea: " + Linea.getLinea());}
 ;
 
-declaracion: tipo lista_Variables
+declaracion: tipo lista_Variables {System.out.println("Se reconocio una declaracion");}
 ;
 
 lista_Variables : lista_Variables ';' ID

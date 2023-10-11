@@ -9,9 +9,10 @@ import compiladores.TablaToken;
 import compiladores.Token;
 
 public class AS5 extends AccionSemantica {
-    private ArrayList<Character> caracteres = new ArrayList<>(Arrays.asList('/', '{', '}', '(', ')', ',', ';', '-'));
+    private ArrayList<Character> caracteres = new ArrayList<>(
+            Arrays.asList('/', '{', '}', '(', ')', ',', ';', '-', ':'));
 
-    // Reconoce '/', '{', '}', '(', ')', ',', ';', '-'
+    // Reconoce '/', '{', '}', '(', ')', ',', ';', '-', ':'
     @Override
     public Token ejecutarAS(char c) throws IOException {
         if (caracteres.contains(c)) {

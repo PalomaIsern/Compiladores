@@ -13,7 +13,7 @@ public class AS7 extends AccionSemantica {
 
     public Token ejecutarAS(char c) throws IOException {
         Lexico.VolverAtras();
-        // Lexico.setVolverALeer(true); // devolver lo ultimo leido
+        Lexico.setVolverALeer(true); // devolver lo ultimo leido
         char c1 = lexema.charAt(0);
         if (c1 == '=')
             return new Token(TablaToken.getId("="));

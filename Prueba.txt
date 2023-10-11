@@ -1,5 +1,16 @@
 {
-	IF(1_us<=10_us)
-		entero == 2.0,
+	IF(1_us<10_us)
+		entero += 2.0,
+	ELSE
+	{
+		a.a1(),
+		b.b1 = -5.0,
+		IMPL FOR id : { 
+			VOID c (){
+				hola = #cadena",
+				DOUBLE d,
+			},
+		},
+	}
 	END_IF,
 }
