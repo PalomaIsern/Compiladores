@@ -1,0 +1,32 @@
+{
+	CLASS clase1
+	{
+		USHORT x,
+		VOID f1(){
+			IF (x>y)
+				f2(x),
+			ELSE PRINT #Hola#,
+			END_IF,
+		RETURN,
+		}
+		LONG y,
+		y += x-40_us,
+		f1(),
+		CLASS clase2,
+		CLASS clase3 {
+			USHORT a,
+		}
+	}
+	VOID m() 
+	{
+		VOID n(){
+			DOUBLE zz,
+			LONG y,
+			ww = zz + xx + a,
+		},
+	RETURN,
+	DO z=4.0 UNTIL (y!!z), 
+	** comentario
+	PRINT #cadena1#
+	}
+}

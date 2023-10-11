@@ -37,7 +37,7 @@ sentencia  : sentenciaDeclarativa fin_sentencia
 ;
 
 fin_sentencia : ','
-              | error {System.out.println("Falto la coma al final de la sentencia");}
+              | error {System.out.println("Falto la coma al final de la sentencia en linea: "+ Linea.getLinea());}
 ;
 
 asignacion : ID simboloAsignacion expresion {System.out.println("Se reconocio una asignacion");}
@@ -87,17 +87,17 @@ declaracionFuncion: funcion_VOID
                   | funcion_VOID_vacia
 ;
 
-funcion_VOID: VOID ID parametro_formal '{' cuerpo_funcion '}' {System.out.println("Funcion VOID");}
+funcion_VOID: VOID ID parametro_formal '{' cuerpo_funcion '}' {System.out.println("Se reconocio una invocacion de una funcion VOID en linea "+ Linea.getLinea());}
 ;
 
-funcion_VOID_vacia: VOID ID parametro_formal {System.out.println("Funcion VOID vacia");}
+funcion_VOID_vacia: VOID ID parametro_formal {System.out.println("Se reconocio una invocacion de una funcion VOID vacia en linea "+ Linea.getLinea());}
 ;
 
 clausula_IMPL : IMPL FOR ID ':' '{' funcion_VOID '}'
 ;
 
 sentenciaEjecutable : asignacion
-                    | invocacionFuncion {System.out.println("Se reconocio una invocacion de una funcion en linea "+ Linea.getLinea());}
+                    | invocacionFuncion
                     | clausula_seleccion {System.out.println("Se reconocio una clausula de seleccion IF en linea "+ Linea.getLinea());}
                     | print  {System.out.println("Se reconocio una impresion por pantalla en linea "+ Linea.getLinea());}
                     | metodo_objeto {System.out.println("Se reconocio la invocacion de un metodo de un objeto en linea " + Linea.getLinea());}
@@ -201,6 +201,7 @@ print : PRINT CADENA
         }
         if (token != null){
             yylval = new ParserVal(token.getLexema());
+            System.out.println(token.toString());
             return token.getIdToken();
         }
         else

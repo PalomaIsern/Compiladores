@@ -514,6 +514,7 @@ final static String yyrule[] = {
         }
         if (token != null){
             yylval = new ParserVal(token.getLexema());
+            System.out.println(token.toString());
             return token.getIdToken();
         }
         else
@@ -578,7 +579,7 @@ final static String yyrule[] = {
 public void chequearRangoNegativo(String numero) {
     if (numero.contains(".")) //DOUBLE 
     {
-        double num = Double.parseDouble(numero) * (-1.0);
+        double num = Double.parseDouble(numero) * (-1.0); 
             if (num > -2.2250738585072014e-308)
                 {
                     if (num != 0.0)
@@ -632,7 +633,7 @@ public void chequearRangoNegativo(String numero) {
             }
         }
     }
-//#line 564 "Parser.java"
+//#line 565 "Parser.java"
 //###############################################################
 // method: yylexdebug : check lexer state
 //###############################################################
@@ -796,7 +797,7 @@ case 7:
 break;
 case 12:
 //#line 40 "gramatica.y"
-{System.out.println("Falto la coma al final de la sentencia");}
+{System.out.println("Falto la coma al final de la sentencia en linea: "+ Linea.getLinea());}
 break;
 case 13:
 //#line 43 "gramatica.y"
@@ -830,15 +831,11 @@ case 32:
 break;
 case 37:
 //#line 90 "gramatica.y"
-{System.out.println("Funcion VOID");}
+{System.out.println("Se reconocio una invocacion de una funcion VOID en linea "+ Linea.getLinea());}
 break;
 case 38:
 //#line 93 "gramatica.y"
-{System.out.println("Funcion VOID vacia");}
-break;
-case 41:
-//#line 100 "gramatica.y"
-{System.out.println("Se reconocio una invocacion de una funcion en linea "+ Linea.getLinea());}
+{System.out.println("Se reconocio una invocacion de una funcion VOID vacia en linea "+ Linea.getLinea());}
 break;
 case 42:
 //#line 101 "gramatica.y"
@@ -948,7 +945,7 @@ case 95:
 //#line 180 "gramatica.y"
 {System.out.println("Error: No es un tipo definido en linea "+ Linea.getLinea());}
 break;
-//#line 875 "Parser.java"
+//#line 872 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####
