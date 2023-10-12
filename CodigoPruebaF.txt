@@ -24,8 +24,8 @@
 
 	IMPL FOR clase2: {
 		VOID func2() {
-			PRINT #cadena de prueba#,
-		} 
+			PRINT #cadena de prueba,
+		}, 
 	},
 	** comentario de prueba 
 }
