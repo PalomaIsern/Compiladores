@@ -18,6 +18,7 @@ public class Lexico {
         private static boolean volverALeer;
         private static BufferedReader lector;
         private static boolean finArchivo;
+        private static boolean saltoDeLinea;
 
         public Lexico() {
                 estado = 0;
@@ -32,6 +33,7 @@ public class Lexico {
                         System.err.println("El archivo no se encontró o no se puede acceder.");
                 }
                 finArchivo = false;
+                saltoDeLinea = false;
         }
 
         private static int[][] transiciones = new int[][] {
@@ -264,10 +266,14 @@ public class Lexico {
                 lector.mark(1);
                 int num_caracter = lector.read();
                 Token aux = null;
+                saltoDeLinea = false;
                 while (estado != -1 && estado != 100 && num_caracter != -1) {
                         char caracter = Character.toChars(num_caracter)[0];
                         if (num_caracter == 10)// Indica el salto de linea
+                        {
                                 Linea.setLinea();
+                                saltoDeLinea = true;
+                        }
                         int siguienteEstado = 0;
                         siguienteEstado = nuevoEstado(estado, caracter);
                         aux = ejecutarAS(estado, caracter);
@@ -306,6 +312,10 @@ public class Lexico {
 
         public static int getEstadoActual() {
                 return estado;
+        }
+
+        public boolean salto() {
+                return saltoDeLinea;
         }
 
 }

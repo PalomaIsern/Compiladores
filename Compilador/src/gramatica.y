@@ -37,16 +37,16 @@ sentencia  : sentenciaDeclarativa fin_sentencia
 ;
 
 fin_sentencia : ','
-              | error {System.out.println("Falto la coma al final de la sentencia en linea: "+ Linea.getLinea());}
+                | error {VerificarSalto();}
 ;
 
-asignacion : ID simboloAsignacion expresion {System.out.println("Se reconocio una asignacion");}
-            | atributo_objeto '=' atributo_objeto {System.out.println("Se reconocio una asignacion a un atributo objeto");}
-            | atributo_objeto '=' factor {System.out.println("Se reconocio una asignacion a un atributo objeto");}
+asignacion : ID simboloAsignacion expresion
+            | atributo_objeto '=' atributo_objeto {System.out.println("Se reconocio una asignacion a un atributo objeto en linea "+ Linea.getLinea());}
+            | atributo_objeto '=' factor {System.out.println("Se reconocio una asignacion a un atributo objeto en linea "+ Linea.getLinea());}
 ;
 
-simboloAsignacion : '='
-                  | '+='
+simboloAsignacion : '=' {System.out.println("Se reconocio una asignacion");}
+                  | '+=' {System.out.println("Se reconocio una asignacion suma");}
                   | error {System.out.println("No es valido el signo de asignacion");}
 ;
 
@@ -63,7 +63,7 @@ simboloTermino : '*'
 ;
 
 factor : ID
-       | CTE    {System.out.println("Se reconocio una constante"); 
+       | CTE    {System.out.println("Se reconocio una constante en linea "+Linea.getLinea());
                 chequearRangoPositivo($1.sval);}
        | '-' CTE {System.out.println("Se reconocio constante negativa en linea "+ Linea.getLinea());
                 chequearRangoNegativo($2.sval);}
@@ -76,7 +76,7 @@ operadorMasMenos : '+'
 
 
 declaracionClase : CLASS ID bloque_de_Sentencias
-                 | CLASS ID '{' conjuntoSentencias ID ',' '}' {System.out.println("Clase con herencia por composicion");}
+                 | CLASS ID '{' conjuntoSentencias ID ',' '}' {System.out.println("Clase con herencia por composicion en linea "+Linea.getLinea());}
                  | CLASS ID
 ;
 
@@ -93,7 +93,7 @@ funcion_VOID: VOID ID parametro_formal '{' cuerpo_funcion '}' {System.out.printl
 funcion_VOID_vacia: VOID ID parametro_formal {System.out.println("Se reconocio una invocacion de una funcion VOID vacia en linea "+ Linea.getLinea());}
 ;
 
-clausula_IMPL : IMPL FOR ID ':' '{' funcion_VOID '}'
+clausula_IMPL : IMPL FOR ID ':' '{' funcion_VOID fin_sentencia '}'
 ;
 
 sentenciaEjecutable : asignacion
@@ -107,7 +107,7 @@ sentenciaEjecutable : asignacion
 ;
 
 sentenciaDeclarativa: declaracion {System.out.println("Se reconocio una declaracion simple en linea "+ Linea.getLinea());}
-                    | declaracionFuncion {System.out.println("Se reconocio una funcion en linea "+ Linea.getLinea());}
+                    | declaracionFuncion
                     | declaracionObjeto {System.out.println("Se reconocio una declaracion de un objeto de una clase en linea "+ Linea.getLinea());}
                     | declaracionClase {System.out.println("Se reconocio una clase en linea "+ Linea.getLinea());}
 ;
@@ -212,16 +212,6 @@ print : PRINT CADENA
         System.out.println(error);
     }
     
-    public void actualizarTS(String numero){
-        //Se saca el positivo de la TS y se agrega el negativo
-        System.out.println("Se agregara la constante "+numero+" como negativa");
-        if (TS.pertenece(numero)){
-            TS.eliminar(numero);  
-            TS.agregar('-'+numero, 258);
-        }else System.out.println("El numero "+numero+" no esta en la TS");
-
-    }
-
     public void chequearRangoPositivo(String numero) {
         if (numero.contains(".")) //DOUBLE 
         {
@@ -246,7 +236,7 @@ print : PRINT CADENA
                         TS.eliminar(Double.toString(num));
                         String nuevo = "1.7976931348623157e+308";
                         TS.agregar(nuevo, 258);
-                    } 
+                    }
             }
         }
         else
@@ -266,16 +256,17 @@ print : PRINT CADENA
 public void chequearRangoNegativo(String numero) {
     if (numero.contains(".")) //DOUBLE 
     {
+        //Convertimos el double en negativo para chequear rango negativo
         double num = Double.parseDouble(numero) * (-1.0); 
             if (num > -2.2250738585072014e-308)
                 {
-                    if (num != 0.0)
+                    if (num != 0.0) //Si esta fuera del rango todavia puede ser válido por el 0.0
                     {
                         System.out.println("El double negativo es mayor al limite permitido. Tiene valor: "+num);
                         if (TS.pertenece(Double.toString(num*(-1.0)))) {
                             TS.eliminar(Double.toString(num * (-1.0)));
                             String nuevo = "-2.2250738585072014e-308";
-                            TS.agregar(nuevo, 258);
+                            TS.agregar(nuevo, 258);//Lo agrego a la tabla de simbolos con el signo
                         }
                     }
                     System.out.println("El numero fue actualizado en la TS a un valor permitido");
@@ -290,7 +281,7 @@ public void chequearRangoNegativo(String numero) {
                     } 
             }
             else 
-            {
+            {//En caso de respetar el rango solo le agrega el menos en la tabla de simbolos
                 if (TS.pertenece(Double.toString(num * (-1.0)))) {
                         TS.eliminar(Double.toString(num *(-1.0)));
                         String nuevo = Double.toString(num);
@@ -300,7 +291,8 @@ public void chequearRangoNegativo(String numero) {
             }
     }
         else //LONG
-        {   
+        {
+            //Convierto el numero a negativo y verifico el rango
             Long entero = Long.valueOf(numero);
             entero = entero * (-1);
             if (entero < -2147483648L) {
@@ -308,10 +300,12 @@ public void chequearRangoNegativo(String numero) {
                 if (TS.pertenece(Long.toString(entero * (-1)))) {
                     TS.eliminar(Long.toString(entero*(-1)));
                     String nuevo = "-2147483648";
-                    TS.agregar(nuevo, 258);
+                    TS.agregar(nuevo, 258);//Lo agrego a la tabla de simbolos en negativo borrando el numero positivo
                 }
-            } else 
-            { if (TS.pertenece(Long.toString(entero * (-1)))) {
+            } else
+            { 
+                //En caso de respetar el rango solo le agrega el menos en la tabla de simbolos
+                if (TS.pertenece(Long.toString(entero * (-1)))) {
                     TS.eliminar(Long.toString(entero*(-1)));
                     String nuevo = Long.toString(entero);
                     TS.agregar(nuevo, 258);
@@ -319,4 +313,11 @@ public void chequearRangoNegativo(String numero) {
 
             }
         }
+    }
+
+    public void VerificarSalto(){
+        if (lex.salto())
+            System.out.println("Falto la coma en la linea " + (Linea.getLinea()-1) +" al final de la sentencia");
+        else
+            System.out.println("Falto la coma en la linea " + Linea.getLinea() +" al final de la sentencia");
     }

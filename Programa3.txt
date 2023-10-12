@@ -13,11 +13,8 @@
 		y += x-40_us,
 		f1(),
 		CLASS clase2,
-		CLASS clase3 {
-			USHORT a,
-		}
 	}
-	VOID m() 
+	VOID m()
 	{
 		VOID n(){
 			DOUBLE zz,
@@ -25,7 +22,7 @@
 			ww = zz + xx + a,
 		},
 	RETURN,
-	DO z=4.0 UNTIL (y!!z), 
+	DO z=4.0 UNTIL (y!!z),
 	** comentario
 	PRINT #cadena1#
 	}

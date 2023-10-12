@@ -7,5 +7,4 @@ public class Ejecutar {
         Parser p = new Parser(lexico);
         p.run();
     }
-
 }
