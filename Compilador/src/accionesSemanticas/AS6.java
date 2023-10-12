@@ -19,7 +19,7 @@ public class AS6 extends AccionSemantica {
             return new Token(TablaToken.getId(lexema.toString()));
         } else {
             if (lexema.charAt(lexema.length() - 1) != '#')
-                System.out.println("Linea " + Linea.getLinea() + ": WARNING - la cadena debe finalizar con '#'");
+                System.out.println("Linea " + (Linea.getLinea() - 1) + ": WARNING - la cadena debe finalizar con '#'");
             String lexemaStr = lexema.toString();
             lexemaStr = lexemaStr.replaceAll("^#+", "").replaceAll("#+$", "");
             TablaSimbolos.agregar(lexemaStr.trim(), TablaToken.getId("CADENA"));
