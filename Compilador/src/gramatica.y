@@ -45,8 +45,8 @@ asignacion : ID simboloAsignacion expresion
             | atributo_objeto '=' factor {System.out.println("Se reconocio una asignacion a un atributo objeto en linea "+ Linea.getLinea());}
 ;
 
-simboloAsignacion : '=' {System.out.println("Se reconocio una asignacion");}
-                  | '+=' {System.out.println("Se reconocio una asignacion suma");}
+simboloAsignacion : '=' {System.out.println("Se reconocio una asignacion en linea "+ Linea.getLinea());}
+                  | '+=' {System.out.println("Se reconocio una asignacion suma en linea "+ Linea.getLinea());}
                   | error {System.out.println("No es valido el signo de asignacion");}
 ;
 

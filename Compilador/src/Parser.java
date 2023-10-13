@@ -810,11 +810,11 @@ case 15:
 break;
 case 16:
 //#line 48 "gramatica.y"
-{System.out.println("Se reconocio una asignacion");}
+{System.out.println("Se reconocio una asignacion en linea "+ Linea.getLinea());}
 break;
 case 17:
 //#line 49 "gramatica.y"
-{System.out.println("Se reconocio una asignacion suma");}
+{System.out.println("Se reconocio una asignacion suma en linea "+ Linea.getLinea());}
 break;
 case 18:
 //#line 50 "gramatica.y"

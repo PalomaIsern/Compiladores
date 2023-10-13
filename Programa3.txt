@@ -22,7 +22,7 @@
 			ww = zz + xx + a,
 		},
 	RETURN,
-	DO z=4.0 UNTIL (y!!z),
+	DO y=-5000000000_l UNTIL (y!!z),
 	** comentario
 	PRINT #cadena1#
 	}
