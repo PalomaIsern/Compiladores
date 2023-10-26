@@ -23,9 +23,7 @@ public class AS9 extends AccionSemantica {
                         ": WARNING - el entero largo está fuera del rango permitido");
                 entero = limite;
             }
-            if (!TablaSimbolos.pertenece(Long.toString(entero))) {
-                TablaSimbolos.agregar(Long.toString(entero), TablaToken.getId("CTE"));
-            }
+            TablaSimbolos.agregar(Long.toString(entero), TablaToken.getId("CTE"), "LONG");
             return new Token(TablaToken.getId("CTE"), Long.toString(entero));
         } else if (last == 's') { // entero corto _us
             int entero = Integer.parseInt(lexema.substring(0, (lexema.length() - 3)));
@@ -34,9 +32,7 @@ public class AS9 extends AccionSemantica {
                         ": WARNING - el entero corto se encuentra fuera del rango permitido");
                 entero = 255;
             }
-            if (!TablaSimbolos.pertenece(Integer.toString(entero))) {
-                TablaSimbolos.agregar(Integer.toString(entero), TablaToken.getId("CTEPOS"));
-            }
+            TablaSimbolos.agregar(Integer.toString(entero), TablaToken.getId("CTEPOS"), "USHORT");
             return new Token(TablaToken.getId("CTEPOS"), Integer.toString(entero));
         }
         return null;

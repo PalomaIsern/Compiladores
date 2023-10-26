@@ -4,33 +4,53 @@ import java.util.HashMap;
 
 public class TablaSimbolos {
 
-    private static HashMap<String, Integer> TS;
+    private static HashMap<Integer, Simbolo> TS;
+    private static Integer puntero = 0;
 
     public TablaSimbolos() {
-        TS = new HashMap<String, Integer>();
+        TS = new HashMap<Integer, Simbolo>();
     }
 
     public static void agregar(String valor, Integer id) {
-        if (!pertenece(valor))
-            TS.put(valor, id);
+        Simbolo s = new Simbolo(id, valor);
+        if (pertenece(s.get_Lex()) == -1) {
+            TS.put(puntero, s);
+            puntero = puntero + 1;
+        }
     }
 
-    public static boolean pertenece(String nombre) {
-        if (TS.get(nombre) == null)
-            return false;
-        else
-            return true;
+    public static void agregar(String valor, Integer id, String tipo) {
+        Simbolo s = new Simbolo(id, valor, tipo);
+        if (pertenece(s.get_Lex()) == -1) {
+            TS.put(puntero, s);
+            puntero = puntero + 1;
+        }
+    }
+
+    public static int pertenece(String lexema) {
+        for (HashMap.Entry<Integer, Simbolo> entry : TS.entrySet()) {
+            Simbolo s = entry.getValue();
+            if (s.get_Lex().equals(lexema)) {
+                return entry.getKey();
+            }
+        }
+        return -1;
     }
 
     public static void eliminar(String valor) {
-        if (pertenece(valor))
-            TS.remove(valor);
+        int clave = pertenece(valor);
+        if (clave != -1)
+            TS.remove(clave);
+    }
+
+    public Simbolo get_Simbolo(int clave) {
+        return TS.get(clave);
     }
 
     public void imprimirContenido() {
         System.out.println("   TABLA DE SIMBOLOS\n");
-        for (HashMap.Entry<String, Integer> i : TS.entrySet()) {
-            System.out.println("Lexema: " + i.getKey() + ", id: " + i.getValue() + "\n");
+        for (HashMap.Entry<Integer, Simbolo> i : TS.entrySet()) {
+            System.out.println("Referencia: " + i.getKey() + ", Simbolo: " + i.getValue().imprimir() + "\n");
         }
     }
 

@@ -3,6 +3,10 @@ import compiladores.Lexico;
 import compiladores.TablaSimbolos;
 import compiladores.Linea;
 import compiladores.Token;
+import compiladores.Terceto;
+import compiladores.Simbolo;
+import java.util.HashMap;
+
 import java.io.IOException;
 
 %}
@@ -64,10 +68,12 @@ simboloTermino : '*'
 
 factor : ID
        | CTE    {System.out.println("Se reconocio una constante en linea "+Linea.getLinea());
-                chequearRangoPositivo($1.sval);}
+                chequearRangoPositivo($1.sval);
+                setear_Uso("Constante", $1.sval);}
        | '-' CTE {System.out.println("Se reconocio constante negativa en linea "+ Linea.getLinea());
-                chequearRangoNegativo($2.sval);}
-       | CTEPOS
+                chequearRangoNegativo($2.sval);
+                setear_Uso("Constante negativa","-" + $2.sval);}
+       | CTEPOS {setear_Uso("ConstantePositiva", $1.sval);}
 ;
 
 operadorMasMenos : '+'
@@ -75,22 +81,24 @@ operadorMasMenos : '+'
 ;
 
 
-declaracionClase : CLASS ID bloque_de_Sentencias
-                 | CLASS ID '{' conjuntoSentencias ID ',' '}' {System.out.println("Clase con herencia por composicion en linea "+Linea.getLinea());}
-                 | CLASS ID
+declaracionClase : CLASS ID bloque_de_Sentencias { setear_Uso("Clase", $2.sval); }
+                 | CLASS ID '{' conjuntoSentencias ID ',' '}' {System.out.println("Clase con herencia por composicion en linea "+Linea.getLinea()); setear_Uso("Clase", $2.sval);}
+                 | CLASS ID {setear_Uso("Clase", $2.sval);}
 ;
 
-declaracionObjeto : ID lista_Variables
+declaracionObjeto : ID lista_Variables {guardar_Tipo($1.sval); setear_Tipo();}
 ;
 
 declaracionFuncion: funcion_VOID
                   | funcion_VOID_vacia
 ;
 
-funcion_VOID: VOID ID parametro_formal '{' cuerpo_funcion '}' {System.out.println("Se reconocio una invocacion de una funcion VOID en linea "+ Linea.getLinea());}
+funcion_VOID: VOID ID parametro_formal '{' cuerpo_funcion '}' {System.out.println("Se reconocio una invocacion de una funcion VOID en linea "+ Linea.getLinea());
+                                                                setear_Uso("Metodo", $2.sval);}
 ;
 
-funcion_VOID_vacia: VOID ID parametro_formal {System.out.println("Se reconocio una invocacion de una funcion VOID vacia en linea "+ Linea.getLinea());}
+funcion_VOID_vacia: VOID ID parametro_formal {System.out.println("Se reconocio una invocacion de una funcion VOID vacia en linea "+ Linea.getLinea());
+                                            setear_Uso("Metodo", $2.sval);}
 ;
 
 clausula_IMPL : IMPL FOR ID ':' '{' funcion_VOID fin_sentencia '}'
@@ -148,11 +156,11 @@ sentencia_de_Control : DO bloque_de_SentenciasEjecutables UNTIL condicion
                      | DO sentenciaEjecutable UNTIL error {System.out.println("Falta la condicion de la sentencia de control");}
 ;
 
-declaracion: tipo lista_Variables
+declaracion: tipo lista_Variables {setear_Tipo();}
 ;
 
-lista_Variables : lista_Variables ';' ID
-                | ID
+lista_Variables : lista_Variables ';' ID {setear_Uso("Variable", $3.sval); guardar_Var($3.sval);}
+                | ID {setear_Uso("Variable", $1.sval); guardar_Var($1.sval);}
 ;
 
 invocacionFuncion : ID parametro_real
@@ -166,28 +174,38 @@ parametro_real  : '(' expresion ')'
                 | ')' error {System.out.println("Falta el parentesis que abre en linea: " + Linea.getLinea());}
 ;
 
-parametro_formal: '(' tipo ID ')'
+parametro_formal: '(' tipo ID ')' {setear_Uso("Parametro formal", $3.sval);}
                 | '(' ')'
-                | '(' tipo ID error {System.out.println("Falta el parentesis que cierra en linea: " + Linea.getLinea());}
-                | tipo ID ')' error {System.out.println("Falta el parentesis que abre en linea: " + Linea.getLinea());}
+                | '(' tipo ID error {System.out.println("Falta el parentesis que cierra en linea: " + Linea.getLinea()); setear_Uso("Parametro formal", $3.sval);}
+                | tipo ID ')' error {System.out.println("Falta el parentesis que abre en linea: " + Linea.getLinea()); setear_Uso("Parametro formal", $2.sval);}
                 | '(' error {System.out.println("Falta el parentesis que cierra en linea: " + Linea.getLinea());}
                 | ')' error {System.out.println("Falta el parentesis que abre en linea: " + Linea.getLinea());}
 ;
 
-tipo : DOUBLE
-     | USHORT
-     | LONG
+tipo : DOUBLE {guardar_Tipo("DOUBLE");}
+     | USHORT {guardar_Tipo("USHORT");}
+     | LONG {guardar_Tipo("LONG");}
      | error {System.out.println("Error: No es un tipo definido en linea "+ Linea.getLinea());}
 ;
 
-print : PRINT CADENA
+print : PRINT CADENA {setear_Uso("Cadena", $2.sval);}
 ;
 
 %%
 
     Lexico lex;
     TablaSimbolos TS = new TablaSimbolos();
+    //HashMap<Integer, Terceto> CodigoIntermedio = HashMap<Integer, Terceto>();
+    int puntero_Terceto = 0;
+    String tipo;
+    ArrayList<String> variables = new ArrayList<String>();
 
+/*    public void crear_terceto(String operador, String punt1, String punt2){
+        Terceto t = new Terceto(operador, punt1, punt2);
+        CodigoIntermedio.put(puntero_Terceto, t);
+        puntero_Terceto = puntero_Terceto + 1;
+    }
+*/
     public Parser(Lexico lexico){
         this.lex = lexico;
     }
@@ -213,7 +231,7 @@ print : PRINT CADENA
     }
     
     public void chequearRangoPositivo(String numero) {
-        if (numero.contains(".")) //DOUBLE 
+        if (numero.contains(".")) //DOUBLE
         {
             double num = Double.parseDouble(numero);
             if (num < 2.2250738585072014e-308)
@@ -221,7 +239,7 @@ print : PRINT CADENA
                     if (num != 0.0)
                     {
                         System.out.println("El double positivo es menor al limite permitido. Tiene valor: "+num);
-                        if (TS.pertenece(Double.toString(num))) {
+                        if (TS.pertenece(Double.toString(num))!=-1) {
                             TS.eliminar(Double.toString(num));
                             String nuevo = "2.2250738585072014e-308"  ;
                             TS.agregar(nuevo, 258);
@@ -232,7 +250,7 @@ print : PRINT CADENA
             else if (num > 1.7976931348623157e+308)
             {
                 System.out.println("El double positivo es mayor al limite permitido. Tiene valor: "+num);
-                    if (TS.pertenece(Double.toString(num))) {
+                    if (TS.pertenece(Double.toString(num))!=-1) {
                         TS.eliminar(Double.toString(num));
                         String nuevo = "1.7976931348623157e+308";
                         TS.agregar(nuevo, 258);
@@ -243,7 +261,7 @@ print : PRINT CADENA
         {   Long entero = Long.valueOf(numero);
             if (entero > 2147483647L) {
                 System.out.println("El entero largo positivo es mayor al limite permitido. Tiene valor: "+entero);
-                if (TS.pertenece(Long.toString(entero))) {
+                if (TS.pertenece(Long.toString(entero))!=-1) {
                     TS.eliminar(Long.toString(entero));
                     String nuevo = "2147483647";
                     TS.agregar(nuevo, 258);
@@ -263,7 +281,7 @@ public void chequearRangoNegativo(String numero) {
                     if (num != 0.0) //Si esta fuera del rango todavia puede ser válido por el 0.0
                     {
                         System.out.println("El double negativo es mayor al limite permitido. Tiene valor: "+num);
-                        if (TS.pertenece(Double.toString(num*(-1.0)))) {
+                        if (TS.pertenece(Double.toString(num*(-1.0)))!=-1) {
                             TS.eliminar(Double.toString(num * (-1.0)));
                             String nuevo = "-2.2250738585072014e-308";
                             TS.agregar(nuevo, 258);//Lo agrego a la tabla de simbolos con el signo
@@ -274,7 +292,7 @@ public void chequearRangoNegativo(String numero) {
             else if (num < -1.7976931348623157e+308)
             {
                 System.out.println("El double positivo es menor al limite permitido. Tiene valor: "+num);
-                    if (TS.pertenece(Double.toString(num*(-1.0)))) {
+                    if (TS.pertenece(Double.toString(num*(-1.0)))!=-1) {
                         TS.eliminar(Double.toString(num *(-1.0)));
                         String nuevo = "-1.7976931348623157e+308";
                         TS.agregar(nuevo, 258);
@@ -282,7 +300,7 @@ public void chequearRangoNegativo(String numero) {
             }
             else 
             {//En caso de respetar el rango solo le agrega el menos en la tabla de simbolos
-                if (TS.pertenece(Double.toString(num * (-1.0)))) {
+                if (TS.pertenece(Double.toString(num * (-1.0)))!=-1) {
                         TS.eliminar(Double.toString(num *(-1.0)));
                         String nuevo = Double.toString(num);
                         TS.agregar(nuevo, 258);
@@ -297,7 +315,7 @@ public void chequearRangoNegativo(String numero) {
             entero = entero * (-1);
             if (entero < -2147483648L) {
                 System.out.println("El entero largo negativo es menor al limite permitido. Tiene valor: "+entero);
-                if (TS.pertenece(Long.toString(entero * (-1)))) {
+                if (TS.pertenece(Long.toString(entero * (-1)))!=-1) {
                     TS.eliminar(Long.toString(entero*(-1)));
                     String nuevo = "-2147483648";
                     TS.agregar(nuevo, 258);//Lo agrego a la tabla de simbolos en negativo borrando el numero positivo
@@ -305,7 +323,7 @@ public void chequearRangoNegativo(String numero) {
             } else
             { 
                 //En caso de respetar el rango solo le agrega el menos en la tabla de simbolos
-                if (TS.pertenece(Long.toString(entero * (-1)))) {
+                if (TS.pertenece(Long.toString(entero * (-1)))!=-1) {
                     TS.eliminar(Long.toString(entero*(-1)));
                     String nuevo = Long.toString(entero);
                     TS.agregar(nuevo, 258);
@@ -320,4 +338,30 @@ public void chequearRangoNegativo(String numero) {
             System.out.println("Falto la coma en la linea " + (Linea.getLinea()-1) +" al final de la sentencia");
         else
             System.out.println("Falto la coma en la linea " + Linea.getLinea() +" al final de la sentencia");
+    }
+
+    public void setear_Uso(String uso, String pos){
+        int clave = TS.pertenece(pos);
+        Simbolo s = TS.get_Simbolo(clave);
+        s.set_Uso(uso);
+    }
+
+    public void guardar_Tipo(String t){
+        System.out.println("tipo: " + t);
+        tipo = t;
+    }
+
+    public void setear_Tipo(){
+        for (String s: variables)
+        {
+        int clave = TS.pertenece(s);
+        System.out.println("clave: " + clave + " Tipo: " + tipo);
+        Simbolo sim = TS.get_Simbolo(clave);
+        sim.set_Tipo(tipo);
+        }
+        variables.clear();
+    }
+
+    public void guardar_Var(String id){
+        variables.add(id);
     }

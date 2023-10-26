@@ -13,6 +13,7 @@
 		y += x-40_us,
 		f1(),
 		CLASS clase2,
+		clase2 c,
 	}
 	VOID m()
 	{
