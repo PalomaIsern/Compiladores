@@ -2,7 +2,16 @@
 valor_1 = 124_us,
 valor_2 = 3.5,
 valor_1 += 5_us,
+valor_1 = -3.5,
+valor = 3.5,
+valor = 25_l,
+valor = -25_l,
+valor = -3.5,
+long_pos = 2147483648_l,
+long_neg = -2147483648_l,
 DOUBLE d,
 USHORT u,
+&,
+hola$ 3.5,
 ** comentario de prueba **
 }

@@ -13,18 +13,22 @@ public class TablaSimbolos {
 
     public static void agregar(String valor, Integer id) {
         Simbolo s = new Simbolo(id, valor);
-        if (pertenece(s.get_Lex()) == -1) {
+        int clave = pertenece(s.get_Lex());
+        if (clave == -1) {
             TS.put(puntero, s);
             puntero = puntero + 1;
-        }
+        } else
+            TS.get(clave).set_Rep();
     }
 
     public static void agregar(String valor, Integer id, String tipo) {
         Simbolo s = new Simbolo(id, valor, tipo);
-        if (pertenece(s.get_Lex()) == -1) {
+        int clave = pertenece(s.get_Lex());
+        if (clave == -1) {
             TS.put(puntero, s);
             puntero = puntero + 1;
-        }
+        } else
+            TS.get(clave).set_Rep();
     }
 
     public static int pertenece(String lexema) {
@@ -39,8 +43,13 @@ public class TablaSimbolos {
 
     public static void eliminar(String valor) {
         int clave = pertenece(valor);
-        if (clave != -1)
-            TS.remove(clave);
+        if (clave != -1) {
+            Simbolo s = TS.get(clave);
+            if ((s.get_Rep()) > 1)
+                s.disminuirCant();
+            else
+                TS.remove(clave);
+        }
     }
 
     public Simbolo get_Simbolo(int clave) {

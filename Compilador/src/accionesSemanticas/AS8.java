@@ -13,6 +13,8 @@ public class AS8 extends AccionSemantica {
         // no devuelve ningun token
         if (c == '*')
             System.out.println("Linea " + Linea.getLinea() + ": Se reconocio un comentario");
+        // else if (c != '\n' && c != '\t' && c != ' ')
+        // System.out.println("Caracter inválido");
         return null;
     }
 }
