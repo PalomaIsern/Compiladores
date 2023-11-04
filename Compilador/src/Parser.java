@@ -14,11 +14,13 @@
 //#line 2 "gramatica.y"
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import compiladores.Lexico;
 import compiladores.Linea;
 import compiladores.Simbolo;
 import compiladores.TablaSimbolos;
+import compiladores.Terceto;
 import compiladores.Token;
 
 //#line 29 "Parser.java"
@@ -495,22 +497,21 @@ public class Parser {
       "print : PRINT CADENA",
   };
 
-  // #line 194 "gramatica.y"
+  // #line 199 "gramatica.y"
 
   Lexico lex;
   TablaSimbolos TS = new TablaSimbolos();
-  // HashMap<Integer, Terceto> CodigoIntermedio = HashMap<Integer, Terceto>();
+  HashMap<Integer, Terceto> CodigoIntermedio = new HashMap<Integer, Terceto>();
   int puntero_Terceto = 0;
   String tipo;
   ArrayList<String> variables = new ArrayList<String>();
 
-  /*
-   * public void crear_terceto(String operador, String punt1, String punt2){
-   * Terceto t = new Terceto(operador, punt1, punt2);
-   * CodigoIntermedio.put(puntero_Terceto, t);
-   * puntero_Terceto = puntero_Terceto + 1;
-   * }
-   */
+  public void crear_terceto(String operador, int punt1, int punt2) {
+    Terceto t = new Terceto(operador, punt1, punt2);
+    CodigoIntermedio.put(puntero_Terceto, t);
+    puntero_Terceto = puntero_Terceto + 1;
+  }
+
   public Parser(Lexico lexico) {
     this.lex = lexico;
   }
@@ -535,7 +536,7 @@ public class Parser {
     System.out.println(error);
   }
 
-  public void chequearRangoPositivo(String numero) {
+  public void chequearRangoPositivo(String numero, ParserVal factor) {
     if (numero.contains(".")) // DOUBLE
     {
       double num = Double.parseDouble(numero);
@@ -547,6 +548,7 @@ public class Parser {
           TS.agregar(nuevo, 258);
           System.out.println("El numero fue actualizado en la TS a un valor permitido");
           setear_Uso("Constante", nuevo);
+          factor.ival = TS.pertenece(nuevo);
         }
       } else if (num > 1.7976931348623157e+308) {
         System.out.println("El double positivo es mayor al limite permitido. Tiene valor: " + num);
@@ -554,8 +556,11 @@ public class Parser {
         String nuevo = "1.7976931348623157e+308";
         TS.agregar(nuevo, 258);
         setear_Uso("Constante", nuevo);
-      } else
+        factor.ival = TS.pertenece(nuevo);
+      } else {
         setear_Uso("Constante", numero);
+        factor.ival = TS.pertenece(numero);
+      }
     } else {
       Long entero = Long.valueOf(numero);
       if (entero > 2147483647L) {
@@ -565,12 +570,15 @@ public class Parser {
         TS.agregar(nuevo, 258);
         System.out.println("El numero fue actualizado en la TS a un valor permitido");
         setear_Uso("Constante", nuevo);
-      } else
+        factor.ival = TS.pertenece(nuevo);
+      } else {
         setear_Uso("Constante", numero);
+        factor.ival = TS.pertenece(numero);
+      }
     }
   }
 
-  public void chequearRangoNegativo(String numero) {
+  public void chequearRangoNegativo(String numero, ParserVal factor) {
     if (numero.contains(".")) // DOUBLE
     {
       // Convertimos el double en negativo para chequear rango negativo
@@ -584,6 +592,7 @@ public class Parser {
           TS.agregar(nuevo, 258);// Lo agrego a la tabla de simbolos con el signo
           setear_Uso("Constante negativa", nuevo);
           System.out.println("El numero fue actualizado en la TS a un valor permitido");
+          factor.ival = TS.pertenece(nuevo);
         }
       } else if (num < -1.7976931348623157e+308) {
         System.out.println("El double positivo es menor al limite permitido. Tiene valor: " + num);
@@ -591,12 +600,14 @@ public class Parser {
         String nuevo = "-1.7976931348623157e+308";
         TS.agregar(nuevo, 258);
         setear_Uso("Constante negativa", nuevo);
+        factor.ival = TS.pertenece(nuevo);
       } else {// En caso de respetar el rango solo le agrega el menos en la tabla de simbolos
         TS.eliminar(Double.toString(num * (-1.0)));
         String nuevo = Double.toString(num);
         TS.agregar(nuevo, 258);
         setear_Uso("Constante negativa", nuevo);
         System.out.println("Se actualizo el double dentro del rango a negativo");
+        factor.ival = TS.pertenece("-" + numero);
       }
     } else // LONG
     {
@@ -609,12 +620,14 @@ public class Parser {
         String nuevo = "-2147483648";
         TS.agregar(nuevo, 258);// Lo agrego a la tabla de simbolos en negativo borrando el numero positivo
         setear_Uso("Constante negativa", nuevo);
+        factor.ival = TS.pertenece(nuevo);
       } else {
         // En caso de respetar el rango solo le agrega el menos en la tabla de simbolos
         TS.eliminar(Long.toString(entero * (-1)));
         String nuevo = Long.toString(entero);
         TS.agregar(nuevo, 258);
         setear_Uso("Constante negativa", nuevo);
+        factor.ival = TS.pertenece("-" + numero);
       }
     }
   }
@@ -651,7 +664,7 @@ public class Parser {
     variables.add(id);
   }
 
-  // #line 602 "Parser.java"
+  // #line 612 "Parser.java"
   // ###############################################################
   // method: yylexdebug : check lexer state
   // ###############################################################
@@ -812,6 +825,11 @@ public class Parser {
           VerificarSalto();
         }
           break;
+        case 13:
+        // #line 48 "gramatica.y"
+        {
+          /* crear_terceto($2.sval, TS.pertenece($1.sval), ) */}
+          break;
         case 14:
         // #line 49 "gramatica.y"
         {
@@ -842,275 +860,297 @@ public class Parser {
           System.out.println("No es valido el signo de asignacion");
         }
           break;
+        case 19:
+        // #line 58 "gramatica.y"
+        {
+          /* crear_terceto($2.sval) */}
+          break;
+        case 22:
+        // #line 63 "gramatica.y"
+        {
+          System.out.println("factor: " + val_peek(0).ival);
+        }
+          break;
+        case 25:
+        // #line 70 "gramatica.y"
+        {
+          yyval.ival = TS.pertenece(val_peek(0).sval);
+          System.out.println("$$: " + yyval.ival);
+        }
+          break;
         case 26:
-        // #line 71 "gramatica.y"
+        // #line 72 "gramatica.y"
         {
           System.out.println("Se reconocio una constante en linea " + Linea.getLinea());
-          chequearRangoPositivo(val_peek(0).sval);
+          chequearRangoPositivo(val_peek(0).sval, yyval);
+          System.out.println("$$: " + yyval.ival);
         }
           break;
         case 27:
-        // #line 73 "gramatica.y"
+        // #line 75 "gramatica.y"
         {
           System.out.println("Se reconocio constante negativa en linea " + Linea.getLinea());
-          chequearRangoNegativo(val_peek(0).sval);
+          chequearRangoNegativo(val_peek(0).sval, yyval);
+          System.out.println("$$: " + yyval.ival);
         }
           break;
         case 28:
-        // #line 75 "gramatica.y"
+        // #line 78 "gramatica.y"
         {
           setear_Uso("ConstantePositiva", val_peek(0).sval);
+          yyval.ival = TS.pertenece(val_peek(0).sval);
+          System.out.println("$$: " + yyval.ival);
         }
           break;
         case 31:
-        // #line 83 "gramatica.y"
+        // #line 88 "gramatica.y"
         {
           setear_Uso("Clase", val_peek(1).sval);
         }
           break;
         case 32:
-        // #line 84 "gramatica.y"
+        // #line 89 "gramatica.y"
         {
           System.out.println("Clase con herencia por composicion en linea " + Linea.getLinea());
           setear_Uso("Clase", val_peek(5).sval);
         }
           break;
         case 33:
-        // #line 85 "gramatica.y"
+        // #line 90 "gramatica.y"
         {
           setear_Uso("Clase", val_peek(0).sval);
         }
           break;
         case 34:
-        // #line 88 "gramatica.y"
+        // #line 93 "gramatica.y"
         {
           guardar_Tipo(val_peek(1).sval);
           setear_Tipo();
         }
           break;
         case 37:
-        // #line 95 "gramatica.y"
+        // #line 100 "gramatica.y"
         {
           System.out.println("Se reconocio una invocacion de una funcion VOID en linea " + Linea.getLinea());
           setear_Uso("Metodo", val_peek(4).sval);
         }
           break;
         case 38:
-        // #line 99 "gramatica.y"
+        // #line 104 "gramatica.y"
         {
           System.out.println("Se reconocio una invocacion de una funcion VOID vacia en linea " + Linea.getLinea());
           setear_Uso("Metodo", val_peek(1).sval);
         }
           break;
         case 42:
-        // #line 108 "gramatica.y"
+        // #line 113 "gramatica.y"
         {
           System.out.println("Se reconocio una clausula de seleccion IF en linea " + Linea.getLinea());
         }
           break;
         case 43:
-        // #line 109 "gramatica.y"
+        // #line 114 "gramatica.y"
         {
           System.out.println("Se reconocio una impresion por pantalla en linea " + Linea.getLinea());
         }
           break;
         case 44:
-        // #line 110 "gramatica.y"
+        // #line 115 "gramatica.y"
         {
           System.out.println("Se reconocio la invocacion de un metodo de un objeto en linea " + Linea.getLinea());
         }
           break;
         case 45:
-        // #line 111 "gramatica.y"
+        // #line 116 "gramatica.y"
         {
           System.out.println("Se reconocio sentencia IMPL FOR en linea " + Linea.getLinea());
         }
           break;
         case 46:
-        // #line 112 "gramatica.y"
+        // #line 117 "gramatica.y"
         {
           System.out.println("Se reconocio sentencia de control DO UNTIL en linea " + Linea.getLinea());
         }
           break;
         case 47:
-        // #line 113 "gramatica.y"
+        // #line 118 "gramatica.y"
         {
           System.out.println("Se reconocio sentencia de retorno RETURN en linea " + Linea.getLinea());
         }
           break;
         case 48:
-        // #line 116 "gramatica.y"
+        // #line 121 "gramatica.y"
         {
           System.out.println("Se reconocio una declaracion simple en linea " + Linea.getLinea());
         }
           break;
         case 50:
-        // #line 118 "gramatica.y"
+        // #line 123 "gramatica.y"
         {
           System.out.println("Se reconocio una declaracion de un objeto de una clase en linea " + Linea.getLinea());
         }
           break;
         case 51:
-        // #line 119 "gramatica.y"
+        // #line 124 "gramatica.y"
         {
           System.out.println("Se reconocio una clase en linea " + Linea.getLinea());
         }
           break;
         case 60:
-        // #line 134 "gramatica.y"
+        // #line 139 "gramatica.y"
         {
           System.out.println("Error: El caracter no se reconoce como comparador  en linea " + Linea.getLinea());
         }
           break;
         case 61:
-        // #line 137 "gramatica.y"
+        // #line 142 "gramatica.y"
         {
           System.out.println("Se reconoció una condicion  en linea " + Linea.getLinea());
         }
           break;
         case 62:
-        // #line 138 "gramatica.y"
+        // #line 143 "gramatica.y"
         {
           System.out.println("Falta el parentesis que cierra en linea: " + Linea.getLinea());
         }
           break;
         case 63:
-        // #line 139 "gramatica.y"
+        // #line 144 "gramatica.y"
         {
           System.out.println("Falta el parentesis que abre en linea: " + Linea.getLinea());
         }
           break;
         case 66:
-        // #line 144 "gramatica.y"
+        // #line 149 "gramatica.y"
         {
           System.out.println("Falta el END_IF");
         }
           break;
         case 67:
-        // #line 145 "gramatica.y"
+        // #line 150 "gramatica.y"
         {
           System.out.println("Falta el END_IF");
         }
           break;
         case 71:
-        // #line 149 "gramatica.y"
+        // #line 154 "gramatica.y"
         {
           System.out.println("Falto la condicion del IF");
         }
           break;
         case 75:
-        // #line 155 "gramatica.y"
+        // #line 160 "gramatica.y"
         {
           System.out.println("Falta la condicion de la sentencia de control");
         }
           break;
         case 76:
-        // #line 158 "gramatica.y"
+        // #line 163 "gramatica.y"
         {
           setear_Tipo();
         }
           break;
         case 77:
-        // #line 161 "gramatica.y"
+        // #line 166 "gramatica.y"
         {
           setear_Uso("Variable", val_peek(0).sval);
           guardar_Var(val_peek(0).sval);
         }
           break;
         case 78:
-        // #line 162 "gramatica.y"
+        // #line 167 "gramatica.y"
         {
           setear_Uso("Variable", val_peek(0).sval);
           guardar_Var(val_peek(0).sval);
         }
           break;
         case 82:
-        // #line 170 "gramatica.y"
+        // #line 175 "gramatica.y"
         {
           System.out.println("Falta el parentesis que cierra en linea: " + Linea.getLinea());
         }
           break;
         case 83:
-        // #line 171 "gramatica.y"
+        // #line 176 "gramatica.y"
         {
           System.out.println("Falta el parentesis que abre en linea: " + Linea.getLinea());
         }
           break;
         case 84:
-        // #line 172 "gramatica.y"
+        // #line 177 "gramatica.y"
         {
           System.out.println("Falta el parentesis que cierra en linea: " + Linea.getLinea());
         }
           break;
         case 85:
-        // #line 173 "gramatica.y"
+        // #line 178 "gramatica.y"
         {
           System.out.println("Falta el parentesis que abre en linea: " + Linea.getLinea());
         }
           break;
         case 86:
-        // #line 176 "gramatica.y"
+        // #line 181 "gramatica.y"
         {
           setear_Uso("Parametro formal", val_peek(1).sval);
         }
           break;
         case 88:
-        // #line 178 "gramatica.y"
+        // #line 183 "gramatica.y"
         {
           System.out.println("Falta el parentesis que cierra en linea: " + Linea.getLinea());
           setear_Uso("Parametro formal", val_peek(1).sval);
         }
           break;
         case 89:
-        // #line 179 "gramatica.y"
+        // #line 184 "gramatica.y"
         {
           System.out.println("Falta el parentesis que abre en linea: " + Linea.getLinea());
           setear_Uso("Parametro formal", val_peek(2).sval);
         }
           break;
         case 90:
-        // #line 180 "gramatica.y"
+        // #line 185 "gramatica.y"
         {
           System.out.println("Falta el parentesis que cierra en linea: " + Linea.getLinea());
         }
           break;
         case 91:
-        // #line 181 "gramatica.y"
+        // #line 186 "gramatica.y"
         {
           System.out.println("Falta el parentesis que abre en linea: " + Linea.getLinea());
         }
           break;
         case 92:
-        // #line 184 "gramatica.y"
+        // #line 189 "gramatica.y"
         {
           guardar_Tipo("DOUBLE");
         }
           break;
         case 93:
-        // #line 185 "gramatica.y"
+        // #line 190 "gramatica.y"
         {
           guardar_Tipo("USHORT");
         }
           break;
         case 94:
-        // #line 186 "gramatica.y"
+        // #line 191 "gramatica.y"
         {
           guardar_Tipo("LONG");
         }
           break;
         case 95:
-        // #line 187 "gramatica.y"
+        // #line 192 "gramatica.y"
         {
           System.out.println("Error: No es un tipo definido en linea " + Linea.getLinea());
         }
           break;
         case 96:
-        // #line 190 "gramatica.y"
+        // #line 195 "gramatica.y"
         {
           setear_Uso("Cadena", val_peek(0).sval);
         }
           break;
-        // #line 959 "Parser.java"
+        // #line 990 "Parser.java"
         // ########## END OF USER-SUPPLIED ACTIONS ##########
       }// switch
        // #### Now let's reduce... ####

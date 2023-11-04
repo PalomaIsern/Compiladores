@@ -9,9 +9,8 @@ valor = -25_l,
 valor = -3.5,
 long_pos = 2147483648_l,
 long_neg = -2147483648_l,
+asignacion = 1.0 * 3.0,
 DOUBLE d,
 USHORT u,
-&,
-hola$ 3.5,
 ** comentario de prueba **
 }
