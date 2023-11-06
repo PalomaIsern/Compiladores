@@ -45,43 +45,42 @@ fin_sentencia : ','
                 | error {VerificarSalto();}
 ;
 
-asignacion : ID simboloAsignacion expresion {/*crear_terceto($2.sval, TS.pertenece($1.sval), )*/}
+asignacion : ID simboloAsignacion expresion {   $$.sval = '[' + Integer.toString(crear_terceto($2.sval, Integer.toString(TS.pertenece($1.sval)), $3.sval)) + ']';}
             | atributo_objeto '=' atributo_objeto {System.out.println("Se reconocio una asignacion a un atributo objeto en linea "+ Linea.getLinea());}
             | atributo_objeto '=' factor {System.out.println("Se reconocio una asignacion a un atributo objeto en linea "+ Linea.getLinea());}
 ;
 
-simboloAsignacion : '=' {System.out.println("Se reconocio una asignacion en linea "+ Linea.getLinea());}
-                  | '+=' {System.out.println("Se reconocio una asignacion suma en linea "+ Linea.getLinea());}
+simboloAsignacion : '=' {System.out.println("Se reconocio una asignacion en linea "+ Linea.getLinea());
+                        $$.sval = "=";}
+                  | '+=' {System.out.println("Se reconocio una asignacion suma en linea "+ Linea.getLinea());
+                        $$.sval = "+=";}
                   | error {System.out.println("No es valido el signo de asignacion");}
 ;
 
-expresion : expresion operadorMasMenos termino {/*crear_terceto($2.sval)*/}
-          | termino
+expresion : expresion operadorMasMenos termino {$$.sval = '[' + Integer.toString(crear_terceto($2.sval, $1.sval, $3.sval)) + ']';}
+          | termino { $$.sval = $1.sval; }
 ;
 
-termino : termino simboloTermino factor
-        | factor {System.out.println("factor: " + $1.ival);}
+termino : termino simboloTermino factor {$$.sval = '['+ Integer.toString(crear_terceto( $2.sval, $1.sval, $3.sval))+ ']';}
+        | factor {$$.sval = $1.sval;}
 ;
 
-simboloTermino : '*'
-               | '/'
+simboloTermino : '*' { $$.sval = "*";}
+               | '/' { $$.sval = "/";}
 ;
 
-factor : ID {$$.ival = TS.pertenece($1.sval);
-            System.out.println("$$: " + $$.ival);}
+factor : ID {$$.sval = Integer.toString(TS.pertenece($1.sval));
+            setear_Uso("identificador", $1.sval);}
        | CTE    {System.out.println("Se reconocio una constante en linea "+Linea.getLinea());
-                chequearRangoPositivo($1.sval, $$);
-                System.out.println("$$: " + $$.ival);}
+                chequearRangoPositivo($1.sval, $$);}
        | '-' CTE {System.out.println("Se reconocio constante negativa en linea "+ Linea.getLinea());
-                chequearRangoNegativo($2.sval, $$);
-                System.out.println("$$: " + $$.ival);}
+                chequearRangoNegativo($2.sval, $$);;}
        | CTEPOS {setear_Uso("ConstantePositiva", $1.sval);
-                $$.ival = TS.pertenece($1.sval);
-                System.out.println("$$: " + $$.ival);}
+                $$.sval = Integer.toString(TS.pertenece($1.sval));}
 ;
 
-operadorMasMenos : '+'
-                 | '-'
+operadorMasMenos : '+' { $$.sval = "+";}
+                 | '-' { $$.sval = "-";}
 ;
 
 
@@ -204,14 +203,28 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);}
     String tipo;
     ArrayList<String> variables = new ArrayList<String>();
 
-    public void crear_terceto(String operador, int punt1, int punt2){
+    public int crear_terceto(String operador, String punt1, String punt2){
         Terceto t = new Terceto(operador, punt1, punt2);
         CodigoIntermedio.put(puntero_Terceto, t);
         puntero_Terceto = puntero_Terceto + 1;
+        return puntero_Terceto-1;
     }
 
     public Parser(Lexico lexico){
         this.lex = lexico;
+    }
+
+    private void imprimirCodigoIntermedio() 
+    {   System.out.println("CODIGO INTERMEDIO");
+        for (HashMap.Entry<Integer, Terceto> i : CodigoIntermedio.entrySet()) {
+                int j = Integer.parseInt(i.getValue().get_Op1());
+                String s = i.getValue().get_Op2();
+                 if (!s.contains("[")) {
+                    int k = Integer.parseInt(i.getValue().get_Op2());
+                    s = TS.get_Simbolo(k).get_Lex();
+                }
+                System.out.println("Referencia: " + i.getKey() + ", Terceto: (" + i.getValue().get_Operador() + " , " + TS.get_Simbolo(j).get_Lex() + " , "+ s +")");
+        }
     }
 
     private int yylex() {
@@ -228,6 +241,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);}
         }
         else
             TS.imprimirContenido();
+            imprimirCodigoIntermedio();            
         return 0;
     }
     public void yyerror(String error) {
@@ -239,7 +253,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);}
         {
             double num = Double.parseDouble(numero);
             if (num < 2.2250738585072014e-308)
-                {
+                {   
                     if (num != 0.0)
                     {
                         System.out.println("El double positivo es menor al limite permitido. Tiene valor: "+num);
@@ -248,8 +262,10 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);}
                         TS.agregar(nuevo, 258);
                         System.out.println("El numero fue actualizado en la TS a un valor permitido");
                         setear_Uso("Constante", nuevo);
-                        factor.ival = TS.pertenece(nuevo);
+                        factor.sval = Integer.toString(TS.pertenece(nuevo));
                     }
+                    else {  setear_Uso("Constante", numero);
+                            factor.sval = Integer.toString(TS.pertenece(numero));}
                 }
             else if (num > 1.7976931348623157e+308)
             {
@@ -258,11 +274,11 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);}
                 String nuevo = "1.7976931348623157e+308";
                 TS.agregar(nuevo, 258);
                 setear_Uso("Constante", nuevo);
-                factor.ival = TS.pertenece(nuevo);
+                factor.sval = Integer.toString(TS.pertenece(nuevo));
             }
             else
                 {setear_Uso("Constante", numero);
-                factor.ival = TS.pertenece(numero);}
+                factor.sval = Integer.toString(TS.pertenece(numero));}
         }
         else
         {   Long entero = Long.valueOf(numero);
@@ -273,11 +289,11 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);}
                 TS.agregar(nuevo, 258);
                 System.out.println("El numero fue actualizado en la TS a un valor permitido");
                 setear_Uso("Constante", nuevo);
-                factor.ival = TS.pertenece(nuevo);
+                factor.sval = Integer.toString(TS.pertenece(nuevo));
             }
             else
                 {setear_Uso("Constante", numero);
-                factor.ival = TS.pertenece(numero);}
+                factor.sval = Integer.toString(TS.pertenece(numero));}
         }
     }
 
@@ -296,7 +312,7 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
                         TS.agregar(nuevo, 258);//Lo agrego a la tabla de simbolos con el signo
                         setear_Uso("Constante negativa", nuevo);
                         System.out.println("El numero fue actualizado en la TS a un valor permitido");
-                        factor.ival = TS.pertenece(nuevo);
+                        factor.sval = Integer.toString(TS.pertenece(nuevo));
                     }
                 }
             else if (num < -1.7976931348623157e+308)
@@ -306,7 +322,7 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
                 String nuevo = "-1.7976931348623157e+308";
                 TS.agregar(nuevo, 258);
                 setear_Uso("Constante negativa", nuevo);
-                factor.ival = TS.pertenece(nuevo);
+                factor.sval = Integer.toString(TS.pertenece(nuevo));
             }
             else 
             {//En caso de respetar el rango solo le agrega el menos en la tabla de simbolos
@@ -315,7 +331,7 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
                 TS.agregar(nuevo, 258);
                 setear_Uso("Constante negativa", nuevo);
                 System.out.println("Se actualizo el double dentro del rango a negativo");
-                factor.ival = TS.pertenece("-"+numero);
+                factor.sval = Integer.toString(TS.pertenece("-"+numero));
             }
     }
         else //LONG
@@ -329,7 +345,7 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
                 String nuevo = "-2147483648";
                 TS.agregar(nuevo, 258);//Lo agrego a la tabla de simbolos en negativo borrando el numero positivo
                 setear_Uso("Constante negativa", nuevo);
-                factor.ival = TS.pertenece(nuevo);
+                factor.sval = Integer.toString(TS.pertenece(nuevo));
             } else
             {
                 //En caso de respetar el rango solo le agrega el menos en la tabla de simbolos
@@ -337,7 +353,7 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
                 String nuevo = Long.toString(entero);
                 TS.agregar(nuevo, 258);
                 setear_Uso("Constante negativa", nuevo);
-                factor.ival = TS.pertenece("-"+numero);
+                factor.sval = Integer.toString(TS.pertenece("-"+numero));
             }
         }
     }
