@@ -1,0 +1,13 @@
+{x = y + z * m,
+IF (a-b > c+l)
+    {t = 3.0 *  5.0,
+    t1 = t + 6.0,}
+ELSE
+    a = b-c,
+END_IF,
+
+DO {a = a * 2.0,
+    x = a,}
+UNTIL (x > 10_us),
+
+}

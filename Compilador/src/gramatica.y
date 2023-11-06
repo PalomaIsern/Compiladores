@@ -7,6 +7,7 @@ import compiladores.Terceto;
 import compiladores.Simbolo;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.Stack;
 
 import java.io.IOException;
 
@@ -24,8 +25,8 @@ conjuntoSentencias: conjuntoSentencias sentencia
                   | sentencia
 ;
 
-conjuntoSentenciasEjecutables: conjuntoSentenciasEjecutables sentenciaEjecutable
-                             | sentenciaEjecutable
+conjuntoSentenciasEjecutables: conjuntoSentenciasEjecutables sentenciaEjecutable fin_sentencia
+                             | sentenciaEjecutable fin_sentencia
 ;
 
 cuerpo_funcion: conjuntoSentencias
@@ -129,34 +130,76 @@ metodo_objeto : ID '.' invocacionFuncion
 atributo_objeto : ID '.' ID
 ;
 
-comparador : '>'
-           | '<'
-           | '>='
-           | '<='
-           | '!!'
-           | '=='
+comparador : '>' {$$.sval = ">";}
+           | '<' {$$.sval = "<";}
+           | '>=' {$$.sval = ">=";}
+           | '<=' {$$.sval = "<=";}
+           | '!!' {$$.sval = "!!";}
+           | '==' {$$.sval = "==";}
            | error {System.out.println("Error: El caracter no se reconoce como comparador  en linea "+ Linea.getLinea());}
 ;
 
-condicion : '(' expresion comparador expresion ')' {System.out.println("Se reconoció una condicion  en linea "+ Linea.getLinea());}
-          | '(' expresion comparador expresion error  {System.out.println("Falta el parentesis que cierra en linea: " + Linea.getLinea());}
-          |  expresion comparador expresion ')' error {System.out.println("Falta el parentesis que abre en linea: " + Linea.getLinea());}
+condicion : '(' expresion comparador expresion ')' {System.out.println("Se reconoció una condicion  en linea "+ Linea.getLinea());
+                                                    $$.sval = '[' + Integer.toString(crear_terceto($3.sval, $2.sval, $4.sval)) + ']';
+                                                    int aux = crear_terceto("BF", $$.sval);
+                                                    pila.push(aux);}
+          | '(' expresion comparador expresion error  {System.out.println("Falta el parentesis que cierra en linea: " + Linea.getLinea());
+                                                        $$.sval = '[' + Integer.toString(crear_terceto($3.sval, $2.sval, $4.sval)) + ']';
+                                                        int aux = crear_terceto("BF", $$.sval);
+                                                        pila.push(aux); }
+          |  expresion comparador expresion ')' error {System.out.println("Falta el parentesis que abre en linea: " + Linea.getLinea());
+                                                      $$.sval = '[' + Integer.toString(crear_terceto($2.sval, $1.sval, $3.sval)) + ']';
+                                                      int aux = crear_terceto("BF", $$.sval);
+                                                      pila.push(aux);}
 ;
 
-clausula_seleccion : IF condicion bloque_de_Sentencias ELSE bloque_de_Sentencias END_IF
-                   | IF condicion bloque_de_Sentencias END_IF
-                   | IF condicion bloque_de_Sentencias error {System.out.println("Falta el END_IF");}
-                   | IF condicion bloque_de_Sentencias ELSE bloque_de_Sentencias error {System.out.println("Falta el END_IF");}
-                   | IF condicion sentencia ELSE bloque_de_Sentencias END_IF
-                   | IF condicion bloque_de_Sentencias ELSE sentencia END_IF
-                   | IF condicion sentencia ELSE sentencia END_IF
-                   | IF bloque_de_Sentencias error {System.out.println("Falto la condicion del IF");}
-                   | IF condicion sentencia END_IF
+clausula_seleccion : IF condicion bloque_IF ELSE bloque_ELSE END_IF {int primero = pila.pop();
+                                                                    completarTerceto(primero, puntero_Terceto);}
+                   | IF condicion sentencia_IF ELSE bloque_ELSE END_IF {int primero = pila.pop();
+                                                                    completarTerceto(primero, puntero_Terceto);}
+                   | IF condicion bloque_IF END_IF {int primero = pila.pop();
+                                                    completarTerceto(primero, puntero_Terceto);}
+                   | IF condicion sentencia_IF END_IF {int primero = pila.pop();
+                                                    completarTerceto(primero, puntero_Terceto);}
+                   | IF condicion bloque_IF error {System.out.println("Falta el END_IF");
+                                                    int primero = pila.pop();
+                                                    completarTerceto(primero, puntero_Terceto);}
+                   | IF condicion sentencia_IF error {System.out.println("Falta el END_IF");
+                                                    int primero = pila.pop();
+                                                    completarTerceto(primero, puntero_Terceto);}
+                   | IF condicion bloque_IF ELSE bloque_ELSE error {System.out.println("Falta el END_IF");
+                                                                    int primero = pila.pop();
+                                                                    completarTerceto(primero, puntero_Terceto);}
+                   | IF condicion sentencia_IF ELSE bloque_ELSE error {System.out.println("Falta el END_IF");
+                                                                    int primero = pila.pop();
+                                                                    completarTerceto(primero, puntero_Terceto);}
+                   | IF bloque_IF error {System.out.println("Falto la condicion del IF");}
 ;
 
-sentencia_de_Control : DO bloque_de_SentenciasEjecutables UNTIL condicion
-                     | DO sentenciaEjecutable UNTIL condicion
-                     | DO sentenciaEjecutable UNTIL error {System.out.println("Falta la condicion de la sentencia de control");}
+bloque_IF: bloque_de_Sentencias {int primero = pila.pop();
+                                int aux = crear_terceto("BI", "-");
+                                completarTerceto(primero, aux+1);
+                                pila.push(aux);}
+;
+
+sentencia_IF : sentencia {int primero = pila.pop();
+                                int aux = crear_terceto("BI", "-");
+                                completarTerceto(primero, aux+1);
+                                pila.push(aux);}
+;
+
+bloque_ELSE: bloque_de_Sentencias
+            | sentencia
+;
+
+sentencia_de_Control : inicio_DO bloque_de_SentenciasEjecutables UNTIL condicion {int primero = pila.pop();
+                                                                completarTerceto(primero, $1.ival);}
+                        | inicio_DO sentenciaEjecutable UNTIL condicion {int primero = pila.pop();
+                                                                completarTerceto(primero, $1.ival);}
+                     | inicio_DO bloque_de_SentenciasEjecutables UNTIL error {System.out.println("Falta la condicion de la sentencia de control");}
+;
+
+inicio_DO: DO {$$.ival = puntero_Terceto;}
 ;
 
 declaracion: tipo lista_Variables {setear_Tipo();}
@@ -166,7 +209,7 @@ lista_Variables : lista_Variables ';' ID {setear_Uso("Variable", $3.sval); guard
                 | ID {setear_Uso("Variable", $1.sval); guardar_Var($1.sval);}
 ;
 
-invocacionFuncion : ID parametro_real
+invocacionFuncion : ID parametro_real 
 ;
 
 parametro_real  : '(' expresion ')'
@@ -191,7 +234,8 @@ tipo : DOUBLE {guardar_Tipo("DOUBLE");}
      | error {System.out.println("Error: No es un tipo definido en linea "+ Linea.getLinea());}
 ;
 
-print : PRINT CADENA {setear_Uso("Cadena", $2.sval);}
+print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
+                     int aux = crear_terceto("PRINT", $2.sval);}
 ;
 
 %%
@@ -202,9 +246,17 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);}
     int puntero_Terceto = 0;
     String tipo;
     ArrayList<String> variables = new ArrayList<String>();
+    Stack<Integer> pila = new Stack<Integer>();
 
     public int crear_terceto(String operador, String punt1, String punt2){
         Terceto t = new Terceto(operador, punt1, punt2);
+        CodigoIntermedio.put(puntero_Terceto, t);
+        puntero_Terceto = puntero_Terceto + 1;
+        return puntero_Terceto-1;
+    }
+
+    public int crear_terceto(String operador, String punt1){
+        Terceto t = new Terceto(operador, punt1);
         CodigoIntermedio.put(puntero_Terceto, t);
         puntero_Terceto = puntero_Terceto + 1;
         return puntero_Terceto-1;
@@ -217,13 +269,17 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);}
     private void imprimirCodigoIntermedio() 
     {   System.out.println("CODIGO INTERMEDIO");
         for (HashMap.Entry<Integer, Terceto> i : CodigoIntermedio.entrySet()) {
-                int j = Integer.parseInt(i.getValue().get_Op1());
+                String j = i.getValue().get_Op1();
                 String s = i.getValue().get_Op2();
-                 if (!s.contains("[")) {
-                    int k = Integer.parseInt(i.getValue().get_Op2());
+                 if (!s.contains("[") && s!="-") {
+                    int k = Integer.parseInt(s);
                     s = TS.get_Simbolo(k).get_Lex();
                 }
-                System.out.println("Referencia: " + i.getKey() + ", Terceto: (" + i.getValue().get_Operador() + " , " + TS.get_Simbolo(j).get_Lex() + " , "+ s +")");
+                if (!j.contains("[") && j!="-") {
+                    int l = Integer.parseInt(j);
+                    j = TS.get_Simbolo(l).get_Lex();
+                }
+                System.out.println("Referencia: " + i.getKey() + ", Terceto: (" + i.getValue().get_Operador() + " , " + j + " , "+ s +")");
         }
     }
 
@@ -380,7 +436,6 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
         for (String s: variables)
         {
         int clave = TS.pertenece(s);
-        System.out.println("clave: " + clave + " Tipo: " + tipo);
         Simbolo sim = TS.get_Simbolo(clave);
         sim.set_Tipo(tipo);
         }
@@ -389,4 +444,10 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
 
     public void guardar_Var(String id){
         variables.add(id);
+    }
+
+    public void completarTerceto(int pos, int aux){
+        Terceto t = CodigoIntermedio.get(pos);
+        String operando = "[" + Integer.toString(aux) + "]";
+        t.set_Op(operando);
     }

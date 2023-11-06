@@ -29,4 +29,8 @@ public class Terceto {
     public String get_Op2() {
         return op2;
     }
+
+    public void set_Op(String o) {
+        op2 = o;
+    }
 }
