@@ -93,16 +93,24 @@ declaracionClase : CLASS ID bloque_de_Sentencias { setear_Uso("Clase", $2.sval);
 declaracionObjeto : ID lista_Variables {guardar_Tipo($1.sval); setear_Tipo();}
 ;
 
+metodo_objeto : ID '.' invocacionFuncion { int aux = crear_terceto("CALLMetodoClase", Integer.toString(TS.pertenece($1.sval)), $3.sval);}
+;
+
+atributo_objeto : ID '.' ID
+;
+
 declaracionFuncion: funcion_VOID
                   | funcion_VOID_vacia
 ;
 
 funcion_VOID: VOID ID parametro_formal '{' cuerpo_funcion '}' {System.out.println("Se reconocio una invocacion de una funcion VOID en linea "+ Linea.getLinea());
-                                                                setear_Uso("Metodo", $2.sval);}
+                                                                setear_Uso("Metodo", $2.sval);
+                                                                funciones.put($2.sval, $3.sval);}
 ;
 
 funcion_VOID_vacia: VOID ID parametro_formal {System.out.println("Se reconocio una invocacion de una funcion VOID vacia en linea "+ Linea.getLinea());
-                                            setear_Uso("Metodo", $2.sval);}
+                                            setear_Uso("Metodo", $2.sval);
+                                            funciones.put($2.sval, $3.sval);}
 ;
 
 clausula_IMPL : IMPL FOR ID ':' '{' funcion_VOID fin_sentencia '}'
@@ -115,19 +123,14 @@ sentenciaEjecutable : asignacion
                     | metodo_objeto {System.out.println("Se reconocio la invocacion de un metodo de un objeto en linea " + Linea.getLinea());}
                     | clausula_IMPL {System.out.println("Se reconocio sentencia IMPL FOR en linea "+ Linea.getLinea());}
                     | sentencia_de_Control {System.out.println("Se reconocio sentencia de control DO UNTIL en linea "+ Linea.getLinea());}
-                    | RETURN {System.out.println("Se reconocio sentencia de retorno RETURN en linea "+ Linea.getLinea());}
+                    | RETURN {System.out.println("Se reconocio sentencia de retorno RETURN en linea "+ Linea.getLinea());
+                            int aux = crear_terceto("RETURN", "-", "-");}
 ;
 
 sentenciaDeclarativa: declaracion {System.out.println("Se reconocio una declaracion simple en linea "+ Linea.getLinea());}
                     | declaracionFuncion
                     | declaracionObjeto {System.out.println("Se reconocio una declaracion de un objeto de una clase en linea "+ Linea.getLinea());}
                     | declaracionClase {System.out.println("Se reconocio una clase en linea "+ Linea.getLinea());}
-;
-
-metodo_objeto : ID '.' invocacionFuncion
-;
-
-atributo_objeto : ID '.' ID
 ;
 
 comparador : '>' {$$.sval = ">";}
@@ -141,15 +144,15 @@ comparador : '>' {$$.sval = ">";}
 
 condicion : '(' expresion comparador expresion ')' {System.out.println("Se reconoció una condicion  en linea "+ Linea.getLinea());
                                                     $$.sval = '[' + Integer.toString(crear_terceto($3.sval, $2.sval, $4.sval)) + ']';
-                                                    int aux = crear_terceto("BF", $$.sval);
+                                                    int aux = crear_terceto("BF", $$.sval, "-");
                                                     pila.push(aux);}
           | '(' expresion comparador expresion error  {System.out.println("Falta el parentesis que cierra en linea: " + Linea.getLinea());
                                                         $$.sval = '[' + Integer.toString(crear_terceto($3.sval, $2.sval, $4.sval)) + ']';
-                                                        int aux = crear_terceto("BF", $$.sval);
+                                                        int aux = crear_terceto("BF", $$.sval, "-");
                                                         pila.push(aux); }
           |  expresion comparador expresion ')' error {System.out.println("Falta el parentesis que abre en linea: " + Linea.getLinea());
                                                       $$.sval = '[' + Integer.toString(crear_terceto($2.sval, $1.sval, $3.sval)) + ']';
-                                                      int aux = crear_terceto("BF", $$.sval);
+                                                      int aux = crear_terceto("BF", $$.sval, "-");
                                                       pila.push(aux);}
 ;
 
@@ -177,13 +180,13 @@ clausula_seleccion : IF condicion bloque_IF ELSE bloque_ELSE END_IF {int primero
 ;
 
 bloque_IF: bloque_de_Sentencias {int primero = pila.pop();
-                                int aux = crear_terceto("BI", "-");
+                                int aux = crear_terceto("BI", "-", "-");
                                 completarTerceto(primero, aux+1);
                                 pila.push(aux);}
 ;
 
 sentencia_IF : sentencia {int primero = pila.pop();
-                                int aux = crear_terceto("BI", "-");
+                                int aux = crear_terceto("BI", "-", "-");
                                 completarTerceto(primero, aux+1);
                                 pila.push(aux);}
 ;
@@ -209,19 +212,26 @@ lista_Variables : lista_Variables ';' ID {setear_Uso("Variable", $3.sval); guard
                 | ID {setear_Uso("Variable", $1.sval); guardar_Var($1.sval);}
 ;
 
-invocacionFuncion : ID parametro_real 
+invocacionFuncion : ID parametro_real {String aux = buscar_Parametro($1.sval);
+                                    if ((aux == null && $2.sval==null) || (aux != null && $2.sval!=null))
+                                        {int axu1= crear_terceto ("=", Integer.toString(TS.pertenece(aux)), $2.sval);
+                                        $$.sval = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(TS.pertenece($1.sval)), "-")) + "]";}
+                                    else
+                                        System.out.println("Los parámetros no coinciden");
+                                    }
 ;
 
-parametro_real  : '(' expresion ')'
-                | '(' ')'
+parametro_real  : '(' expresion ')' {$$.sval = $2.sval;}
+                | '(' ')' {$$.sval = null;} 
                 | '(' expresion error {System.out.println("Falta el parentesis que cierra en linea: " + Linea.getLinea());}
                 | expresion ')' error {System.out.println("Falta el parentesis que abre en linea: " + Linea.getLinea());}
                 | '(' error {System.out.println("Falta el parentesis que cierra en linea: " + Linea.getLinea());}
                 | ')' error {System.out.println("Falta el parentesis que abre en linea: " + Linea.getLinea());}
 ;
 
-parametro_formal: '(' tipo ID ')' {setear_Uso("Parametro formal", $3.sval);}
-                | '(' ')'
+parametro_formal: '(' tipo ID ')' {setear_Uso("Parametro formal", $3.sval);
+                                    $$.sval = $3.sval;}
+                | '(' ')' {$$.sval = null;}
                 | '(' tipo ID error {System.out.println("Falta el parentesis que cierra en linea: " + Linea.getLinea()); setear_Uso("Parametro formal", $3.sval);}
                 | tipo ID ')' error {System.out.println("Falta el parentesis que abre en linea: " + Linea.getLinea()); setear_Uso("Parametro formal", $2.sval);}
                 | '(' error {System.out.println("Falta el parentesis que cierra en linea: " + Linea.getLinea());}
@@ -235,7 +245,7 @@ tipo : DOUBLE {guardar_Tipo("DOUBLE");}
 ;
 
 print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
-                     int aux = crear_terceto("PRINT", $2.sval);}
+                    int aux = crear_terceto("PRINT", Integer.toString(TS.pertenece($2.sval)), "-");}
 ;
 
 %%
@@ -243,20 +253,18 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
     Lexico lex;
     TablaSimbolos TS = new TablaSimbolos();
     HashMap<Integer, Terceto> CodigoIntermedio = new HashMap<Integer, Terceto>();
+    HashMap<String, String> funciones = new HashMap<String, String>();
     int puntero_Terceto = 0;
     String tipo;
     ArrayList<String> variables = new ArrayList<String>();
     Stack<Integer> pila = new Stack<Integer>();
 
-    public int crear_terceto(String operador, String punt1, String punt2){
-        Terceto t = new Terceto(operador, punt1, punt2);
-        CodigoIntermedio.put(puntero_Terceto, t);
-        puntero_Terceto = puntero_Terceto + 1;
-        return puntero_Terceto-1;
+    public String buscar_Parametro(String id){
+        return funciones.get(id);
     }
 
-    public int crear_terceto(String operador, String punt1){
-        Terceto t = new Terceto(operador, punt1);
+    public int crear_terceto(String operador, String punt1, String punt2){
+        Terceto t = new Terceto(operador, punt1, punt2);
         CodigoIntermedio.put(puntero_Terceto, t);
         puntero_Terceto = puntero_Terceto + 1;
         return puntero_Terceto-1;

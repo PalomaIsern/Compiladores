@@ -10,4 +10,15 @@ DO {a = a * 2.0,
     x = a,}
 UNTIL (x > 10_us),
 
+PRINT # cadena de caracteres #,
+
+VOID funcion1 (DOUBLE y){
+    x = 3.0,
+    RETURN,
+},
+
+funcion1(x),
+
+a.funcion1(2.0),
+
 }
