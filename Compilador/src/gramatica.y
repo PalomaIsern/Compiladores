@@ -46,7 +46,11 @@ fin_sentencia : ','
                 | error {VerificarSalto();}
 ;
 
-asignacion : ID simboloAsignacion expresion {   $$.sval = '[' + Integer.toString(crear_terceto($2.sval, Integer.toString(TS.pertenece($1.sval)), $3.sval)) + ']';}
+asignacion : ID simboloAsignacion expresion {   if ($2.sval == "+=") 
+                                                    {String aux = "[" + Integer.toString(crear_terceto("+", Integer.toString(TS.pertenece($1.sval)), $3.sval)) + "]";
+                                                    $$.sval = '[' + Integer.toString(crear_terceto("=", Integer.toString(TS.pertenece($1.sval)), aux)) + ']';}
+                                                else 
+                                                    $$.sval = '[' + Integer.toString(crear_terceto($2.sval, Integer.toString(TS.pertenece($1.sval)), $3.sval)) + ']';}
             | atributo_objeto '=' atributo_objeto {System.out.println("Se reconocio una asignacion a un atributo objeto en linea "+ Linea.getLinea());}
             | atributo_objeto '=' factor {System.out.println("Se reconocio una asignacion a un atributo objeto en linea "+ Linea.getLinea());}
 ;
@@ -85,9 +89,18 @@ operadorMasMenos : '+' { $$.sval = "+";}
 ;
 
 
-declaracionClase : CLASS ID bloque_de_Sentencias { setear_Uso("Clase", $2.sval); }
-                 | CLASS ID '{' conjuntoSentencias ID ',' '}' {System.out.println("Clase con herencia por composicion en linea "+Linea.getLinea()); setear_Uso("Clase", $2.sval);}
-                 | CLASS ID {setear_Uso("Clase", $2.sval);}
+declaracionClase : CLASS nombreClase bloque_de_Sentencias { setear_Uso("Clase", $2.sval); 
+                                                    agregarClase($2.sval, metodosTemp);
+                                                    metodosTemp = new ArrayList<Integer>();
+                                                    }
+                 | CLASS nombreClase '{' conjuntoSentencias ID ',' '}' {System.out.println("Clase con herencia por composicion en linea "+Linea.getLinea()); 
+                                                                        setear_Uso("Clase", $2.sval);
+                                                                        agregarClase($2.sval, metodosTemp);
+                                                                        metodosTemp = new ArrayList<Integer>();}
+                 | CLASS nombreClase {setear_Uso("Clase", $2.sval);}
+;
+
+nombreClase: ID {metodosTemp = new ArrayList<Integer>();}
 ;
 
 declaracionObjeto : ID lista_Variables {guardar_Tipo($1.sval); setear_Tipo();}
@@ -105,12 +118,20 @@ declaracionFuncion: funcion_VOID
 
 funcion_VOID: VOID ID parametro_formal '{' cuerpo_funcion '}' {System.out.println("Se reconocio una invocacion de una funcion VOID en linea "+ Linea.getLinea());
                                                                 setear_Uso("Metodo", $2.sval);
-                                                                funciones.put($2.sval, $3.sval);}
+                                                                guardar_Var($2.sval);
+                                                                guardar_Tipo("VOID");
+                                                                setear_Tipo();
+                                                                funciones.put($2.sval, $3.sval);
+                                                                metodosTemp.add(TS.pertenece($2.sval));}
 ;
 
 funcion_VOID_vacia: VOID ID parametro_formal {System.out.println("Se reconocio una invocacion de una funcion VOID vacia en linea "+ Linea.getLinea());
                                             setear_Uso("Metodo", $2.sval);
-                                            funciones.put($2.sval, $3.sval);}
+                                            guardar_Var($2.sval);
+                                            guardar_Tipo("VOID");
+                                            setear_Tipo();
+                                            funciones.put($2.sval, $3.sval);
+                                            metodosTemp.add(TS.pertenece($2.sval));}
 ;
 
 clausula_IMPL : IMPL FOR ID ':' '{' funcion_VOID fin_sentencia '}'
@@ -185,7 +206,7 @@ bloque_IF: bloque_de_Sentencias {int primero = pila.pop();
                                 pila.push(aux);}
 ;
 
-sentencia_IF : sentencia {int primero = pila.pop();
+sentencia_IF : sentencia {      int primero = pila.pop();
                                 int aux = crear_terceto("BI", "-", "-");
                                 completarTerceto(primero, aux+1);
                                 pila.push(aux);}
@@ -222,7 +243,7 @@ invocacionFuncion : ID parametro_real {String aux = buscar_Parametro($1.sval);
 ;
 
 parametro_real  : '(' expresion ')' {$$.sval = $2.sval;}
-                | '(' ')' {$$.sval = null;} 
+                | '(' ')' {$$.sval = null;}
                 | '(' expresion error {System.out.println("Falta el parentesis que cierra en linea: " + Linea.getLinea());}
                 | expresion ')' error {System.out.println("Falta el parentesis que abre en linea: " + Linea.getLinea());}
                 | '(' error {System.out.println("Falta el parentesis que cierra en linea: " + Linea.getLinea());}
@@ -258,6 +279,32 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
     String tipo;
     ArrayList<String> variables = new ArrayList<String>();
     Stack<Integer> pila = new Stack<Integer>();
+    HashMap<String, ArrayList<Integer>> clases = new HashMap<String, ArrayList<Integer>>();
+    ArrayList<Integer> metodosTemp = new ArrayList<Integer>();
+    
+    public void agregarClase(String ID, ArrayList<Integer> metodos) {
+        clases.put(ID, metodos);
+        
+    }
+
+    public void imprimirClases() {
+        System.out.println("CLASES");
+        for (HashMap.Entry<String, ArrayList<Integer>> e : clases.entrySet()) {
+            ArrayList<Integer> mets = e.getValue();
+            String r = " nombre clase: "+e.getKey() + " | metodos => ";
+            for (Integer i: mets) {
+                r += "ref TS:"+ Integer.toString(i) + ", nombre : "+ TS.get_Simbolo(i).get_Lex() + " ; ";
+            }
+            System.out.println(r);
+        }
+    }
+
+    public void imprimirFunciones() {
+        System.out.println("FUNCIONES");
+        for (HashMap.Entry<String, String> e : funciones.entrySet()) {
+            System.out.println(" funcion: "+e.getKey() + " - parametro: "+ e.getValue());
+        }
+    }
 
     public String buscar_Parametro(String id){
         return funciones.get(id);
@@ -305,7 +352,11 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
         }
         else
             TS.imprimirContenido();
-            imprimirCodigoIntermedio();            
+            imprimirCodigoIntermedio();
+            System.out.println(" ");   
+            imprimirClases();
+            System.out.println(" ");
+            imprimirFunciones();              
         return 0;
     }
     public void yyerror(String error) {
