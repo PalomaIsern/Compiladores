@@ -74,7 +74,7 @@ public class TablaSimbolos {
     public void imprimirContenido() {
         System.out.println("   TABLA DE SIMBOLOS\n");
         for (HashMap.Entry<Integer, Simbolo> i : TS.entrySet()) {
-            System.out.println("Referencia: " + i.getKey() + ", Simbolo: " + i.getValue().imprimir() + "\n");
+            System.out.println("ref: " + i.getKey() + ", Simbolo: " + i.getValue().imprimir() + "\n");
         }
     }
 

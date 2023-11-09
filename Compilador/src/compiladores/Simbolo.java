@@ -81,6 +81,10 @@ public class Simbolo {
         return ambito;
     }
 
+    public String get_Parametro() {
+        return parametro;
+    }
+
     public String imprimir() {
         String contenido = "Token: " + token + ", Lexema: " + lexema + ", Tipo: " + tipo + ", Uso: " + uso
                 + ", Repeticiones: " + cantRep + ", Parametro: " + parametro + ", Ambito: " + ambito;
