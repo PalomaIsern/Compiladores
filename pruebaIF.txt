@@ -1,6 +1,10 @@
-{x = y + z * m,
-DOUBLE t1; t; a,
-IF (a-b > c+l)
+{
+DOUBLE x; y,
+LONG z,
+USHORT m,
+x = y + z * m,
+DOUBLE t1; t; a; b; c,
+IF (a-b > c+1.0)
     {t = 3.0 *  5.0,
     t1 = t + 6.0,}
 ELSE
@@ -14,6 +18,7 @@ UNTIL (x > 10_us),
 PRINT # cadena de caracteres #,
 
 VOID funcion1 (DOUBLE y){
+    USHORT x,
     x = 3.0,
     RETURN,
 },
@@ -22,4 +27,27 @@ funcion1(x),
 
 a.funcion1(2.0),
 
+USHORT variable,
+
+CLASS clase1 {
+    DOUBLE f, 
+    f = 2.0,
+    VOID funcionclase() {
+        LONG e,
+    },
+    USHORT anteultima,
+    },
+LONG ultima,
+
+VOID func_uno() {
+    LONG uno,
+    VOID funcion_uno() {
+        VOID funcion_uno() {
+            USHORT entero,
+        },
+        DOUBLE a1,
+    },
+    DOUBLE a2,
+},
+DOUBLE a3,
 }

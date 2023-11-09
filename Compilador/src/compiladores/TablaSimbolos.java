@@ -31,6 +31,11 @@ public class TablaSimbolos {
             TS.get(clave).set_Rep();
     }
 
+    public static void agregar_sin_chequear(Simbolo s) {
+        TS.put(puntero, s);
+        puntero = puntero + 1;
+    }
+
     public static int pertenece(String lexema) {
         for (HashMap.Entry<Integer, Simbolo> entry : TS.entrySet()) {
             Simbolo s = entry.getValue();
@@ -50,6 +55,16 @@ public class TablaSimbolos {
             else
                 TS.remove(clave);
         }
+    }
+
+    public static int buscar_por_ambito(String a) {
+        for (HashMap.Entry<Integer, Simbolo> entry : TS.entrySet()) {
+            Simbolo s = entry.getValue();
+            if (s.get_Ambito().equals(a)) {
+                return entry.getKey();
+            }
+        }
+        return -1;
     }
 
     public Simbolo get_Simbolo(int clave) {

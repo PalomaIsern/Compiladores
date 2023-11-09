@@ -75,12 +75,12 @@ simboloTermino : '*' { $$.sval = "*";}
 ;
 
 factor : ID {$$.sval = Integer.toString(TS.pertenece($1.sval));
-            setear_Uso("identificador", $1.sval);}
+            setear_Uso("identificador", $1.sval+ambito);}
        | CTE    {System.out.println("Se reconocio una constante en linea "+Linea.getLinea());
                 chequearRangoPositivo($1.sval, $$);}
        | '-' CTE {System.out.println("Se reconocio constante negativa en linea "+ Linea.getLinea());
                 chequearRangoNegativo($2.sval, $$);;}
-       | CTEPOS {setear_Uso("ConstantePositiva", $1.sval);
+       | CTEPOS {setear_Uso("ConstantePositiva", $1.sval+ambito);
                 $$.sval = Integer.toString(TS.pertenece($1.sval));}
 ;
 
@@ -89,18 +89,26 @@ operadorMasMenos : '+' { $$.sval = "+";}
 ;
 
 
-declaracionClase : CLASS nombreClase bloque_de_Sentencias { setear_Uso("Clase", $2.sval); 
-                                                    agregarClase($2.sval, metodosTemp);
+declaracionClase : inicioClase bloque_de_Sentencias { setear_Uso("Clase", $1.sval+ambito); 
+                                                    agregarClase($1.sval, metodosTemp);
                                                     metodosTemp = new ArrayList<Integer>();
+                                                    volver_Ambito();
                                                     }
-                 | CLASS nombreClase '{' conjuntoSentencias ID ',' '}' {System.out.println("Clase con herencia por composicion en linea "+Linea.getLinea()); 
-                                                                        setear_Uso("Clase", $2.sval);
-                                                                        agregarClase($2.sval, metodosTemp);
-                                                                        metodosTemp = new ArrayList<Integer>();}
-                 | CLASS nombreClase {setear_Uso("Clase", $2.sval);}
+                 | inicioClase '{' conjuntoSentencias ID ',' '}' {System.out.println("Clase con herencia por composicion en linea "+Linea.getLinea()); 
+                                                                        setear_Uso("Clase", $1.sval+ambito);
+                                                                        agregarClase($1.sval, metodosTemp);
+                                                                        metodosTemp = new ArrayList<Integer>();  
+                                                                        volver_Ambito();
+                                                                        }
+                 | inicioClase {setear_Uso("Clase", $1.sval+ambito);
+                                volver_Ambito();}
 ;
 
-nombreClase: ID {metodosTemp = new ArrayList<Integer>();}
+
+inicioClase: CLASS ID {metodosTemp = new ArrayList<Integer>();
+                        setear_Ambito($2.sval+ambito, $2.sval);
+                        ambito += ":" + $2.sval;
+                        $$.sval = $2.sval;}
 ;
 
 declaracionObjeto : ID lista_Variables {guardar_Tipo($1.sval); setear_Tipo();}
@@ -116,22 +124,28 @@ declaracionFuncion: funcion_VOID
                   | funcion_VOID_vacia
 ;
 
-funcion_VOID: VOID ID parametro_formal '{' cuerpo_funcion '}' {System.out.println("Se reconocio una invocacion de una funcion VOID en linea "+ Linea.getLinea());
-                                                                setear_Uso("Metodo", $2.sval);
-                                                                guardar_Var($2.sval);
-                                                                guardar_Tipo("VOID");
-                                                                setear_Tipo();
-                                                                funciones.put($2.sval, $3.sval);
-                                                                metodosTemp.add(TS.pertenece($2.sval));}
+funcion_VOID: inicio_Void parametro_formal '{' cuerpo_funcion '}' {System.out.println("Se reconocio una invocacion de una funcion VOID en linea "+ Linea.getLinea());
+                                                                funciones.put($1.sval, $2.sval);
+                                                                metodosTemp.add(TS.pertenece($1.sval));
+                                                                volver_Ambito();
+                                                                }
 ;
 
-funcion_VOID_vacia: VOID ID parametro_formal {System.out.println("Se reconocio una invocacion de una funcion VOID vacia en linea "+ Linea.getLinea());
-                                            setear_Uso("Metodo", $2.sval);
-                                            guardar_Var($2.sval);
-                                            guardar_Tipo("VOID");
-                                            setear_Tipo();
-                                            funciones.put($2.sval, $3.sval);
-                                            metodosTemp.add(TS.pertenece($2.sval));}
+funcion_VOID_vacia: inicio_Void parametro_formal {System.out.println("Se reconocio una invocacion de una funcion VOID vacia en linea "+ Linea.getLinea());
+                                            funciones.put($1.sval, $2.sval);
+                                            metodosTemp.add(TS.pertenece($1.sval));
+                                            volver_Ambito();
+                                            }
+;
+
+inicio_Void: VOID ID {$$.sval = $2.sval;
+                    setear_Ambito($2.sval+ambito, $2.sval);
+                    setear_Uso("Metodo", $2.sval+ambito);
+                    guardar_Var($2.sval+ambito);
+                    guardar_Tipo("VOID");
+                    setear_Tipo();
+                    ambito += ":" + $2.sval;
+}
 ;
 
 clausula_IMPL : IMPL FOR ID ':' '{' funcion_VOID fin_sentencia '}'
@@ -229,8 +243,8 @@ inicio_DO: DO {$$.ival = puntero_Terceto;}
 declaracion: tipo lista_Variables {setear_Tipo();}
 ;
 
-lista_Variables : lista_Variables ';' ID {setear_Uso("Variable", $3.sval); guardar_Var($3.sval);}
-                | ID {setear_Uso("Variable", $1.sval); guardar_Var($1.sval);}
+lista_Variables : lista_Variables ';' ID {setear_Ambito($3.sval+ambito, $3.sval); setear_Uso("Variable", $3.sval+ambito); guardar_Var($3.sval+ambito);}
+                | ID {setear_Ambito($1.sval+ambito, $1.sval); setear_Uso("Variable", $1.sval+ambito); guardar_Var($1.sval+ambito);}
 ;
 
 invocacionFuncion : ID parametro_real {String aux = buscar_Parametro($1.sval);
@@ -276,15 +290,56 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
     HashMap<Integer, Terceto> CodigoIntermedio = new HashMap<Integer, Terceto>();
     HashMap<String, String> funciones = new HashMap<String, String>();
     int puntero_Terceto = 0;
+    static String ambito = ":main";
+    int limite_Anidamiento = 4;
+    boolean avance = false;
+    String[] ambitos_Programa;
     String tipo;
     ArrayList<String> variables = new ArrayList<String>();
     Stack<Integer> pila = new Stack<Integer>();
     HashMap<String, ArrayList<Integer>> clases = new HashMap<String, ArrayList<Integer>>();
     ArrayList<Integer> metodosTemp = new ArrayList<Integer>();
     
+    public boolean verificar_Limite(){
+        ambitos_Programa = ambito.split(":");
+        int num_a = ambitos_Programa.length;
+        if (num_a+1 > limite_Anidamiento)
+            {System.out.println("No es posible generar mas anidamientos en linea "+ Linea.getLinea());
+            return false;}
+        else
+            return true;
+    }
+
+    public void setear_Ambito(String a, String lex){
+        int clave = TS.pertenece(lex);
+        if (clave!=-1){
+            Simbolo s = TS.get_Simbolo(clave);
+            if (s.get_Ambito() == a)
+                System.out.println("Redeclaracion de la variable");
+            else
+                if (s.get_Ambito()=="-")
+                    s.set_Ambito(a);
+                else
+                    {Simbolo nuevo = new Simbolo(s.get_Token(), s.get_Lex());
+                    nuevo.set_Ambito(a);
+                    TS.agregar_sin_chequear(nuevo);}
+        }
+    }
+
     public void agregarClase(String ID, ArrayList<Integer> metodos) {
         clases.put(ID, metodos);
-        
+    }
+
+    public void volver_Ambito(){
+        ambitos_Programa = ambito.split(":");
+        int num_a = ambitos_Programa.length;
+        String nuevo="";
+        int i = 1;
+        while (i<num_a-1) {
+            nuevo += ":" + ambitos_Programa[i];
+            i = i+1;
+        }
+        ambito = nuevo;
     }
 
     public void imprimirClases() {
@@ -376,10 +431,10 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
                         String nuevo = "2.2250738585072014e-308"  ;
                         TS.agregar(nuevo, 258);
                         System.out.println("El numero fue actualizado en la TS a un valor permitido");
-                        setear_Uso("Constante", nuevo);
+                        setear_Uso("Constante", nuevo+ambito);
                         factor.sval = Integer.toString(TS.pertenece(nuevo));
                     }
-                    else {  setear_Uso("Constante", numero);
+                    else {  setear_Uso("Constante", numero+ambito);
                             factor.sval = Integer.toString(TS.pertenece(numero));}
                 }
             else if (num > 1.7976931348623157e+308)
@@ -388,11 +443,11 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
                 TS.eliminar(Double.toString(num));
                 String nuevo = "1.7976931348623157e+308";
                 TS.agregar(nuevo, 258);
-                setear_Uso("Constante", nuevo);
+                setear_Uso("Constante", nuevo+ambito);
                 factor.sval = Integer.toString(TS.pertenece(nuevo));
             }
             else
-                {setear_Uso("Constante", numero);
+                {setear_Uso("Constante", numero+ambito);
                 factor.sval = Integer.toString(TS.pertenece(numero));}
         }
         else
@@ -403,11 +458,11 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
                 String nuevo = "2147483647";
                 TS.agregar(nuevo, 258);
                 System.out.println("El numero fue actualizado en la TS a un valor permitido");
-                setear_Uso("Constante", nuevo);
+                setear_Uso("Constante", nuevo+ambito);
                 factor.sval = Integer.toString(TS.pertenece(nuevo));
             }
             else
-                {setear_Uso("Constante", numero);
+                {setear_Uso("Constante", numero+ambito);
                 factor.sval = Integer.toString(TS.pertenece(numero));}
         }
     }
@@ -425,7 +480,7 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
                         TS.eliminar(Double.toString(num * (-1.0)));
                         String nuevo = "-2.2250738585072014e-308";
                         TS.agregar(nuevo, 258);//Lo agrego a la tabla de simbolos con el signo
-                        setear_Uso("Constante negativa", nuevo);
+                        setear_Uso("Constante negativa", nuevo+ambito);
                         System.out.println("El numero fue actualizado en la TS a un valor permitido");
                         factor.sval = Integer.toString(TS.pertenece(nuevo));
                     }
@@ -436,7 +491,7 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
                 TS.eliminar(Double.toString(num *(-1.0)));
                 String nuevo = "-1.7976931348623157e+308";
                 TS.agregar(nuevo, 258);
-                setear_Uso("Constante negativa", nuevo);
+                setear_Uso("Constante negativa", nuevo+ambito);
                 factor.sval = Integer.toString(TS.pertenece(nuevo));
             }
             else 
@@ -444,7 +499,7 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
                 TS.eliminar(Double.toString(num *(-1.0)));
                 String nuevo = Double.toString(num);
                 TS.agregar(nuevo, 258);
-                setear_Uso("Constante negativa", nuevo);
+                setear_Uso("Constante negativa", nuevo+ambito);
                 System.out.println("Se actualizo el double dentro del rango a negativo");
                 factor.sval = Integer.toString(TS.pertenece("-"+numero));
             }
@@ -459,7 +514,7 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
                 TS.eliminar(Long.toString(entero*(-1)));
                 String nuevo = "-2147483648";
                 TS.agregar(nuevo, 258);//Lo agrego a la tabla de simbolos en negativo borrando el numero positivo
-                setear_Uso("Constante negativa", nuevo);
+                setear_Uso("Constante negativa", nuevo+ambito);
                 factor.sval = Integer.toString(TS.pertenece(nuevo));
             } else
             {
@@ -467,7 +522,7 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
                 TS.eliminar(Long.toString(entero*(-1)));
                 String nuevo = Long.toString(entero);
                 TS.agregar(nuevo, 258);
-                setear_Uso("Constante negativa", nuevo);
+                setear_Uso("Constante negativa", nuevo+ambito);
                 factor.sval = Integer.toString(TS.pertenece("-"+numero));
             }
         }
@@ -480,21 +535,25 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
             System.out.println("Falto la coma en la linea " + Linea.getLinea() +" al final de la sentencia");
     }
 
-    public void setear_Uso(String uso, String pos){
-        int clave = TS.pertenece(pos);
+    public void setear_Uso(String uso, String a){
+        int clave = TS.buscar_por_ambito(a);
+        if (clave ==-1){
+            ambitos_Programa = a.split(":");
+            String lexema = ambitos_Programa[0];
+            clave = TS.pertenece(lexema);
+        }
         Simbolo s = TS.get_Simbolo(clave);
         s.set_Uso(uso);
     }
 
     public void guardar_Tipo(String t){
-        System.out.println("tipo: " + t);
         tipo = t;
     }
 
     public void setear_Tipo(){
         for (String s: variables)
         {
-        int clave = TS.pertenece(s);
+        int clave = TS.buscar_por_ambito(s);
         Simbolo sim = TS.get_Simbolo(clave);
         sim.set_Tipo(tipo);
         }
