@@ -23,7 +23,7 @@ VOID funcion1 (DOUBLE y){
     RETURN,
 },
 
-funcion1(x),
+funcion1(x)
 
 a.funcion1(2.0),
 
@@ -35,19 +35,43 @@ CLASS clase1 {
     VOID funcionclase() {
         LONG e,
     },
+    LONG variablelong,
+    funcionclase(),
     USHORT anteultima,
+    DOUBLE variablelong,
     },
 LONG ultima,
+
+LONG variablelong,
+
+variablelong = 20_l,
 
 VOID func_uno() {
     LONG uno,
     VOID funcion_uno() {
-        VOID funcion_uno() {
+        VOID funcion_dos() {
             USHORT entero,
+            clase1 objeto2,
         },
         DOUBLE a1,
+    },
+    CLASS clase2 {
+        PRINT #chau#,
+    },
+    funcion_dos(),
+    VOID funcion_uno(){
+        PRINT #hola#,
     },
     DOUBLE a2,
 },
 DOUBLE a3,
+
+clase2 objeto3,
+
+CLASS clase1 {
+    USHORT s,
+},
+
+clase1 objeto1,
+
 }

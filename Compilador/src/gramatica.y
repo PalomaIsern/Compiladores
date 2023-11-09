@@ -50,7 +50,8 @@ asignacion : ID simboloAsignacion expresion {   if ($2.sval == "+=")
                                                     {String aux = "[" + Integer.toString(crear_terceto("+", Integer.toString(TS.pertenece($1.sval)), $3.sval)) + "]";
                                                     $$.sval = '[' + Integer.toString(crear_terceto("=", Integer.toString(TS.pertenece($1.sval)), aux)) + ']';}
                                                 else 
-                                                    $$.sval = '[' + Integer.toString(crear_terceto($2.sval, Integer.toString(TS.pertenece($1.sval)), $3.sval)) + ']';}
+                                                    $$.sval = '[' + Integer.toString(crear_terceto($2.sval, Integer.toString(TS.pertenece($1.sval)), $3.sval)) + ']';
+                                                ver_ElementoDeclarado($1.sval);}
             | atributo_objeto '=' atributo_objeto {System.out.println("Se reconocio una asignacion a un atributo objeto en linea "+ Linea.getLinea());}
             | atributo_objeto '=' factor {System.out.println("Se reconocio una asignacion a un atributo objeto en linea "+ Linea.getLinea());}
 ;
@@ -75,7 +76,8 @@ simboloTermino : '*' { $$.sval = "*";}
 ;
 
 factor : ID {$$.sval = Integer.toString(TS.pertenece($1.sval));
-            setear_Uso("identificador", $1.sval+ambito);}
+            setear_Uso("identificador", $1.sval+ambito);
+            ver_ElementoDeclarado($1.sval);}
        | CTE    {System.out.println("Se reconocio una constante en linea "+Linea.getLinea());
                 chequearRangoPositivo($1.sval, $$);}
        | '-' CTE {System.out.println("Se reconocio constante negativa en linea "+ Linea.getLinea());
@@ -90,15 +92,14 @@ operadorMasMenos : '+' { $$.sval = "+";}
 
 
 declaracionClase : inicioClase bloque_de_Sentencias { setear_Uso("Clase", $1.sval+ambito); 
-                                                    agregarClase($1.sval, metodosTemp);
                                                     metodosTemp = new ArrayList<Integer>();
                                                     volver_Ambito();
                                                     }
                  | inicioClase '{' conjuntoSentencias ID ',' '}' {System.out.println("Clase con herencia por composicion en linea "+Linea.getLinea()); 
                                                                         setear_Uso("Clase", $1.sval+ambito);
-                                                                        agregarClase($1.sval, metodosTemp);
                                                                         metodosTemp = new ArrayList<Integer>();  
                                                                         volver_Ambito();
+                                                                        verificarExisteClasePadre($$.sval+ambito, $4.sval+ambito);
                                                                         }
                  | inicioClase {setear_Uso("Clase", $1.sval+ambito);
                                 volver_Ambito();}
@@ -106,18 +107,24 @@ declaracionClase : inicioClase bloque_de_Sentencias { setear_Uso("Clase", $1.sva
 
 
 inicioClase: CLASS ID {metodosTemp = new ArrayList<Integer>();
+                        agregarClase($2.sval+ambito, metodosTemp);
                         setear_Ambito($2.sval+ambito, $2.sval);
                         ambito += ":" + $2.sval;
                         $$.sval = $2.sval;}
 ;
 
-declaracionObjeto : ID lista_Variables {guardar_Tipo($1.sval); setear_Tipo();}
+declaracionObjeto : ID lista_Variables {guardar_Tipo($1.sval); setear_Tipo();
+                                        ver_ElementoDeclarado($1.sval);}
 ;
 
-metodo_objeto : ID '.' invocacionFuncion { int aux = crear_terceto("CALLMetodoClase", Integer.toString(TS.pertenece($1.sval)), $3.sval);}
+metodo_objeto : ID '.' invocacionFuncion { int aux = crear_terceto("CALLMetodoClase", Integer.toString(TS.pertenece($1.sval)), $3.sval);
+                                        // chequear que invocacion a funcion este invocando un metodo de clase
+                                        // chequear que el ID sea un objeto declarado
+                                        // chequear que ese objeto este al alcance}
 ;
 
-atributo_objeto : ID '.' ID
+atributo_objeto : ID '.' ID {//chequear que el atributo este declarado dentro de la clase que corresponde
+                            //chequear que se este llamando de un obejto declarada de la clase correspondiente }
 ;
 
 declaracionFuncion: funcion_VOID
@@ -145,6 +152,7 @@ inicio_Void: VOID ID {$$.sval = $2.sval;
                     guardar_Tipo("VOID");
                     setear_Tipo();
                     ambito += ":" + $2.sval;
+                    
 }
 ;
 
@@ -247,17 +255,18 @@ lista_Variables : lista_Variables ';' ID {setear_Ambito($3.sval+ambito, $3.sval)
                 | ID {setear_Ambito($1.sval+ambito, $1.sval); setear_Uso("Variable", $1.sval+ambito); guardar_Var($1.sval+ambito);}
 ;
 
-invocacionFuncion : ID parametro_real {String aux = buscar_Parametro($1.sval);
-                                    if ((aux == null && $2.sval==null) || (aux != null && $2.sval!=null))
-                                        {int axu1= crear_terceto ("=", Integer.toString(TS.pertenece(aux)), $2.sval);
-                                        $$.sval = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(TS.pertenece($1.sval)), "-")) + "]";}
+invocacionFuncion : ID parametro_real {
+                                    ver_ElementoDeclarado($1.sval);
+                                    String aux = buscar_Parametro($1.sval);
+                                    if ((aux == "-" && $2.sval=="-") || (aux != null && $2.sval!=null)) //si los parametros no coinciden avisa
+                                        {$$.sval = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(TS.pertenece($1.sval)), "-")) + "]";}
                                     else
                                         System.out.println("Los parámetros no coinciden");
                                     }
 ;
 
-parametro_real  : '(' expresion ')' {$$.sval = $2.sval;}
-                | '(' ')' {$$.sval = null;}
+parametro_real  : '(' expresion ')' {$$.sval = $2.sval; $$.ival= 1;}
+                | '(' ')' {$$.sval = "-"; $$.ival = 0;}
                 | '(' expresion error {System.out.println("Falta el parentesis que cierra en linea: " + Linea.getLinea());}
                 | expresion ')' error {System.out.println("Falta el parentesis que abre en linea: " + Linea.getLinea());}
                 | '(' error {System.out.println("Falta el parentesis que cierra en linea: " + Linea.getLinea());}
@@ -265,8 +274,8 @@ parametro_real  : '(' expresion ')' {$$.sval = $2.sval;}
 ;
 
 parametro_formal: '(' tipo ID ')' {setear_Uso("Parametro formal", $3.sval);
-                                    $$.sval = $3.sval;}
-                | '(' ')' {$$.sval = null;}
+                                    $$.sval = $3.sval; $$.ival = 1;}
+                | '(' ')' {$$.sval = "-"; $$.ival = 0;}
                 | '(' tipo ID error {System.out.println("Falta el parentesis que cierra en linea: " + Linea.getLinea()); setear_Uso("Parametro formal", $3.sval);}
                 | tipo ID ')' error {System.out.println("Falta el parentesis que abre en linea: " + Linea.getLinea()); setear_Uso("Parametro formal", $2.sval);}
                 | '(' error {System.out.println("Falta el parentesis que cierra en linea: " + Linea.getLinea());}
@@ -300,6 +309,48 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
     HashMap<String, ArrayList<Integer>> clases = new HashMap<String, ArrayList<Integer>>();
     ArrayList<Integer> metodosTemp = new ArrayList<Integer>();
     
+    public void ver_ElementoDeclarado(String elemento){
+        int clave = TS.buscar_por_ambito(elemento+ambito);
+        if (clave==-1)
+            clave = TS.pertenece(elemento);
+        String aux = ambito;
+        if (clave != -1){
+            //Si está en la tabla de simbolos me fijo si es alcanzable
+            Simbolo s = TS.get_Simbolo(clave);
+            ambitos_Programa = aux.split(":");
+            int cantidad = ambitos_Programa.length;
+            while (cantidad > 1){
+                if (!s.get_Ambito().equals(elemento+aux)){
+                    String nuevo="";
+                    int i = 1;
+                    while (i<cantidad-1) {
+                        nuevo += ":" + ambitos_Programa[i];
+                        i = i+1;
+                    }
+                    aux = nuevo;
+                }
+                cantidad = cantidad -1;
+            }
+            if (!s.get_Ambito().equals(elemento+aux))
+                System.out.println("ERROR: linea "+ Linea.getLinea() + ", " + elemento + " está fuera del alcance");
+            else
+                System.out.println("El elemento " + elemento+ " está al alcance");
+        }
+        else System.out.println("ERROR: linea "+ Linea.getLinea() + ", " + elemento + " no fue declarada");
+    }
+
+    public void verificarExisteClasePadre(String hijo, String padre) {
+        String clasePadre = padre.split(":")[0];
+        if (clases.containsKey(padre)) {
+            String ambitoPadre = ":" + padre.substring(padre.indexOf(":")+1); 
+            if (!ambitoPadre.equals(ambito)) {
+                System.out.println("La clase \""+clasePadre+ "\"no se encuentra al alcance");
+            }
+        } else {
+            System.out.println("La clase \""+ clasePadre+ "\" no existe");
+        }
+    }
+
     public boolean verificar_Limite(){
         ambitos_Programa = ambito.split(":");
         int num_a = ambitos_Programa.length;
@@ -314,8 +365,14 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
         int clave = TS.pertenece(lex);
         if (clave!=-1){
             Simbolo s = TS.get_Simbolo(clave);
-            if (s.get_Ambito() == a)
-                System.out.println("Redeclaracion de la variable");
+            String amb= a.substring(a.indexOf(":")+1);
+            if (s.get_Ambito().equals(a))
+                if (funciones.containsKey(lex))
+                    System.out.println("ERROR: linea " + Linea.getLinea() + " Redeclaracion de la funcion " + s.get_Lex()+ " en el ambito "+ amb);
+                else if(clases.containsKey(a))
+                    System.out.println("ERROR: linea " + Linea.getLinea() + " Redeclaracion de la clase " + s.get_Lex()+ " en el ambito "+ amb);
+                else
+                    System.out.println("ERROR: linea " + Linea.getLinea() + " Redeclaracion de la variable " + s.get_Lex()+ " en el ambito "+ amb);
             else
                 if (s.get_Ambito()=="-")
                     s.set_Ambito(a);
@@ -346,9 +403,9 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
         System.out.println("CLASES");
         for (HashMap.Entry<String, ArrayList<Integer>> e : clases.entrySet()) {
             ArrayList<Integer> mets = e.getValue();
-            String r = " nombre clase: "+e.getKey() + " | metodos => ";
+            String r = " nombre clase: "+e.getKey() + " | metodos : ";
             for (Integer i: mets) {
-                r += "ref TS:"+ Integer.toString(i) + ", nombre : "+ TS.get_Simbolo(i).get_Lex() + " ; ";
+                r +=  TS.get_Simbolo(i).get_Lex() + " ; ";
             }
             System.out.println(r);
         }
@@ -402,7 +459,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
         }
         if (token != null){
             yylval = new ParserVal(token.getLexema());
-            System.out.println(token.toString());
+            //System.out.println(token.toString()); Este metodo quedo comentado porque era el que imprimía todos los token reconocidos.
             return token.getIdToken();
         }
         else
