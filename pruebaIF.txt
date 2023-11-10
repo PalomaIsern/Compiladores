@@ -23,7 +23,7 @@ VOID funcion1 (DOUBLE y){
     RETURN,
 },
 
-funcion1(x)
+funcion1(x),
 
 a.funcion1(2.0),
 
@@ -75,3 +75,4 @@ CLASS clase1 {
 clase1 objeto1,
 
 }
+

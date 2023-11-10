@@ -122,19 +122,29 @@ declaracionObjeto : ID lista_Variables {guardar_Tipo($1.sval); setear_Tipo();
                                         ver_ElementoDeclarado($1.sval);}
 ;
 
-metodo_objeto : ID '.' invocacionFuncion { int aux = crear_terceto("CALLMetodoClase", Integer.toString(TS.pertenece($1.sval)), $3.sval); 
-                                           int clase = obtenerClase($1.sval);
-                                          System.out.println("METODO_OBJETO "+ $3.sval);}
+metodo_objeto : ID '.' ID parametro_real {  int clase = obtenerClase($1.sval);
+                                            if (verificarExistencia(clase, $3.sval, "metodo")) // si la funcion no existe en la clase, no se crean tercetos
+                                            {
+                                                String param = buscar_Parametro($3.sval, ambito);
+                                                String terceto = " ";
+                                                if ((param == "-" && $4.sval=="-") || (param != null && $4.sval!=null)) //si los parametros no coinciden avisa
+                                                terceto = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(TS.pertenece($3.sval)), "-")) + "]";
+                                                else
+                                                    System.out.println("Los parámetros no coinciden");
+                                                int tercetoAux = crear_terceto("CALLMetodoClase", Integer.toString(TS.pertenece($1.sval)), terceto); 
+                                            } 
+                                            
+                                        }
 
 ;
 
 atributo_objeto : ID '.' ID { int clase = obtenerClase($1.sval);
-                              verificarExisteAtributo(clase, $3.sval);
+                              verificarExistencia(clase, $3.sval, "atributo");
                             }
 ;
 
-declaracionFuncion: funcion_VOID
-                  | funcion_VOID_vacia
+declaracionFuncion: funcion_VOID { dentroFuncion = false;}
+                  | funcion_VOID_vacia { dentroFuncion = false;}
 ;
 
 funcion_VOID: inicio_Void parametro_formal '{' cuerpo_funcion '}' {System.out.println("Se reconocio una declaracion de una funcion VOID en linea "+ Linea.getLinea());
@@ -160,6 +170,7 @@ inicio_Void: VOID ID {$$.sval = $2.sval;
                     guardar_Tipo("VOID");
                     setear_Tipo();
                     ambito += ":" + $2.sval;
+                    dentroFuncion = true;
                     
 }
 ;
@@ -262,12 +273,14 @@ declaracion: tipo lista_Variables {setear_Tipo();}
 lista_Variables : lista_Variables ';' ID {  setear_Ambito($3.sval+ambito, $3.sval); 
                                             setear_Uso("Variable", $3.sval+ambito); 
                                             guardar_Var($3.sval+ambito);
-                                            atributosTemp.add(TS.buscar_por_ambito($3.sval+ambito));
+                                            if (!dentroFuncion)
+                                                atributosTemp.add(TS.buscar_por_ambito($3.sval+ambito));
                                             }
                 | ID {  setear_Ambito($1.sval+ambito, $1.sval); 
                         setear_Uso("Variable", $1.sval+ambito); 
                         guardar_Var($1.sval+ambito);
-                        atributosTemp.add(TS.buscar_por_ambito($1.sval+ambito));
+                        if (!dentroFuncion)
+                            atributosTemp.add(TS.buscar_por_ambito($1.sval+ambito));
                         }
 ;
 
@@ -326,7 +339,8 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
     HashMap<Integer, ArrayList<Integer>> atributosClases = new HashMap<Integer, ArrayList<Integer>>();
     ArrayList<Integer> metodosTemp = new ArrayList<Integer>();
     ArrayList<Integer> atributosTemp = new ArrayList<Integer>();
-    
+    boolean dentroFuncion = false;
+
     public void ver_ElementoDeclarado(String elemento){
         int clave = TS.buscar_por_ambito(elemento+ambito);
         if (clave==-1)
@@ -354,7 +368,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
             else
                 System.out.println("El elemento " + elemento+ " está al alcance");
         }
-        else System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + elemento + " no fue declarada");
+        else System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + elemento + " no fue declarado");
     }
 
     public String obtenerAmbito(String ambito) 
@@ -381,7 +395,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
                 System.out.println("La clase \""+clasePadre+ "\"no se encuentra al alcance");
             }
         } else {
-            System.out.println("La clase \""+ clasePadre+ "\" no existe");
+            System.out.println("ERROR: linea "+ Linea.getLinea()+ " la clase \""+ clasePadre+ "\" no existe");
         }
     }
 
@@ -420,7 +434,6 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
     }
 
     public void agregarClase(String ID, ArrayList<Integer> metodos, ArrayList<Integer> atributos) {
-        System.out.println("agregarClase: " + ID+ " atrib "+atributos.size()+ " mets "+metodos.size());
         int clave = TS.buscar_por_ambito(ID);
         metodosClases.put(clave, metodos);
         atributosClases.put(clave, atributos);
@@ -450,15 +463,29 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
             System.out.println(r);
         }
     }
-    public void verificarExisteAtributo(int clase, String atributo) 
-    {   ArrayList<Integer> atributos = atributosClases.get(clase);
-        for (Integer a : atributos) {
-            if (TS.get_Simbolo(a).get_Lex().equals(atributo)) {
-                System.out.println("EL atributo "+atributo+" existe");
-                return;
+    public boolean verificarExistencia(int clase, String nombre, String objeto) 
+    {   ArrayList<Integer> o = new ArrayList<Integer>();
+        if (objeto.equals("atributo")) 
+            o = atributosClases.get(clase);
+        else if (objeto.equals("metodo"))
+            o = metodosClases.get(clase);
+        if (o != null) {
+            for (Integer elemento : o) {
+                if (TS.get_Simbolo(elemento).get_Lex().equals(nombre)) {
+                    if (objeto.equals("atributo")) //esto es para controlar si se verifica, pero se puede sacar
+                        System.out.println("el atributo \""+nombre+"\" existe en la clase ");
+                    else if (objeto.equals("metodo"))
+                        System.out.println("el metodo \""+nombre+"\" existe en la clase ");
+                    return true;
+                }
             }
+            if (objeto.equals("atributo"))
+                System.out.println("ERROR: linea "+ Linea.getLinea()+ " - el atributo \""+nombre+"\" no existe en la clase "+ TS.get_Simbolo(clase).get_Ambito());
+            else if (objeto.equals("metodo"))
+                System.out.println("ERROR: linea "+ Linea.getLinea()+ " - el metodo \""+nombre+"\" no existe en la clase "+ TS.get_Simbolo(clase).get_Ambito());
+                return false;
         }
-        System.out.println("ERROR: El atributo: "+atributo+" no existe en la clase "+ TS.get_Simbolo(clase).get_Ambito());
+        return false;
     }
     
     public void imprimirAtributosClases() {
@@ -483,6 +510,8 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
     }
 
     public String buscar_Parametro(String id, String amb){
+        // busca el parametro de la funcion que tenga al alcance
+        //primero busca por nombre y luego verifica el ambito
         for (HashMap.Entry<Integer, String> e : funciones.entrySet()) {
             Simbolo s = TS.get_Simbolo(e.getKey());
             if (s.get_Lex().equals(id)) {
@@ -538,13 +567,14 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
         }
         else
             TS.imprimirContenido();
-            System.out.println(" ");   
+            System.out.println(" "); 
+            imprimirCodigoIntermedio(); 
+            System.out.println(" ");             
             imprimirMetodosClases();
             System.out.println(" ");
             imprimirAtributosClases();
             System.out.println(" ");
             imprimirFunciones();   
-            imprimirCodigoIntermedio();           
         return 0;
     }
     public void yyerror(String error) {
