@@ -34,7 +34,8 @@ conjuntoSentenciasEjecutables: conjuntoSentenciasEjecutables sentenciaEjecutable
 cuerpo_funcion: conjuntoSentencias
 ;
 
-bloque_de_Sentencias : '{' conjuntoSentencias '}' {System.out.println("Bloque de Sentencias reconocido");}
+bloque_de_Sentencias: '{' conjuntoSentencias '}' { //System.out.println("Bloque de Sentencias reconocido")
+                                                }
 ;
 
 bloque_de_SentenciasEjecutables : '{' conjuntoSentenciasEjecutables '}'
@@ -48,44 +49,46 @@ fin_sentencia : ','
                 | error {VerificarSalto();}
 ;
 
-asignacion : ID simboloAsignacion expresion {   if ($2.sval == "+=") 
-                                                    {String aux = "[" + Integer.toString(crear_terceto("+", Integer.toString(TS.pertenece($1.sval)), $3.sval)) + "]";
-                                                    $$.sval = '[' + Integer.toString(crear_terceto("=", Integer.toString(TS.pertenece($1.sval)), aux)) + ']';}
-                                                else 
-                                                    $$.sval = '[' + Integer.toString(crear_terceto($2.sval, Integer.toString(TS.pertenece($1.sval)), $3.sval)) + ']';
-                                                ver_ElementoDeclarado($1.sval);}
-            | atributo_objeto '=' atributo_objeto {System.out.println("Se reconocio una asignacion a un atributo objeto en linea "+ Linea.getLinea());}
-            | atributo_objeto '=' factor {System.out.println("Se reconocio una asignacion a un atributo objeto en linea "+ Linea.getLinea());}
+asignacion : ID simboloAsignacion expresion         {if ($2.sval == "+="){
+                                                        String aux = "[" + Integer.toString(crear_terceto("+", Integer.toString(TS.pertenece($1.sval)), $3.sval)) + "]";
+                                                        $$.sval = '[' + Integer.toString(crear_terceto("=", Integer.toString(TS.pertenece($1.sval)), aux)) + ']';}
+                                                    else 
+                                                        $$.sval = '[' + Integer.toString(crear_terceto($2.sval, Integer.toString(TS.pertenece($1.sval)), $3.sval)) + ']';
+                                                    ver_ElementoDeclarado($1.sval);}
+            | atributo_objeto '=' atributo_objeto   {//System.out.println("Se reconocio una asignacion a un atributo objeto en linea "+ Linea.getLinea());
+                                                    $$.sval = '[' + Integer.toString(crear_terceto("=", $1.sval, $3.sval))+']';}
+            | atributo_objeto '=' factor            {//System.out.println("Se reconocio una asignacion a un atributo objeto en linea "+ Linea.getLinea());
+                                                    $$.sval = '[' + Integer.toString(crear_terceto("=", $1.sval, $3.sval))+']';}
 ;
 
-simboloAsignacion : '=' {System.out.println("Se reconocio una asignacion en linea "+ Linea.getLinea());
-                        $$.sval = "=";}
-                  | '+=' {System.out.println("Se reconocio una asignacion suma en linea "+ Linea.getLinea());
-                        $$.sval = "+=";}
-                  | error {System.out.println("No es valido el signo de asignacion");}
+simboloAsignacion : '='     {//System.out.println("Se reconocio una asignacion en linea "+ Linea.getLinea());
+                            $$.sval = "=";}
+                  | '+='    {//System.out.println("Se reconocio una asignacion suma en linea "+ Linea.getLinea());
+                            $$.sval = "+=";}
+                  | error   {System.out.println("ERROR: linea " + Linea.getLinea() + " No es valido el signo de asignacion");}
 ;
 
-expresion : expresion operadorMasMenos termino {$$.sval = '[' + Integer.toString(crear_terceto($2.sval, $1.sval, $3.sval)) + ']';}
-          | termino { $$.sval = $1.sval; }
+expresion : expresion operadorMasMenos termino  {$$.sval = '[' + Integer.toString(crear_terceto($2.sval, $1.sval, $3.sval)) + ']';}
+          | termino                             { $$.sval = $1.sval; }
 ;
 
-termino : termino simboloTermino factor {$$.sval = '['+ Integer.toString(crear_terceto( $2.sval, $1.sval, $3.sval))+ ']';}
-        | factor {$$.sval = $1.sval;}
+termino : termino simboloTermino factor     {$$.sval = '['+ Integer.toString(crear_terceto( $2.sval, $1.sval, $3.sval))+ ']';}
+        | factor                            {$$.sval = $1.sval;}
 ;
 
 simboloTermino : '*' { $$.sval = "*";}
                | '/' { $$.sval = "/";}
 ;
 
-factor : ID {$$.sval = Integer.toString(TS.pertenece($1.sval));
-            setear_Uso("identificador", $1.sval+ambito);
-            ver_ElementoDeclarado($1.sval);}
-       | CTE    {System.out.println("Se reconocio una constante en linea "+Linea.getLinea());
+factor : ID     {$$.sval = Integer.toString(TS.pertenece($1.sval));
+                setear_Uso("identificador", $1.sval+ambito);
+                ver_ElementoDeclarado($1.sval);}
+       | CTE    {//System.out.println("Se reconocio una constante en linea "+Linea.getLinea());
                 chequearRangoPositivo($1.sval, $$);}
-       | '-' CTE {System.out.println("Se reconocio constante negativa en linea "+ Linea.getLinea());
-                chequearRangoNegativo($2.sval, $$);;}
-       | CTEPOS {setear_Uso("ConstantePositiva", $1.sval+ambito);
-                $$.sval = Integer.toString(TS.pertenece($1.sval));}
+       | '-' CTE    {//System.out.println("Se reconocio constante negativa en linea "+ Linea.getLinea());
+                    chequearRangoNegativo($2.sval, $$);;}
+       | CTEPOS     {setear_Uso("ConstantePositiva", $1.sval+ambito);
+                    $$.sval = Integer.toString(TS.pertenece($1.sval));}
 ;
 
 operadorMasMenos : '+' { $$.sval = "+";}
@@ -98,7 +101,7 @@ declaracionClase : inicioClase bloque_de_Sentencias { setear_Uso("Clase", $1.sva
                                                     atributosTemp = new ArrayList<Integer>();
                                                     volver_Ambito();
                                                     }
-                 | inicioClase '{' conjuntoSentencias ID ',' '}' {System.out.println("Clase con herencia por composicion en linea "+Linea.getLinea()); 
+                 | inicioClase '{' conjuntoSentencias ID ',' '}'        {//System.out.println("Clase con herencia por composicion en linea "+Linea.getLinea()); 
                                                                         setear_Uso("Clase", $1.sval+ambito);
                                                                         metodosTemp = new ArrayList<Integer>();  
                                                                         atributosTemp = new ArrayList<Integer>();
@@ -130,7 +133,7 @@ metodo_objeto : ID '.' ID parametro_real {  int clase = obtenerClase($1.sval);
                                                 if ((param == "-" && $4.sval=="-") || (param != null && $4.sval!=null)) //si los parametros no coinciden avisa
                                                 terceto = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(TS.pertenece($3.sval)), "-")) + "]";
                                                 else
-                                                    System.out.println("Los parámetros no coinciden");
+                                                    System.out.println("ERROR: linea "+ Linea.getLinea() + " Los parámetros no coinciden");
                                                 int tercetoAux = crear_terceto("CALLMetodoClase", Integer.toString(TS.pertenece($1.sval)), terceto); 
                                             } 
                                             
@@ -140,6 +143,7 @@ metodo_objeto : ID '.' ID parametro_real {  int clase = obtenerClase($1.sval);
 
 atributo_objeto : ID '.' ID { int clase = obtenerClase($1.sval);
                               verificarExistencia(clase, $3.sval, "atributo");
+                              $$.sval = '[' + Integer.toString(crear_terceto("atributo_objeto", Integer.toString(TS.pertenece($1.sval)), Integer.toString(TS.pertenece($3.sval)) )) + ']';
                             }
 ;
 
@@ -147,7 +151,7 @@ declaracionFuncion: funcion_VOID { dentroFuncion = false;}
                   | funcion_VOID_vacia { dentroFuncion = false;}
 ;
 
-funcion_VOID: inicio_Void parametro_formal '{' cuerpo_funcion '}' {System.out.println("Se reconocio una declaracion de una funcion VOID en linea "+ Linea.getLinea());
+funcion_VOID: inicio_Void parametro_formal '{' cuerpo_funcion '}' {//System.out.println("Se reconocio una declaracion de una funcion VOID en linea "+ Linea.getLinea());
                                                                 String idFuncion = obtenerAmbito($1.sval+ambito);
                                                                 agregarFuncion(idFuncion, $2.sval);
                                                                 metodosTemp.add(TS.buscar_por_ambito(idFuncion));
@@ -155,7 +159,7 @@ funcion_VOID: inicio_Void parametro_formal '{' cuerpo_funcion '}' {System.out.pr
                                                                 }
 ;
 
-funcion_VOID_vacia: inicio_Void parametro_formal {System.out.println("Se reconocio una declaracion de una funcion VOID vacia en linea "+ Linea.getLinea());
+funcion_VOID_vacia: inicio_Void parametro_formal {//System.out.println("Se reconocio una declaracion de una funcion VOID vacia en linea "+ Linea.getLinea());
                                             String idFuncion = obtenerAmbito($1.sval+ambito);
                                             agregarFuncion(idFuncion, $2.sval);
                                             metodosTemp.add(TS.buscar_por_ambito(idFuncion));
@@ -171,7 +175,6 @@ inicio_Void: VOID ID {$$.sval = $2.sval;
                     setear_Tipo();
                     ambito += ":" + $2.sval;
                     dentroFuncion = true;
-                    
 }
 ;
 
@@ -180,19 +183,27 @@ clausula_IMPL : IMPL FOR ID ':' '{' funcion_VOID fin_sentencia '}'
 
 sentenciaEjecutable : asignacion
                     | invocacionFuncion
-                    | clausula_seleccion {System.out.println("Se reconocio una clausula de seleccion IF en linea "+ Linea.getLinea());}
-                    | print  {System.out.println("Se reconocio una impresion por pantalla en linea "+ Linea.getLinea());}
-                    | metodo_objeto {System.out.println("Se reconocio la invocacion de un metodo de un objeto en linea " + Linea.getLinea());}
-                    | clausula_IMPL {System.out.println("Se reconocio sentencia IMPL FOR en linea "+ Linea.getLinea());}
-                    | sentencia_de_Control {System.out.println("Se reconocio sentencia de control DO UNTIL en linea "+ Linea.getLinea());}
-                    | RETURN {System.out.println("Se reconocio sentencia de retorno RETURN en linea "+ Linea.getLinea());
+                    | clausula_seleccion {//System.out.println("Se reconocio una clausula de seleccion IF en linea "+ Linea.getLinea());
+                    }
+                    | print  {//System.out.println("Se reconocio una impresion por pantalla en linea "+ Linea.getLinea());
+                    }
+                    | metodo_objeto {//System.out.println("Se reconocio la invocacion de un metodo de un objeto en linea " + Linea.getLinea());
+                    }
+                    | clausula_IMPL {//System.out.println("Se reconocio sentencia IMPL FOR en linea "+ Linea.getLinea());
+                    }
+                    | sentencia_de_Control {//System.out.println("Se reconocio sentencia de control DO UNTIL en linea "+ Linea.getLinea());
+                    }
+                    | RETURN {//System.out.println("Se reconocio sentencia de retorno RETURN en linea "+ Linea.getLinea());
                             int aux = crear_terceto("RETURN", "-", "-");}
 ;
 
-sentenciaDeclarativa: declaracion {System.out.println("Se reconocio una declaracion simple en linea "+ Linea.getLinea());}
+sentenciaDeclarativa: declaracion {//System.out.println("Se reconocio una declaracion simple en linea "+ Linea.getLinea());
+}
                     | declaracionFuncion
-                    | declaracionObjeto {System.out.println("Se reconocio una declaracion de un objeto de una clase en linea "+ Linea.getLinea());}
-                    | declaracionClase {System.out.println("Se reconocio una clase en linea "+ Linea.getLinea());}
+                    | declaracionObjeto {//System.out.println("Se reconocio una declaracion de un objeto de una clase en linea "+ Linea.getLinea());
+                    }
+                    | declaracionClase {//System.out.println("Se reconocio una clase en linea "+ Linea.getLinea());
+                    }
 ;
 
 comparador : '>' {$$.sval = ">";}
@@ -201,18 +212,18 @@ comparador : '>' {$$.sval = ">";}
            | '<=' {$$.sval = "<=";}
            | '!!' {$$.sval = "!!";}
            | '==' {$$.sval = "==";}
-           | error {System.out.println("Error: El caracter no se reconoce como comparador  en linea "+ Linea.getLinea());}
+           | error {System.out.println("ERROR: linea " + Linea.getLinea() +" Comparador no valido");}
 ;
 
-condicion : '(' expresion comparador expresion ')' {System.out.println("Se reconoció una condicion  en linea "+ Linea.getLinea());
+condicion : '(' expresion comparador expresion ')' {//System.out.println("Se reconoció una condicion  en linea "+ Linea.getLinea());
                                                     $$.sval = '[' + Integer.toString(crear_terceto($3.sval, $2.sval, $4.sval)) + ']';
                                                     int aux = crear_terceto("BF", $$.sval, "-");
                                                     pila.push(aux);}
-          | '(' expresion comparador expresion error  {System.out.println("Falta el parentesis que cierra en linea: " + Linea.getLinea());
+          | '(' expresion comparador expresion error  {System.out.println("ERROR: linea" + Linea.getLinea() + " Falta el parentesis que cierra");
                                                         $$.sval = '[' + Integer.toString(crear_terceto($3.sval, $2.sval, $4.sval)) + ']';
                                                         int aux = crear_terceto("BF", $$.sval, "-");
                                                         pila.push(aux); }
-          |  expresion comparador expresion ')' error {System.out.println("Falta el parentesis que abre en linea: " + Linea.getLinea());
+          |  expresion comparador expresion ')' error {System.out.println("ERROR: linea "+ Linea.getLinea() + " Falta el parentesis que abre");
                                                       $$.sval = '[' + Integer.toString(crear_terceto($2.sval, $1.sval, $3.sval)) + ']';
                                                       int aux = crear_terceto("BF", $$.sval, "-");
                                                       pila.push(aux);}
@@ -238,7 +249,7 @@ clausula_seleccion : IF condicion bloque_IF ELSE bloque_ELSE END_IF {int primero
                    | IF condicion sentencia_IF ELSE bloque_ELSE error {System.out.println("Falta el END_IF");
                                                                     int primero = pila.pop();
                                                                     completarTerceto(primero, puntero_Terceto);}
-                   | IF bloque_IF error {System.out.println("Falto la condicion del IF");}
+                   | IF bloque_IF error {System.out.println("ERROR: linea " + Linea.getLinea() + " Falto la condicion del IF");}
 ;
 
 bloque_IF: bloque_de_Sentencias {int primero = pila.pop();
@@ -261,7 +272,7 @@ sentencia_de_Control : inicio_DO bloque_de_SentenciasEjecutables UNTIL condicion
                                                                 completarTerceto(primero, $1.ival);}
                         | inicio_DO sentenciaEjecutable UNTIL condicion {int primero = pila.pop();
                                                                 completarTerceto(primero, $1.ival);}
-                     | inicio_DO bloque_de_SentenciasEjecutables UNTIL error {System.out.println("Falta la condicion de la sentencia de control");}
+                     | inicio_DO bloque_de_SentenciasEjecutables UNTIL error {System.out.println("ERROR: linea " + Linea.getLinea() + " Falta la condicion de la sentencia de control");}
 ;
 
 inicio_DO: DO {$$.ival = puntero_Terceto;}
@@ -290,31 +301,31 @@ invocacionFuncion : ID parametro_real {
                                     if ((aux == "-" && $2.sval=="-") || (aux != null && $2.sval!=null)) //si los parametros no coinciden avisa
                                         {$$.sval = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(TS.pertenece($1.sval)), "-")) + "]";}
                                     else
-                                        System.out.println("Los parámetros no coinciden");
+                                        System.out.println("ERROR: linea " + Linea.getLinea() + " Los parámetros no coinciden");
                                     }
 ;
 
 parametro_real  : '(' expresion ')' {$$.sval = $2.sval; $$.ival= 1;}
                 | '(' ')' {$$.sval = "-"; $$.ival = 0;}
-                | '(' expresion error {System.out.println("Falta el parentesis que cierra en linea: " + Linea.getLinea());}
-                | expresion ')' error {System.out.println("Falta el parentesis que abre en linea: " + Linea.getLinea());}
-                | '(' error {System.out.println("Falta el parentesis que cierra en linea: " + Linea.getLinea());}
-                | ')' error {System.out.println("Falta el parentesis que abre en linea: " + Linea.getLinea());}
+                | '(' expresion error {System.out.println("ERROR: linea "+ Linea.getLinea()+ " Falta el parentesis que cierra");}
+                | expresion ')' error {System.out.println("ERROR: linea "+ Linea.getLinea() + " Falta el parentesis que abre");}
+                | '(' error {System.out.println("ERROR: linea "+ Linea.getLinea()+ " Falta el parentesis que cierra");}
+                | ')' error {System.out.println("ERROR: linea "+ Linea.getLinea() + " Falta el parentesis que abre");}
 ;
 
 parametro_formal: '(' tipo ID ')' {setear_Uso("Parametro formal", $3.sval);
                                     $$.sval = $3.sval; $$.ival = 1;}
                 | '(' ')' {$$.sval = "-"; $$.ival = 0;}
-                | '(' tipo ID error {System.out.println("Falta el parentesis que cierra en linea: " + Linea.getLinea()); setear_Uso("Parametro formal", $3.sval);}
-                | tipo ID ')' error {System.out.println("Falta el parentesis que abre en linea: " + Linea.getLinea()); setear_Uso("Parametro formal", $2.sval);}
-                | '(' error {System.out.println("Falta el parentesis que cierra en linea: " + Linea.getLinea());}
-                | ')' error {System.out.println("Falta el parentesis que abre en linea: " + Linea.getLinea());}
+                | '(' tipo ID error {System.out.println("ERROR: linea "+ Linea.getLinea()+ " Falta el parentesis que cierra"); setear_Uso("Parametro formal", $3.sval);}
+                | tipo ID ')' error {System.out.println("ERROR: linea "+ Linea.getLinea()+ " Falta el parentesis que abre"); setear_Uso("Parametro formal", $2.sval);}
+                | '(' error {System.out.println("ERROR: linea "+ Linea.getLinea() + " Falta el parentesis que cierra.");}
+                | ')' error {System.out.println("ERROR: linea "+ Linea.getLinea() + " Falta el parentesis que abre");}
 ;
 
 tipo : DOUBLE {guardar_Tipo("DOUBLE");}
      | USHORT {guardar_Tipo("USHORT");}
      | LONG {guardar_Tipo("LONG");}
-     | error {System.out.println("Error: No es un tipo definido en linea "+ Linea.getLinea());}
+     | error {System.out.println("Error: linea " + Linea.getLinea() +  " No es un tipo definido");}
 ;
 
 print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
@@ -410,7 +421,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
         ambitos_Programa = ambito.split(":");
         int num_a = ambitos_Programa.length;
         if (num_a+1 > limite_Anidamiento)
-            {System.out.println("No es posible generar mas anidamientos en linea "+ Linea.getLinea());
+            {System.out.println("ERROR: linea" + Linea.getLinea()+ " No es posible generar mas anidamientos");
             return false;}
         else
             return true;
@@ -589,7 +600,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
                 {   
                     if (num != 0.0)
                     {
-                        System.out.println("El double positivo es menor al limite permitido. Tiene valor: "+num);
+                        System.out.println("WARNING: linea " + Linea.getLinea() + " El double positivo es menor al limite permitido. Tiene valor: "+num + ". El valor será reemplazado");
                         TS.eliminar(Double.toString(num));
                         String nuevo = "2.2250738585072014e-308"  ;
                         TS.agregar(nuevo, 258);
@@ -602,7 +613,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
                 }
             else if (num > 1.7976931348623157e+308)
             {
-                System.out.println("El double positivo es mayor al limite permitido. Tiene valor: "+num);
+                System.out.println("WARNING: linea "+ Linea.getLinea() + " El double positivo es mayor al limite permitido. Tiene valor: "+num+ ". El valor será reemplazado");
                 TS.eliminar(Double.toString(num));
                 String nuevo = "1.7976931348623157e+308";
                 TS.agregar(nuevo, 258);
@@ -616,7 +627,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
         else
         {   Long entero = Long.valueOf(numero);
             if (entero > 2147483647L) {
-                System.out.println("El entero largo positivo es mayor al limite permitido. Tiene valor: "+entero);
+                System.out.println("WARNING: linea " + Linea.getLinea() + " El entero largo positivo es mayor al limite permitido. Tiene valor: "+entero+ ". El valor será reemplazado");
                 TS.eliminar(Long.toString(entero));
                 String nuevo = "2147483647";
                 TS.agregar(nuevo, 258);
@@ -639,7 +650,7 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
                 {
                     if (num != 0.0) //Si esta fuera del rango todavia puede ser válido por el 0.0
                     {
-                        System.out.println("El double negativo es mayor al limite permitido. Tiene valor: "+num);
+                        System.out.println("WARNING: linea "+ Linea.getLinea() + " El double negativo es mayor al limite permitido. Tiene valor: "+num+ ". El valor será reemplazado");
                         TS.eliminar(Double.toString(num * (-1.0)));
                         String nuevo = "-2.2250738585072014e-308";
                         TS.agregar(nuevo, 258);//Lo agrego a la tabla de simbolos con el signo
@@ -650,7 +661,7 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
                 }
             else if (num < -1.7976931348623157e+308)
             {
-                System.out.println("El double positivo es menor al limite permitido. Tiene valor: "+num);
+                System.out.println("WARNING: linea "+ Linea.getLinea() + " El double positivo es menor al limite permitido. Tiene valor: "+num+ ". El valor será reemplazado");
                 TS.eliminar(Double.toString(num *(-1.0)));
                 String nuevo = "-1.7976931348623157e+308";
                 TS.agregar(nuevo, 258);
@@ -673,7 +684,7 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
             Long entero = Long.valueOf(numero);
             entero = entero * (-1);
             if (entero < -2147483648L) {
-                System.out.println("El entero largo negativo es menor al limite permitido. Tiene valor: "+entero);
+                System.out.println("WARNING: linea "+ Linea.getLinea() + " El entero largo negativo es menor al limite permitido. Tiene valor: "+entero+ ". El valor será reemplazado");
                 TS.eliminar(Long.toString(entero*(-1)));
                 String nuevo = "-2147483648";
                 TS.agregar(nuevo, 258);//Lo agrego a la tabla de simbolos en negativo borrando el numero positivo
@@ -693,9 +704,9 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
 
     public void VerificarSalto(){
         if (lex.salto())
-            System.out.println("Falto la coma en la linea " + (Linea.getLinea()-1) +" al final de la sentencia");
+            System.out.println("ERROR: linea " + (Linea.getLinea()-1) + " Falto la coma al final de la sentencia");
         else
-            System.out.println("Falto la coma en la linea " + Linea.getLinea() +" al final de la sentencia");
+            System.out.println("ERROR: linea " + (Linea.getLinea()-1) + " Falto la coma al final de la sentencia");
     }
 
     public void setear_Uso(String uso, String a){
