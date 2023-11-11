@@ -511,7 +511,7 @@ final static String yyrule[] = {
 "print : PRINT CADENA",
 };
 
-//#line 347 "gramatica.y"
+//#line 349 "gramatica.y"
 
     Lexico lex;
     TablaSimbolos TS = new TablaSimbolos();
@@ -1516,82 +1516,84 @@ case 86:
                                     ver_ElementoDeclarado(val_peek(1).sval);
                                     String aux = buscar_Parametro(val_peek(1).sval, ambito);
                                     if ((aux == "-" && val_peek(0).sval=="-") || (aux != null && val_peek(0).sval!=null)) /*si los parametros no coinciden avisa*/
-                                        {yyval.sval = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(TS.pertenece(val_peek(1).sval)), "-")) + "]";}
+                                        {yyval.sval = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(TS.pertenece(val_peek(1).sval)), val_peek(0).sval)) + "]";}
                                     else
                                         System.out.println("ERROR: linea " + Linea.getLinea() + " Los parámetros no coinciden");
+                                     if ((aux != "-" && val_peek(0).sval == "-") || (aux == "-" && val_peek(0).sval != "-"))
+                                         System.out.println("ERROR: linea " + Linea.getLinea() + " La cantidad de parámetros reales con los formales no coinciden");
                                     }
 break;
 case 87:
-//#line 319 "gramatica.y"
+//#line 321 "gramatica.y"
 {yyval.sval = val_peek(1).sval; yyval.ival= 1;}
 break;
 case 88:
-//#line 320 "gramatica.y"
+//#line 322 "gramatica.y"
 {yyval.sval = "-"; yyval.ival = 0;}
 break;
 case 89:
-//#line 321 "gramatica.y"
-{System.out.println("ERROR: linea "+ Linea.getLinea()+ " Falta el parentesis que cierra");}
-break;
-case 90:
-//#line 322 "gramatica.y"
-{System.out.println("ERROR: linea "+ Linea.getLinea() + " Falta el parentesis que abre");}
-break;
-case 91:
 //#line 323 "gramatica.y"
 {System.out.println("ERROR: linea "+ Linea.getLinea()+ " Falta el parentesis que cierra");}
 break;
-case 92:
+case 90:
 //#line 324 "gramatica.y"
 {System.out.println("ERROR: linea "+ Linea.getLinea() + " Falta el parentesis que abre");}
 break;
+case 91:
+//#line 325 "gramatica.y"
+{System.out.println("ERROR: linea "+ Linea.getLinea()+ " Falta el parentesis que cierra");}
+break;
+case 92:
+//#line 326 "gramatica.y"
+{System.out.println("ERROR: linea "+ Linea.getLinea() + " Falta el parentesis que abre");}
+break;
 case 93:
-//#line 327 "gramatica.y"
+//#line 329 "gramatica.y"
 {setear_Uso("Parametro formal", val_peek(1).sval);
                                     yyval.sval = val_peek(1).sval; yyval.ival = 1;}
 break;
 case 94:
-//#line 329 "gramatica.y"
+//#line 331 "gramatica.y"
 {yyval.sval = "-"; yyval.ival = 0;}
 break;
 case 95:
-//#line 330 "gramatica.y"
+//#line 332 "gramatica.y"
 {System.out.println("ERROR: linea "+ Linea.getLinea()+ " Falta el parentesis que cierra"); setear_Uso("Parametro formal", val_peek(1).sval);}
 break;
 case 96:
-//#line 331 "gramatica.y"
+//#line 333 "gramatica.y"
 {System.out.println("ERROR: linea "+ Linea.getLinea()+ " Falta el parentesis que abre"); setear_Uso("Parametro formal", val_peek(2).sval);}
 break;
 case 97:
-//#line 332 "gramatica.y"
+//#line 334 "gramatica.y"
 {System.out.println("ERROR: linea "+ Linea.getLinea() + " Falta el parentesis que cierra.");}
 break;
 case 98:
-//#line 333 "gramatica.y"
+//#line 335 "gramatica.y"
 {System.out.println("ERROR: linea "+ Linea.getLinea() + " Falta el parentesis que abre");}
 break;
 case 99:
-//#line 336 "gramatica.y"
+//#line 338 "gramatica.y"
 {guardar_Tipo("DOUBLE");}
 break;
 case 100:
-//#line 337 "gramatica.y"
+//#line 339 "gramatica.y"
 {guardar_Tipo("USHORT");}
 break;
 case 101:
-//#line 338 "gramatica.y"
+//#line 340 "gramatica.y"
 {guardar_Tipo("LONG");}
 break;
 case 102:
-//#line 339 "gramatica.y"
+//#line 341 "gramatica.y"
 {System.out.println("Error: linea " + Linea.getLinea() +  " No es un tipo definido");}
 break;
 case 103:
-//#line 342 "gramatica.y"
+//#line 344 "gramatica.y"
 {setear_Uso("Cadena", val_peek(0).sval);
                     int aux = crear_terceto("PRINT", Integer.toString(TS.pertenece(val_peek(0).sval)), "-");}
 break;
-//#line 1518 "Parser.java"
+//#line 1520 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####

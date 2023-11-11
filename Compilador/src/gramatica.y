@@ -310,9 +310,11 @@ invocacionFuncion : ID parametro_real {
                                     ver_ElementoDeclarado($1.sval);
                                     String aux = buscar_Parametro($1.sval, ambito);
                                     if ((aux == "-" && $2.sval=="-") || (aux != null && $2.sval!=null)) //si los parametros no coinciden avisa
-                                        {$$.sval = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(TS.pertenece($1.sval)), "-")) + "]";}
+                                        {$$.sval = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(TS.pertenece($1.sval)), $2.sval)) + "]";}
                                     else
                                         System.out.println("ERROR: linea " + Linea.getLinea() + " Los parámetros no coinciden");
+                                     if ((aux != "-" && $2.sval == "-") || (aux == "-" && $2.sval != "-"))
+                                         System.out.println("ERROR: linea " + Linea.getLinea() + " La cantidad de parámetros reales con los formales no coinciden");
                                     }
 ;
 
