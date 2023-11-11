@@ -77,7 +77,7 @@ clase1 objeto1; obj4,
 objeto1.s = 4_us,
 obj4.s = 5_us,
 
-objeto1.s = obj4.s;
+objeto1.s = obj4.s,
 
 }
 

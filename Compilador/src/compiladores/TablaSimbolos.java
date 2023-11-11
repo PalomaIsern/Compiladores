@@ -67,6 +67,10 @@ public class TablaSimbolos {
         return -1;
     }
 
+    public static void remove_Simbolo(int clave) {
+        TS.remove(clave);
+    }
+
     public Simbolo get_Simbolo(int clave) {
         return TS.get(clave);
     }
