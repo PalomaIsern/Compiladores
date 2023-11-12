@@ -2,10 +2,12 @@
 DOUBLE x; y,
 LONG z,
 USHORT m,
-x = y*m*z,
+z = y*m*z,
 x = y * y + z *m - m / x,
 x = y + z * m,
 DOUBLE t1; t; a; b; c,
+m = 12_us + 13_us,
+m = 2.5,
 IF (a-b > c+1.0)
     {t = 3.0 *  5.0,
     t1 = t + 6.0,}

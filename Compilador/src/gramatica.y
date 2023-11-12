@@ -50,12 +50,19 @@ fin_sentencia : ','
                 | error {VerificarSalto();}
 ;
 
-asignacion : ID simboloAsignacion expresion         {if ($2.sval == "+="){
+asignacion : ID simboloAsignacion expresion         {String conv = convertirTipoAsignacion($1.sval, $3.sval);
+                                                    if (conv != "-"){
+                                                        $3.sval = "["+ Integer.toString(crear_terceto(conv, $3.sval, "-")) +"]";
+                                                        CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(conv));
+                                                    }
+                                                    if ($2.sval == "+="){
                                                         String aux = "[" + Integer.toString(crear_terceto("+", Integer.toString(TS.pertenece($1.sval)), $3.sval)) + "]";
                                                         $$.sval = '[' + Integer.toString(crear_terceto("=", Integer.toString(TS.pertenece($1.sval)), aux)) + ']';}
                                                     else 
                                                         $$.sval = '[' + Integer.toString(crear_terceto($2.sval, Integer.toString(TS.pertenece($1.sval)), $3.sval)) + ']';
-                                                    ver_ElementoDeclarado($1.sval);}
+                                                    CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(TS.get_Simbolo(TS.pertenece($1.sval)).get_Tipo()));
+                                                    ver_ElementoDeclarado($1.sval);
+                                                    }
             | atributo_objeto '=' atributo_objeto   {//System.out.println("Se reconocio una asignacion a un atributo objeto en linea "+ Linea.getLinea());
                                                     $$.sval = '[' + Integer.toString(crear_terceto("=", $1.sval, $3.sval))+']';}
             | atributo_objeto '=' factor            {//System.out.println("Se reconocio una asignacion a un atributo objeto en linea "+ Linea.getLinea());
@@ -824,5 +831,45 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
             {valorfinal.sval = '['+ Integer.toString(crear_terceto(operador, elemento1, elemento2))+ ']';
             OperacionTipo = tipo2;}
         CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(OperacionTipo));
+    }
+
+    public String convertirTipoAsignacion(String id, String expresion){
+        String tipoId = TS.get_Simbolo(TS.pertenece(id)).get_Tipo();
+        String tipoExpresion;
+        String conversion = "-";
+        if (expresion.contains("[")){
+            String refTerceto = borrarParentesis(expresion);
+            tipoExpresion = CodigoIntermedio.get(Integer.parseInt(refTerceto)).get_Tipo();
+        }
+        else
+            tipoExpresion = TS.get_Simbolo(Integer.parseInt(expresion)).get_Tipo();
+        if (tipoId == "USHORT")
+                if (tipoExpresion == "USHORT")
+                    System.out.println("Los tipos son compatibles. La asignacion puede realizarse sin conversiones");
+                else
+                    System.out.println("ERROR: linea " + Linea.getLinea() + " Tipos incompatibles para realizar la asignacion. Se pretende convertir " + tipoExpresion + " a USHORT");
+        else if (tipoId == "LONG")
+            if (tipoExpresion == "LONG")
+                    System.out.println("Los tipos son compatibles. La asignacion puede realizarse sin conversiones");
+            else
+                if (tipoExpresion == "USHORT"){
+                    System.out.println("Los tipos son compatibles. La asignacion puede realizarse, debe convetirse USHORT a LONG");
+                    conversion = "UStoL";
+                }
+                else
+                    System.out.println("ERROR: linea " + Linea.getLinea() + " Tipos incompatibles para realizar la asignacion. Se pretende convertir " + tipoExpresion + " a USHORT");
+        else
+            if (tipoExpresion == "LONG"){
+                    System.out.println("Los tipos son compatibles. La asignacion puede realizarse, deve convertirse LONG a DOUBLE");
+                    conversion = "LtoD";
+            }
+            else
+                if (tipoExpresion == "USHORT"){
+                    System.out.println("Los tipos son compatibles. La asignacion puede realizarse, debe convetirse USHORT a DOUBLE");
+                    conversion = "UStoD";
+                }
+                else
+                    System.out.println("Los tipos son compatibles. La asignacion puede realizarse sin conversiones");
+        return conversion;
     }
         
