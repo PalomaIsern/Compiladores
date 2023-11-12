@@ -451,6 +451,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
     }
 
     public int verificarExisteClasePadre(String hijo, String padre) {
+        // en el caso de que una clase herede de otra, se verifica que la clase padre de la cual se va a heredar haya sido declarada
         String clasePadre = padre.split(":")[0];
         Integer clave = TS.buscar_por_ambito(padre);
         if (clave != -1) {
