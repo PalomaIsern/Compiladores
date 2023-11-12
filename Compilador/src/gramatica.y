@@ -106,29 +106,35 @@ operadorMasMenos : '+' { $$.sval = "+";}
 ;
 
 
-declaracionClase : inicioClase bloque_de_Sentencias { setear_Uso("Clase", $1.sval+ambito); 
-                                                     metodosTemp = new ArrayList<Integer>();
-                                                    metodosTempNoImp = new ArrayList<Integer>();
-                                                    atributosTemp = new ArrayList<Integer>();
-                                                    volver_Ambito();
+declaracionClase : inicioClase bloque_de_Sentencias {if ($$.sval != " ") 
+                                                        {setear_Uso("Clase", $1.sval+ambito); 
+                                                        metodosTemp = new ArrayList<Integer>();
+                                                        metodosTempNoImp = new ArrayList<Integer>();
+                                                        atributosTemp = new ArrayList<Integer>();
+                                                        volver_Ambito();
+                                                        }
                                                     }
                  | inicioClase '{' conjuntoSentencias ID ',' '}'        {//System.out.println("Clase con herencia por composicion en linea "+Linea.getLinea()); 
                                                                         volver_Ambito();
-                                                                        metodosTemp = new ArrayList<Integer>();
-                                                                        metodosTempNoImp = new ArrayList<Integer>();
-                                                                        atributosTemp = new ArrayList<Integer>();
-                                                                        clavePadre = verificarExisteClasePadre($$.sval+ambito, $4.sval+ambito);
-                                                                        if (clavePadre != -1);{
-                                                                            setear_Uso("Clase", $1.sval+ambito);
-                                                                            setear_Tipo($$.sval+ambito, $4.sval+ambito);
+                                                                        if ($$.sval != " ") 
+                                                                            {   metodosTemp = new ArrayList<Integer>();
+                                                                                metodosTempNoImp = new ArrayList<Integer>();
+                                                                                atributosTemp = new ArrayList<Integer>();
+                                                                                clavePadre = verificarExisteClasePadre($$.sval+ambito, $4.sval+ambito);
+                                                                                if (clavePadre != -1);{
+                                                                                    setear_Uso("Clase", $1.sval+ambito);
+                                                                                    setear_Tipo($$.sval+ambito, $4.sval+ambito);
+                                                                                }
+                                                                            }
                                                                         }
-                                                                        }
-                 | inicioClase {setear_Uso("Clase", $1.sval+ambito);
-                                volver_Ambito();}
+                 | inicioClase  {if ($$.sval != " ") 
+                                    {setear_Uso("Clase", $1.sval+ambito);
+                                    volver_Ambito();}
+                                }
 ;
 
 
-inicioClase: CLASS ID   { if (setear_Ambito($2.sval+ambito, $2.sval))
+inicioClase: CLASS ID   { if (setear_Ambito($2.sval+ambito, $2.sval)) {
                             metodosTemp = new ArrayList<Integer>();
                             atributosTemp = new ArrayList<Integer>();
                             metodosTempNoImp = new ArrayList<Integer>();
@@ -136,6 +142,7 @@ inicioClase: CLASS ID   { if (setear_Ambito($2.sval+ambito, $2.sval))
                             ambito += ":" + $2.sval;
                             $$.sval = $2.sval;
                             clavePadre = -1;
+                            } else $$.sval = " ";
                         }    
 ;
 
