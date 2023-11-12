@@ -50,7 +50,7 @@ fin_sentencia : ','
                 | error {VerificarSalto();}
 ;
 
-asignacion : ID simboloAsignacion expresion          {String conv = convertirTipoAsignacion($1.sval, $3.sval);
+asignacion : ID simboloAsignacion expresion         {String conv = convertirTipoAsignacion($1.sval, $3.sval);
                                                     if (conv != "-"){
                                                         $3.sval = "["+ Integer.toString(crear_terceto(conv, $3.sval, "-")) +"]";
                                                         CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(conv));
@@ -82,7 +82,7 @@ expresion : expresion operadorMasMenos termino  {realizar_Conversion($1.sval, $3
           | termino                             {$$.sval = $1.sval;}
 ;
 
-termino : termino simboloTermino factor     {realizar_Conversion($1.sval, $3.sval, $2.sval, $$);}
+termino : termino simboloTermino factor     { realizar_Conversion($1.sval, $3.sval, $2.sval, $$);}
         | factor                            {$$.sval = $1.sval;}
 ;
 
@@ -340,8 +340,8 @@ invocacionFuncion : ID parametro_real {
                                         {$$.sval = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(TS.pertenece($1.sval)), $2.sval)) + "]";}
                                     else
                                         System.out.println("ERROR: linea " + Linea.getLinea() + " Los parámetros no coinciden");
-                                    if ((aux != "-" && $2.sval == "-") || (aux == "-" && $2.sval != "-"))
-                                        System.out.println("ERROR: linea " + Linea.getLinea() + " La cantidad de parámetros reales con los formales no coinciden");
+                                     if ((aux != "-" && $2.sval == "-") || (aux == "-" && $2.sval != "-"))
+                                         System.out.println("ERROR: linea " + Linea.getLinea() + " La cantidad de parámetros reales con los formales no coinciden");
                                     }
 ;
 
@@ -628,7 +628,8 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
                     int l = Integer.parseInt(j);
                     j = TS.get_Simbolo(l).get_Lex();
                 }
-                System.out.println("Referencia: " + i.getKey() + ", Terceto: (" + i.getValue().get_Operador() + " , " + j + " , "+ s +")" + " Tipo: " + i.getValue().get_Tipo()); }
+                System.out.println("Referencia: " + i.getKey() + ", Terceto: (" + i.getValue().get_Operador() + " , " + j + " , "+ s +")" + " Tipo: " + i.getValue().get_Tipo());
+        }
     }
 
     private int yylex() {
@@ -817,7 +818,7 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
         t.set_Op(operando);
     }
 
-     public String borrarParentesis(String palabra){
+    public String borrarParentesis(String palabra){
         StringBuilder builder = new StringBuilder(palabra);
         for (int i = 0; i < builder.length(); i++) {
             if (builder.charAt(i) == '[' || builder.charAt(i) == ']' )
@@ -850,15 +851,14 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
             else{
             String aux = '[' + Integer.toString(crear_terceto(OperacionTipo, elemento2, "-")) + ']';
             CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(OperacionTipo));
-            valorfinal.sval = '['+ Integer.toString(crear_terceto(operador, elemento1, aux))+ ']';}
-            }
+            valorfinal.sval = '['+ Integer.toString(crear_terceto(operador, elemento1, aux))+ ']';}}
         else
             {valorfinal.sval = '['+ Integer.toString(crear_terceto(operador, elemento1, elemento2))+ ']';
             OperacionTipo = tipo2;}
         CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(OperacionTipo));
     }
 
-public String convertirTipoAsignacion(String id, String expresion){
+    public String convertirTipoAsignacion(String id, String expresion){
         String tipoId = TS.get_Simbolo(TS.pertenece(id)).get_Tipo();
         String tipoExpresion;
         String conversion = "-";
@@ -897,3 +897,4 @@ public String convertirTipoAsignacion(String id, String expresion){
                     System.out.println("Los tipos son compatibles. La asignacion puede realizarse sin conversiones");
         return conversion;
     }
+        
