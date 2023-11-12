@@ -2,7 +2,6 @@ package compiladores;
 
 public class Conversion {
     private String[][][] matrixConvertibilidad;
-    private int elementoAConvertir = -1;
 
     // 0: DOUBLE
     // 1: LONG
@@ -29,39 +28,33 @@ public class Conversion {
         String primero = elemento[0];
         String segundo = elemento[2];
         if (primero == "-" && segundo == "-") {
-            System.out.println("No hay que hacer conversion");
+            System.out.println("No hay que hacer conversion entre dos " + type1);
             return "-";
         } else if (primero != "-") {
-            elementoAConvertir = 1;
             return primero;
         } else {
-            elementoAConvertir = 2;
             return segundo;
         }
     }
 
-    public int devolverElementoAConvertir() {
-        int aux = elementoAConvertir;
-        elementoAConvertir = -1;
-        return aux;
+    public String devolverElementoAConvertir(String elemento1, String tipo1, String elemento2, String tipo2) {
+        int index1 = mapTypeToIndex(tipo1);
+        int index2 = mapTypeToIndex(tipo2);
+        String[] elemento = matrixConvertibilidad[index1][index2];
+        if (elemento[1].equals(tipo1))
+            return elemento2;
+        else
+            return elemento1;
     }
 
     public String devolverTipoAConvertir(String op) {
         String tipo = "-";
-        switch (op) {
-            case "UStoD":
-                tipo = "DOUBLE";
-            case "DOUBLE":
-                tipo = "DOUBLE";
-            case "USHORT":
-                tipo = "USHORT";
-            case "LONG":
-                tipo = "LONG";
-            case "LtoD":
-                tipo = "DOUBLE";
-            case "UStoL":
-                tipo = "LONG";
-        }
+        if (op == "UStoD" || op == "DOUBLE" || op == "LtoD")
+            tipo = "DOUBLE";
+        else if (op == "USHORT")
+            tipo = "USHORT";
+        else if (op == "LONG" || op == "UStoL")
+            tipo = "LONG";
         return tipo;
     }
 

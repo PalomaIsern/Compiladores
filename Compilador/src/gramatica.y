@@ -602,7 +602,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
                     int l = Integer.parseInt(j);
                     j = TS.get_Simbolo(l).get_Lex();
                 }
-                System.out.println("Referencia: " + i.getKey() + ", Terceto: (" + i.getValue().get_Operador() + " , " + j + " , "+ s +")");
+                System.out.println("Referencia: " + i.getKey() + ", Terceto: (" + i.getValue().get_Operador() + " , " + j + " , "+ s +")" + " Tipo: " + i.getValue().get_Tipo());
         }
     }
 
@@ -809,8 +809,9 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
         else
             tipo2 = TS.get_Simbolo(Integer.parseInt(elemento2)).get_Tipo();
         String OperacionTipo = convertible.Convertir(tipo1, tipo2);
-        if (OperacionTipo!="-")
-            if (convertible.devolverElementoAConvertir() ==1){
+        if (OperacionTipo!="-"){
+            String elemento = convertible.devolverElementoAConvertir(elemento1, tipo1, elemento2, tipo2);
+            if (elemento == elemento1){
                 String aux = '[' + Integer.toString(crear_terceto(OperacionTipo, elemento1, "-")) + ']';
                 CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(OperacionTipo));
                 valorfinal.sval = '['+ Integer.toString(crear_terceto(operador, aux, elemento2))+ ']';
@@ -818,10 +819,10 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
             else{
             String aux = '[' + Integer.toString(crear_terceto(OperacionTipo, elemento2, "-")) + ']';
             CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(OperacionTipo));
-            valorfinal.sval = '['+ Integer.toString(crear_terceto(operador, elemento1, aux))+ ']';}
+            valorfinal.sval = '['+ Integer.toString(crear_terceto(operador, elemento1, aux))+ ']';}}
         else
             {valorfinal.sval = '['+ Integer.toString(crear_terceto(operador, elemento1, elemento2))+ ']';
-            OperacionTipo = tipo1;}
+            OperacionTipo = tipo2;}
         CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(OperacionTipo));
     }
         
