@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Stack;
 import java.util.Arrays;
+import java.util.Iterator;
 
 
 import java.io.IOException;
@@ -106,30 +107,32 @@ operadorMasMenos : '+' { $$.sval = "+";}
 ;
 
 
-declaracionClase : inicioClase bloque_de_Sentencias {if ($$.sval != " ") 
-                                                        {setear_Uso("Clase", $1.sval+ambito); 
+declaracionClase : inicioClase bloque_de_Sentencias {volver_Ambito();
+                                                    if ($$.sval != " ") 
+                                                        {setear_Uso("Clase", $1.sval); 
+                                                        agregarClase($1.sval, metodosTemp, metodosTempNoImp, atributosTemp);
                                                         metodosTemp = new ArrayList<Integer>();
-                                                        metodosTempNoImp = new ArrayList<Integer>();
                                                         atributosTemp = new ArrayList<Integer>();
-                                                        volver_Ambito();
+                                                        metodosTempNoImp = new ArrayList<Integer>();
                                                         }
                                                     }
                  | inicioClase '{' conjuntoSentencias ID ',' '}'        {//System.out.println("Clase con herencia por composicion en linea "+Linea.getLinea()); 
                                                                         volver_Ambito();
                                                                         if ($$.sval != " ") 
-                                                                            {   metodosTemp = new ArrayList<Integer>();
-                                                                                metodosTempNoImp = new ArrayList<Integer>();
+                                                                            {   clavePadre = verificarExisteClasePadre($1.sval, $4.sval+ambito);
+                                                                                agregarClase($1.sval, metodosTemp, metodosTempNoImp, atributosTemp);
+                                                                                metodosTemp = new ArrayList<Integer>();
                                                                                 atributosTemp = new ArrayList<Integer>();
-                                                                                clavePadre = verificarExisteClasePadre($$.sval+ambito, $4.sval+ambito);
+                                                                                metodosTempNoImp = new ArrayList<Integer>();
                                                                                 if (clavePadre != -1);{
-                                                                                    setear_Uso("Clase", $1.sval+ambito);
-                                                                                    setear_Tipo($$.sval+ambito, $4.sval+ambito);
+                                                                                    setear_Uso("Clase", $1.sval);
+                                                                                    setear_Tipo($1.sval, $4.sval+ambito);
                                                                                 }
                                                                             }
                                                                         }
                  | inicioClase  {if ($$.sval != " ") 
-                                    {setear_Uso("Clase", $1.sval+ambito);
-                                    volver_Ambito();}
+                                    setear_Uso("Clase", $1.sval+ambito);
+                                    volver_Ambito();
                                 }
 ;
 
@@ -138,11 +141,10 @@ inicioClase: CLASS ID   { if (setear_Ambito($2.sval+ambito, $2.sval)) {
                             metodosTemp = new ArrayList<Integer>();
                             atributosTemp = new ArrayList<Integer>();
                             metodosTempNoImp = new ArrayList<Integer>();
-                            agregarClase($2.sval+ambito, metodosTemp, metodosTempNoImp, atributosTemp);
-                            ambito += ":" + $2.sval;
-                            $$.sval = $2.sval;
+                            $$.sval = $2.sval+ambito;
                             clavePadre = -1;
                             } else $$.sval = " ";
+                            ambito += ":" + $2.sval;
                         }    
 ;
 
@@ -192,7 +194,6 @@ declaracionFuncion: funcion_VOID    {   dentroFuncion = false;}
 
 funcion_VOID: inicio_Void parametro_formal '{' cuerpo_funcion '}' {//System.out.println("Se reconocio una declaracion de una funcion VOID en linea "+ Linea.getLinea());
                                                                 String idFuncion = obtenerAmbito($1.sval+ambito);
-                                                                agregarFuncion(idFuncion, $2.sval);
                                                                 metodosTemp.add(TS.buscar_por_ambito(idFuncion));
                                                                 volver_Ambito();
                                                                 $$.sval = $1.sval;
@@ -220,7 +221,7 @@ clausula_IMPL : IMPL FOR ID ':' '{' funcion_VOID fin_sentencia '}'  {   int idCl
                                                                         if (verificarExistencia(idClase, $6.sval, "metodoNoImpl")) {
                                                                             agregarMetodoImplementado($3.sval+ambito, $6.sval+ambito+":"+$3.sval);
                                                                         } else {    int clave = TS.buscar_por_ambito($6.sval+ambito);
-                                                                                    funciones.remove(clave);
+                                                                                    metodosClases.get(0).remove(Integer.valueOf(clave));
                                                                                     TS.remove_Simbolo(clave);
                                                                         }
                                                                     }
@@ -326,16 +327,16 @@ inicio_DO: DO {$$.ival = puntero_Terceto;}
 declaracion: tipo lista_Variables {setear_Tipo();}
 ;
 
-lista_Variables : lista_Variables ';' ID {  setear_Ambito($3.sval+ambito, $3.sval); 
+lista_Variables : lista_Variables ';' ID {  boolean declarado = setear_Ambito($3.sval+ambito, $3.sval); 
                                             setear_Uso("Variable", $3.sval+ambito); 
                                             guardar_Var($3.sval+ambito);
-                                            if (!dentroFuncion)
+                                            if (!dentroFuncion && declarado)
                                                 atributosTemp.add(TS.buscar_por_ambito($3.sval+ambito));
                                             }
-                | ID {  setear_Ambito($1.sval+ambito, $1.sval); 
+                | ID {  boolean declarado = setear_Ambito($1.sval+ambito, $1.sval); 
                         setear_Uso("Variable", $1.sval+ambito); 
                         guardar_Var($1.sval+ambito);
-                        if (!dentroFuncion)
+                        if (!dentroFuncion && declarado)
                             atributosTemp.add(TS.buscar_por_ambito($1.sval+ambito));
                         }
 ;
@@ -506,12 +507,47 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
 
     public void agregarClase(String ID, ArrayList<Integer> mets, ArrayList<Integer> metsNoImp, ArrayList<Integer> atrs) {
         int clave = TS.buscar_por_ambito(ID);
-        //chequeamos que no se sobreescriban los metodos del padre
+        //chequeamos que no se sobreescriban los metodos del padre, si es que tiene
+        if (clavePadre != -1) {
+            ArrayList<String> metodosPadre = obtenerNombresMetodos(clavePadre);
+            Iterator<Integer> iterator = mets.iterator();
+            while (iterator.hasNext()) {
+                Integer i = iterator.next();
+                String nombre = TS.get_Simbolo(i).get_Lex();
+                if (metodosPadre.contains(nombre)) {
+                    iterator.remove(); // Utiliza el método remove del iterador
+                    System.out.println("ERROR: linea "+Linea.getLinea()+" no se puede sobrescribir el método \"" + nombre + "\"");
+                }
+            }
+            iterator = metsNoImp.iterator();
+            while (iterator.hasNext()) {
+                Integer i = iterator.next();
+                String nombre = TS.get_Simbolo(i).get_Lex();
+                if (metodosPadre.contains(nombre)) {
+                    iterator.remove(); // Utiliza el método remove del iterador
+                    System.out.println("ERROR: linea "+Linea.getLinea()+" no se puede sobrescribir el método \"" + nombre + "\"");
+                }
+            }
+        }
         metodosClases.put(clave, mets);
         metodosNoImplementados.put(clave, metsNoImp);
         atributosClases.put(clave, atrs);
+        clavePadre = -1;
     }
 
+    public ArrayList<String> obtenerNombresMetodos(int clave) {
+        //devuelve los nombres de todos los metodos de una clase (declarados e implementados)
+        ArrayList<String> retorno = new ArrayList<String>();
+        ArrayList<Integer> aux = metodosClases.get(clave);        
+        for (Integer m : aux){
+            retorno.add(TS.get_Simbolo(m).get_Lex());
+        }
+        aux = metodosNoImplementados.get(clave);
+        for (Integer m : aux){
+            retorno.add(TS.get_Simbolo(m).get_Lex());
+        }
+        return retorno;
+    }
     public void agregarMetodoImplementado(String clase, String metodo) 
     {   // si se implementa un metodo con IMPL, lo pasa a "implementado" y lo saca de la lista de "No implementados" 
         int clave = TS.buscar_por_ambito(clase);
@@ -580,7 +616,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
         for (HashMap.Entry<Integer, ArrayList<Integer>> e : atributosClases.entrySet()) {
             ArrayList<Integer> atrs = e.getValue();
             int ref = e.getKey();
-            String r = "ref: "+e.getKey()+ " - nombre: "+TS.get_Simbolo(ref).get_Ambito() +  " | atributos:";
+            String r = "ref: "+e.getKey()+ " - nombre: "+TS.get_Simbolo(ref).get_Ambito() +  " | atributos: ";
             for (Integer a: atrs) {
                 r += TS.get_Simbolo(a).get_Lex() + " ; ";
             };
@@ -661,7 +697,6 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
             System.out.println(" ");
             imprimirAtributosClases();
             System.out.println(" ");
-            imprimirFunciones();   
         return 0;
     }
     public void yyerror(String error) {
