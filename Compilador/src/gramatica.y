@@ -188,21 +188,26 @@ atributo_objeto : ID '.' ID {   int clase = obtenerClase($1.sval);
                             }
 ;
 
-declaracionFuncion: funcion_VOID    {   dentroFuncion = false;}
+declaracionFuncion: funcion_VOID    {dentroFuncion = false;}
                   | funcion_VOID_vacia { dentroFuncion = false;}
 ;
 
 funcion_VOID: inicio_Void parametro_formal '{' cuerpo_funcion '}' {//System.out.println("Se reconocio una declaracion de una funcion VOID en linea "+ Linea.getLinea());
                                                                 String idFuncion = obtenerAmbito($1.sval+ambito);
-                                                                metodosTemp.add(TS.buscar_por_ambito(idFuncion));
+                                                                int clave = TS.buscar_por_ambito(idFuncion);
+                                                                metodosTemp.add(clave);
+                                                                TS.get_Simbolo(clave).set_Parametro($2.sval);
+                                                                funciones.put(clave, Linea.getLinea());
                                                                 volver_Ambito();
-                                                                $$.sval = $1.sval;
                                                                 }
 ;
 
 funcion_VOID_vacia: inicio_Void parametro_formal {//System.out.println("Se reconocio una declaracion de una funcion VOID vacia en linea "+ Linea.getLinea());
                                             String idFuncion = obtenerAmbito($1.sval+ambito);
-                                            metodosTempNoImp.add(TS.buscar_por_ambito(idFuncion));
+                                            int clave = TS.buscar_por_ambito(idFuncion);
+                                            metodosTempNoImp.add(clave);
+                                            TS.get_Simbolo(clave).set_Parametro($2.sval);
+                                            funciones.put(clave, Linea.getLinea());
                                             volver_Ambito();
                                             }
 ;
@@ -394,7 +399,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
     ArrayList<String> variables = new ArrayList<String>();
     Stack<Integer> pila = new Stack<Integer>();
     Stack<String> tipos = new Stack<String>();
-    HashMap<Integer, String> funciones = new HashMap<Integer, String>();
+    HashMap<Integer, Integer> funciones = new HashMap<Integer, Integer>();
     HashMap<Integer, ArrayList<Integer>> metodosClases = new HashMap<Integer, ArrayList<Integer>>();
     HashMap<Integer, ArrayList<Integer>> metodosNoImplementados = new HashMap<Integer, ArrayList<Integer>>();
     HashMap<Integer, ArrayList<Integer>> atributosClases = new HashMap<Integer, ArrayList<Integer>>();
@@ -468,13 +473,6 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
         return clave;
     }
 
-    public void agregarFuncion(String id, String parametro) 
-    { //agrega la funcion al hashmap de funciones, le setea el parametro en la TS
-        int clave = TS.buscar_por_ambito(id);
-        funciones.put(clave, parametro);
-        TS.get_Simbolo(clave).set_Parametro(parametro);
-    }
-
     public boolean verificar_Limite(){
         ambitos_Programa = ambito.split(":");
         int num_a = ambitos_Programa.length;
@@ -515,8 +513,8 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
                 Integer i = iterator.next();
                 String nombre = TS.get_Simbolo(i).get_Lex();
                 if (metodosPadre.contains(nombre)) {
-                    iterator.remove(); // Utiliza el método remove del iterador
-                    System.out.println("ERROR: linea "+Linea.getLinea()+" no se puede sobrescribir el método \"" + nombre + "\"");
+                    iterator.remove(); 
+                    System.out.println("ERROR: linea "+ funciones.get(i)+" no se puede sobrescribir el método \"" + nombre + "\"");
                 }
             }
             iterator = metsNoImp.iterator();
@@ -524,8 +522,8 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
                 Integer i = iterator.next();
                 String nombre = TS.get_Simbolo(i).get_Lex();
                 if (metodosPadre.contains(nombre)) {
-                    iterator.remove(); // Utiliza el método remove del iterador
-                    System.out.println("ERROR: linea "+Linea.getLinea()+" no se puede sobrescribir el método \"" + nombre + "\"");
+                    iterator.remove(); 
+                    System.out.println("ERROR: linea "+ funciones.get(i)+" no se puede sobrescribir el método \"" + nombre + "\"");
                 }
             }
         }
@@ -626,16 +624,16 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
 
     public void imprimirFunciones() {
         System.out.println("FUNCIONES");
-        for (HashMap.Entry<Integer, String> e : funciones.entrySet()) {
+        for (HashMap.Entry<Integer, Integer> e : funciones.entrySet()) {
             Simbolo s = TS.get_Simbolo(e.getKey());
-            System.out.println(" ref: "+e.getKey() + " - nombre: "+ s.get_Lex() +" - parametro: "+ e.getValue());
+            System.out.println(" ref: "+e.getKey() + " - "+ s.get_Ambito() +" - linea: "+ e.getValue());
         }
     }
 
     public String buscar_Parametro(String id, String amb){
         // busca el parametro de la funcion que tenga al alcance
         //primero busca por nombre y luego verifica el ambito
-        for (HashMap.Entry<Integer, String> e : funciones.entrySet()) {
+        for (HashMap.Entry<Integer, Integer> e : funciones.entrySet()) {
             Simbolo s = TS.get_Simbolo(e.getKey());
             if (s.get_Lex().equals(id)) {
                 String ambitoSimbolo = s.get_Ambito();
@@ -697,6 +695,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
             System.out.println(" ");
             imprimirAtributosClases();
             System.out.println(" ");
+            imprimirFunciones();
         return 0;
     }
     public void yyerror(String error) {
