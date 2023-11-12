@@ -5,6 +5,7 @@ import compiladores.Linea;
 import compiladores.Token;
 import compiladores.Terceto;
 import compiladores.Simbolo;
+import compiladores.Conversion;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Stack;
@@ -68,11 +69,11 @@ simboloAsignacion : '='     {//System.out.println("Se reconocio una asignacion e
                   | error   {System.out.println("ERROR: linea " + Linea.getLinea() + " No es valido el signo de asignacion");}
 ;
 
-expresion : expresion operadorMasMenos termino  {$$.sval = '[' + Integer.toString(crear_terceto($2.sval, $1.sval, $3.sval)) + ']';}
-          | termino                             { $$.sval = $1.sval; }
+expresion : expresion operadorMasMenos termino  {realizar_Conversion($1.sval, $3.sval, $2.sval, $$);}
+          | termino                             {$$.sval = $1.sval;}
 ;
 
-termino : termino simboloTermino factor     {$$.sval = '['+ Integer.toString(crear_terceto( $2.sval, $1.sval, $3.sval))+ ']';}
+termino : termino simboloTermino factor     { realizar_Conversion($1.sval, $3.sval, $2.sval, $$);}
         | factor                            {$$.sval = $1.sval;}
 ;
 
@@ -358,6 +359,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
     String tipo;
     ArrayList<String> variables = new ArrayList<String>();
     Stack<Integer> pila = new Stack<Integer>();
+    Stack<String> tipos = new Stack<String>();
     HashMap<Integer, String> funciones = new HashMap<Integer, String>();
     HashMap<Integer, ArrayList<Integer>> metodosClases = new HashMap<Integer, ArrayList<Integer>>();
     HashMap<Integer, ArrayList<Integer>> metodosNoImplementados = new HashMap<Integer, ArrayList<Integer>>();
@@ -366,6 +368,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
     ArrayList<Integer> metodosTempNoImp = new ArrayList<Integer>();
     ArrayList<Integer> atributosTemp = new ArrayList<Integer>();
     boolean dentroFuncion = false;
+    Conversion convertible = new Conversion();
 
     public void ver_ElementoDeclarado(String elemento){
         int clave = TS.buscar_por_ambito(elemento+ambito);
@@ -782,3 +785,43 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
         String operando = "[" + Integer.toString(aux) + "]";
         t.set_Op(operando);
     }
+
+    public String borrarParentesis(String palabra){
+        StringBuilder builder = new StringBuilder(palabra);
+        for (int i = 0; i < builder.length(); i++) {
+            if (builder.charAt(i) == '[' || builder.charAt(i) == ']' )
+                builder.deleteCharAt(i);
+        }
+        String punt1 = builder.toString();
+        return punt1;
+    }
+
+    public void realizar_Conversion(String elemento1, String elemento2, String operador, ParserVal valorfinal){
+        String tipo1 = "-", tipo2 = "-";
+        if (elemento1.contains("[")){
+            String ref1 = borrarParentesis(elemento1);
+            tipo1 = CodigoIntermedio.get(Integer.parseInt(ref1)).get_Tipo();}
+        else 
+            tipo1 = TS.get_Simbolo(Integer.parseInt(elemento1)).get_Tipo();
+        if (elemento2.contains("[")){
+            String ref2 = borrarParentesis(elemento2); 
+            tipo2 = CodigoIntermedio.get(Integer.parseInt(ref2)).get_Tipo();}
+        else
+            tipo2 = TS.get_Simbolo(Integer.parseInt(elemento2)).get_Tipo();
+        String OperacionTipo = convertible.Convertir(tipo1, tipo2);
+        if (OperacionTipo!="-")
+            if (convertible.devolverElementoAConvertir() ==1){
+                String aux = '[' + Integer.toString(crear_terceto(OperacionTipo, elemento1, "-")) + ']';
+                CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(OperacionTipo));
+                valorfinal.sval = '['+ Integer.toString(crear_terceto(operador, aux, elemento2))+ ']';
+            }
+            else{
+            String aux = '[' + Integer.toString(crear_terceto(OperacionTipo, elemento2, "-")) + ']';
+            CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(OperacionTipo));
+            valorfinal.sval = '['+ Integer.toString(crear_terceto(operador, elemento1, aux))+ ']';}
+        else
+            {valorfinal.sval = '['+ Integer.toString(crear_terceto(operador, elemento1, elemento2))+ ']';
+            OperacionTipo = tipo1;}
+        CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(OperacionTipo));
+    }
+        

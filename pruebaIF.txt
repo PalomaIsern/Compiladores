@@ -2,6 +2,7 @@
 DOUBLE x; y,
 LONG z,
 USHORT m,
+x = y * y + z *m - m / x,
 x = y + z * m,
 DOUBLE t1; t; a; b; c,
 IF (a-b > c+1.0)
