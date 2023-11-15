@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Stack;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.HashSet;
 
 
 import java.io.IOException;
@@ -62,7 +63,7 @@ asignacion : ID simboloAsignacion expresion         {String conv = convertirTipo
                                                     else 
                                                         $$.sval = '[' + Integer.toString(crear_terceto($2.sval, Integer.toString(TS.pertenece($1.sval)), $3.sval)) + ']';
                                                     CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(TS.get_Simbolo(TS.pertenece($1.sval)).get_Tipo()));
-                                                    ver_ElementoDeclarado($1.sval);
+                                                    //comparar_Ambitos($1.sval, $3.sval);
                                                     }
             | atributo_objeto '=' atributo_objeto   {//System.out.println("Se reconocio una asignacion a un atributo objeto en linea "+ Linea.getLinea());
                                                     if (($1.sval != null) && ($3.sval != null))
@@ -83,7 +84,7 @@ expresion : expresion operadorMasMenos termino  {realizar_Conversion($1.sval, $3
           | termino                             {$$.sval = $1.sval;}
 ;
 
-termino : termino simboloTermino factor     { realizar_Conversion($1.sval, $3.sval, $2.sval, $$);}
+termino : termino simboloTermino factor     {realizar_Conversion($1.sval, $3.sval, $2.sval, $$);}
         | factor                            {$$.sval = $1.sval;}
 ;
 
@@ -91,13 +92,17 @@ simboloTermino : '*' { $$.sval = "*";}
                | '/' { $$.sval = "/";}
 ;
 
-factor : ID     {$$.sval = Integer.toString(TS.pertenece($1.sval));
+factor : ID     {$$.sval = Integer.toString(TS.buscar_por_ambito($1.sval+ambito));
                 setear_Uso("identificador", $1.sval+ambito);
-                ver_ElementoDeclarado($1.sval);}
+                if (!ver_ElementoDeclarado($1.sval))
+                    System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + $1.sval + " no fue declarado");
+                //TS.get_Simbolo(Integer.parseInt($1.sval)).set_Usada("Lado derecho");
+                }
        | CTE    {//System.out.println("Se reconocio una constante en linea "+Linea.getLinea());
-                chequearRangoPositivo($1.sval, $$);}
+                chequearRangoPositivo($1.sval, $$);
+                }
        | '-' CTE    {//System.out.println("Se reconocio constante negativa en linea "+ Linea.getLinea());
-                    chequearRangoNegativo($2.sval, $$);;}
+                    chequearRangoNegativo($2.sval, $$);}
        | CTEPOS     {setear_Uso("ConstantePositiva", $1.sval+ambito);
                     $$.sval = Integer.toString(TS.pertenece($1.sval));}
 ;
@@ -108,7 +113,7 @@ operadorMasMenos : '+' { $$.sval = "+";}
 
 
 declaracionClase : inicioClase bloque_de_Sentencias {volver_Ambito();
-                                                    if ($$.sval != " ") 
+                                                    if ($1.sval != " ") 
                                                         {setear_Uso("Clase", $1.sval); 
                                                         agregarClase($1.sval, metodosTemp, metodosTempNoImp, atributosTemp);
                                                         metodosTemp = new ArrayList<Integer>();
@@ -118,7 +123,7 @@ declaracionClase : inicioClase bloque_de_Sentencias {volver_Ambito();
                                                     }
                  | inicioClase '{' conjuntoSentencias ID ',' '}'        {//System.out.println("Clase con herencia por composicion en linea "+Linea.getLinea()); 
                                                                         volver_Ambito();
-                                                                        if ($$.sval != " ") 
+                                                                        if ($1.sval != " ") 
                                                                             {   clavePadre = verificarExisteClasePadre($1.sval, $4.sval+ambito);
                                                                                 agregarClase($1.sval, metodosTemp, metodosTempNoImp, atributosTemp);
                                                                                 metodosTemp = new ArrayList<Integer>();
@@ -130,61 +135,80 @@ declaracionClase : inicioClase bloque_de_Sentencias {volver_Ambito();
                                                                                 }
                                                                             }
                                                                         }
-                 | inicioClase  {if ($$.sval != " ") 
-                                    setear_Uso("Clase", $1.sval+ambito);
+                 | inicioClase  {if ($1.sval != " ") {
+                                    int clave = TS.buscar_por_ambito($1.sval);
+                                        if (! claseVacia(clave)) {
+                                        setear_Uso("Clase", $1.sval);
+                                        agregarClase($1.sval, metodosTemp, metodosTempNoImp, atributosTemp);
+                                        metodosTemp = new ArrayList<Integer>();
+                                        atributosTemp = new ArrayList<Integer>();
+                                        metodosTempNoImp = new ArrayList<Integer>();
+                                        } else 
+                                            System.out.println("ERROR: linea "+Linea.getLinea()+" se debe declarar la clase"+$1.sval);
+                                    }
                                     volver_Ambito();
                                 }
 ;
 
 
-inicioClase: CLASS ID   { if (setear_Ambito($2.sval+ambito, $2.sval)) {
-                            metodosTemp = new ArrayList<Integer>();
-                            atributosTemp = new ArrayList<Integer>();
-                            metodosTempNoImp = new ArrayList<Integer>();
-                            $$.sval = $2.sval+ambito;
-                            clavePadre = -1;
+    inicioClase: CLASS ID   { if (setear_Ambito($2.sval+ambito, $2.sval)) {
+                                metodosTemp = new ArrayList<Integer>();
+                                atributosTemp = new ArrayList<Integer>();
+                                metodosTempNoImp = new ArrayList<Integer>();
+                                $$.sval = $2.sval+ambito;
+                                clavePadre = -1;
                             } else $$.sval = " ";
                             ambito += ":" + $2.sval;
                         }    
 ;
 
-declaracionObjeto : ID lista_Variables {guardar_Tipo($1.sval+ambito); setear_Tipo();
-                                        ver_ElementoDeclarado($1.sval);}
+declaracionObjeto : ID lista_Variables {String t = obtenerTipo($1.sval);
+                                        guardar_Tipo(t);
+                                        setear_Tipo();
+                                        ver_ObjetoDeclarado($1.sval);}
 ;
 
-metodo_objeto : ID '.' ID parametro_real {  ver_ElementoDeclarado($1.sval);
-                                            int clase = obtenerClase($1.sval);
+metodo_objeto : ID '.' ID parametro_real {  ver_ObjetoDeclarado($1.sval);
+                                            int clase = obtenerClase($1.sval+ambito);
                                             if (clase != -1) {
-                                                int padre = -1;
-                                                String tipo = TS.get_Simbolo(clase).get_Tipo();
-                                                if ( tipo != " "); //hereda de otra clase
-                                                    padre = TS.buscar_por_ambito(tipo);
-                                                if (verificarExistencia(clase, $3.sval, "metodo") || verificarExistencia(padre, $3.sval, "metodo")) // si la funcion no existe en la clase (ni en la clase padre), no se crean tercetos
-                                                {   String param = buscar_Parametro($3.sval, ambito);
-                                                    String terceto = " ";
-                                                    if ((param == "-" && $4.sval=="-") || (param != null && $4.sval!=null)) //si los parametros no coinciden avisa
-                                                        terceto = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(TS.pertenece($3.sval)), "-")) + "]";
-                                                    else
-                                                        System.out.println("ERROR: linea "+ Linea.getLinea() + " Los parámetros no coinciden");
-                                                    int tercetoAux = crear_terceto("CALLMetodoClase", Integer.toString(TS.pertenece($1.sval)), terceto); 
-                                                } else {
-                                                    System.out.println("ERROR: linea "+ Linea.getLinea()+ " el metodo "+$3.sval+ " no se encuentra al alcance o no fue declarado");
-                                                }
+                                                if (! claseVacia(clase)) {
+                                                    int padre = -1;
+                                                    String tipo = TS.get_Simbolo(clase).get_Tipo();
+                                                    if ( tipo != " "); //hereda de otra clase
+                                                        padre = TS.buscar_por_ambito(tipo);
+                                                    if (verificarExistencia(clase, $3.sval, "metodo") || verificarExistencia(padre, $3.sval, "metodo")) // si la funcion no existe en la clase (ni en la clase padre), no se crean tercetos
+                                                    {   int param = buscar_Parametro($3.sval, ambito);
+                                                        String terceto = " ";
+                                                        if ((param == -1 && $4.sval=="-") || (param != -1 && $4.sval!=null)) //si los parametros no coinciden avisa
+                                                            terceto = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(TS.pertenece($3.sval)), "-")) + "]";
+                                                        else
+                                                            System.out.println("ERROR: linea "+ Linea.getLinea() + " Los parámetros no coinciden");
+                                                        int tercetoAux = crear_terceto("CALLMetodoClase", Integer.toString(TS.pertenece($1.sval)), terceto); 
+                                                    } else {
+                                                        System.out.println("ERROR: linea "+ Linea.getLinea()+ " el metodo "+$3.sval+ " no se encuentra al alcance o no fue declarado");
+                                                    }
+                                                } else
+                                                        System.out.println("ERROR: linea "+ Linea.getLinea()+ " - No se puede invocar al metodo \""+$3.sval+ "\" porque la clase \""+TS.get_Simbolo(clase).get_Ambito()+"\" no se encuentra implementada");
                                             }
                                         }
 
 ;
 
-atributo_objeto : ID '.' ID {   int clase = obtenerClase($1.sval);
-                                int padre = -1;
-                                String tipo = TS.get_Simbolo(clase).get_Tipo();
-                                if ( tipo != " "); //hereda de otra clase
-                                    padre = TS.buscar_por_ambito(tipo);
-                                if (verificarExistencia(clase, $3.sval, "atributo") || verificarExistencia(padre, $3.sval, "atributo"))
-                                { $$.sval = '[' + Integer.toString(crear_terceto("atributo_objeto", Integer.toString(TS.pertenece($1.sval)), Integer.toString(TS.pertenece($3.sval)) )) + ']';
+atributo_objeto : ID '.' ID {   int clase = obtenerClase($1.sval+ambito);
+                                if (clase != -1) {
+                                    if (! claseVacia(clase)) {
+                                        int padre = -1;
+                                        String tipo = TS.get_Simbolo(clase).get_Tipo();
+                                        if ( tipo != " "); //hereda de otra clase
+                                            padre = TS.buscar_por_ambito(tipo);
+                                        if (verificarExistencia(clase, $3.sval, "atributo") || verificarExistencia(padre, $3.sval, "atributo"))
+                                        { $$.sval = '[' + Integer.toString(crear_terceto("atributo_objeto", Integer.toString(TS.pertenece($1.sval)), Integer.toString(TS.pertenece($3.sval)) )) + ']';
 
-                                } else {System.out.println("ERROR: linea "+ Linea.getLinea()+ " el atributo \""+$3.sval+ "\" no se encuentra al alcance o no fue declarado");
-                                        $$.sval = null;}
+                                        } else {System.out.println("ERROR: linea "+ Linea.getLinea()+ " el atributo \""+$3.sval+ "\" no se encuentra al alcance o no fue declarado");
+                                                $$.sval = null;}
+                                        } else
+                                                System.out.println("ERROR: linea "+ Linea.getLinea()+ " - No se puede acceder al atributo \""+$3.sval+ "\"  porque la clase \""+TS.get_Simbolo(clase).get_Ambito()+"\" no se encuentra implementada");
+                                    }
                             }
 ;
 
@@ -206,7 +230,7 @@ funcion_VOID_vacia: inicio_Void parametro_formal {//System.out.println("Se recon
                                             String idFuncion = obtenerAmbito($1.sval+ambito);
                                             int clave = TS.buscar_por_ambito(idFuncion);
                                             metodosTempNoImp.add(clave);
-                                            TS.get_Simbolo(clave).set_Parametro($2.sval);
+                                            TS.get_Simbolo(clave).set_Parametro($2.sval); //DUDAAA
                                             funciones.put(clave, Linea.getLinea());
                                             volver_Ambito();
                                             }
@@ -222,7 +246,8 @@ inicio_Void: VOID ID {$$.sval = $2.sval;
 ;
 
 clausula_IMPL : IMPL FOR ID ':' '{' funcion_VOID fin_sentencia '}'  {   int idClase = TS.buscar_por_ambito($3.sval+ambito);
-                                                                        ver_ElementoDeclarado($3.sval); //verificar que la clase exista
+                                                                        if (!ver_ElementoDeclarado($3.sval)) //verificar que la clase exista
+                                                                            System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + $3.sval + " no fue declarado");
                                                                         if (verificarExistencia(idClase, $6.sval, "metodoNoImpl")) {
                                                                             agregarMetodoImplementado($3.sval+ambito, $6.sval+ambito+":"+$3.sval);
                                                                         } else {    int clave = TS.buscar_por_ambito($6.sval+ambito);
@@ -347,37 +372,65 @@ lista_Variables : lista_Variables ';' ID {  boolean declarado = setear_Ambito($3
 ;
 
 invocacionFuncion : ID parametro_real {
-                                    ver_ElementoDeclarado($1.sval);
-                                    String aux = buscar_Parametro($1.sval, ambito);
-                                    if ((aux == "-" && $2.sval=="-") || (aux != null && $2.sval!=null)) //si los parametros no coinciden avisa
-                                        {$$.sval = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(TS.pertenece($1.sval)), $2.sval)) + "]";}
+                                    if (!ver_ElementoDeclarado($1.sval))
+                                        System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + $1.sval + " no fue declarado");
+                                    int aux = buscar_Parametro($1.sval, ambito);
+                                    String tipo_real;
+                                    if ((aux == -1 && $2.sval=="-") || (aux != -1 && $2.sval != "-")) //si la cantidad de parametros no coinciden avisa
+                                        {if (aux != -1){
+                                            if ($2.sval.contains("["))
+                                                tipo_real = CodigoIntermedio.get(Integer.parseInt(borrarParentesis($2.sval))).get_Tipo();
+                                            else
+                                                tipo_real = TS.get_Simbolo(TS.buscar_por_ambito(TS.get_Simbolo(Integer.parseInt($2.sval)).get_Lex()+ambito)).get_Tipo();
+                                            System.out.println("Tipo parametro real: " + tipo_real+", Tipo formal: " + TS.get_Simbolo(aux).get_Tipo());
+                                            String tipo_formal = TS.get_Simbolo(aux).get_Tipo();
+                                            if (tipo_formal.equals(tipo_real)){
+                                                String auxiliar = Integer.toString(crear_terceto("=", Integer.toString(aux), $2.sval));
+                                                System.out.println("No fue necesario hacer conversiones de tipos en los parámetros");
+                                                $$.sval = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(TS.pertenece($1.sval)), $2.sval)) + "]";}
+                                            else
+                                            {
+                                                if (tipo_formal == "USHORT" || (tipo_formal == "LONG" && tipo_real =="DOUBLE"))
+                                                    System.out.println("ERROR: linea " + Linea.getLinea() + " Los tipos de los parámetros son incompatibles");
+                                                else{ 
+                                                    String conversion = convertible.Convertir(tipo_formal, tipo_real);
+                                                    String terceto = '['+ Integer.toString(crear_terceto(conversion, $2.sval, "-")) + ']';
+                                                    String auxiliar = Integer.toString(crear_terceto("=", Integer.toString(aux), terceto));
+                                                    System.out.println("La conversión pudo realizarse y fue de " + tipo_real + " a " + tipo_formal );
+                                                    $$.sval = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(TS.pertenece($1.sval)), terceto)) + "]";}
+                                            }}
+                                        else
+                                            $$.sval = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(TS.pertenece($1.sval)), $2.sval)) + "]";}
                                     else
                                         System.out.println("ERROR: linea " + Linea.getLinea() + " Los parámetros no coinciden");
-                                     if ((aux != "-" && $2.sval == "-") || (aux == "-" && $2.sval != "-"))
+                                    if ((aux != -1 && $2.sval == "-") || (aux == -1 && $2.sval != "-"))
                                          System.out.println("ERROR: linea " + Linea.getLinea() + " La cantidad de parámetros reales con los formales no coinciden");
                                     }
 ;
 
-parametro_real  : '(' expresion ')' {$$.sval = $2.sval; $$.ival= 1;}
-                | '(' ')' {$$.sval = "-"; $$.ival = 0;}
+parametro_real  : '(' expresion ')' {$$.sval = $2.sval;}
+                | '(' ')' {$$.sval = "-";}
                 | '(' expresion error {System.out.println("ERROR: linea "+ Linea.getLinea()+ " Falta el parentesis que cierra");}
                 | expresion ')' error {System.out.println("ERROR: linea "+ Linea.getLinea() + " Falta el parentesis que abre");}
                 | '(' error {System.out.println("ERROR: linea "+ Linea.getLinea()+ " Falta el parentesis que cierra");}
                 | ')' error {System.out.println("ERROR: linea "+ Linea.getLinea() + " Falta el parentesis que abre");}
 ;
 
-parametro_formal: '(' tipo ID ')' {setear_Uso("Parametro formal", $3.sval);
-                                    $$.sval = $3.sval; $$.ival = 1;}
-                | '(' ')' {$$.sval = "-"; $$.ival = 0;}
+parametro_formal: '(' tipo ID ')' { agregar_ParametroTS($3.sval, $2.sval, $3.sval+ambito);
+                                    $$.sval = Integer.toString(TS.buscar_por_ambito($3.sval+ambito));}
+                | '(' ')' {$$.sval = "-";}
                 | '(' tipo ID error {System.out.println("ERROR: linea "+ Linea.getLinea()+ " Falta el parentesis que cierra"); setear_Uso("Parametro formal", $3.sval);}
                 | tipo ID ')' error {System.out.println("ERROR: linea "+ Linea.getLinea()+ " Falta el parentesis que abre"); setear_Uso("Parametro formal", $2.sval);}
                 | '(' error {System.out.println("ERROR: linea "+ Linea.getLinea() + " Falta el parentesis que cierra.");}
                 | ')' error {System.out.println("ERROR: linea "+ Linea.getLinea() + " Falta el parentesis que abre");}
 ;
 
-tipo : DOUBLE {guardar_Tipo("DOUBLE");}
-     | USHORT {guardar_Tipo("USHORT");}
-     | LONG {guardar_Tipo("LONG");}
+tipo : DOUBLE {guardar_Tipo("DOUBLE");
+                $$.sval = "DOUBLE";}
+     | USHORT {guardar_Tipo("USHORT");
+                $$.sval = "USHORT";}
+     | LONG {guardar_Tipo("LONG");
+                $$.sval = "LONG";}
      | error {System.out.println("Error: linea " + Linea.getLinea() +  " No es un tipo definido");}
 ;
 
@@ -410,7 +463,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
     boolean dentroFuncion = false;
     Conversion convertible = new Conversion();
 
-    public void ver_ElementoDeclarado(String elemento){
+    public boolean ver_ElementoDeclarado(String elemento){
         int clave = TS.buscar_por_ambito(elemento+ambito);
         if (clave==-1)
             clave = TS.pertenece(elemento);
@@ -432,14 +485,40 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
                 }
                 cantidad = cantidad -1;
             }
-            if (!s.get_Ambito().equals(elemento+aux))
+            if (!s.get_Ambito().equals(elemento+aux)){
                 System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + elemento + " está fuera del alcance");
-            else
+            }
+            else {
                 System.out.println("El elemento " + elemento+ " está al alcance");
+            }
+            return true;
         }
-        else System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + elemento + " no fue declarado");
+        else
+            return false;
     }
 
+
+    private void ver_ObjetoDeclarado(String objeto) {
+        int clave = TS.buscar_por_ambito(objeto+ambito);
+        if (clave == -1) {
+            String a = ambito;
+            int index = a.lastIndexOf(":");
+            while (clave == -1 && index > 0) {
+                a = a.substring(0, index);
+                clave = TS.buscar_por_ambito(objeto+a);
+                index = a.lastIndexOf(":");
+            }
+            if (clave == -1) {
+                System.out.println("ERROR: linea "+Linea.getLinea()+" el objeto \""+objeto+"\" no se encuentra declarado o no está al alcance");
+            } else {
+                System.out.println("objeto \""+objeto+"\" está declarado y al alcance");
+            }
+        } else {
+            System.out.println("objeto \""+objeto+"\" está declarado y al alcance");
+        }
+        
+    }
+    
     public String obtenerAmbito(String ambito) 
     {   //saca la ultima parte del ambito 
         if (ambito.contains(":")) {
@@ -449,11 +528,15 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
         return " ";
     }
 
-    public Integer obtenerClase(String id) {
+    public int obtenerClase(String id) {
         //Dado el ID de un objeto, obtenemos la referencia a la TS de la clase a la cual pertenece
-        int clave = TS.buscar_por_ambito(id+ambito);
+        int clave = TS.buscar_por_ambito(id);
+        while (clave == -1) {
+            id = id.substring(0, id.lastIndexOf(":"));
+            clave = TS.buscar_por_ambito(id);
+        }
         String nombreClase = TS.get_Simbolo(clave).get_Tipo();
-        return TS.buscar_por_ambito(nombreClase);
+        return TS.buscar_por_ambito(nombreClase);       
     }
 
     public int verificarExisteClasePadre(String hijo, String padre) {
@@ -488,10 +571,15 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
         if (clave!=-1){
             Simbolo s = TS.get_Simbolo(clave);
             String amb= a.substring(a.indexOf(":")+1);
-            if (s.get_Ambito().equals(a))
-                {System.out.println("ERROR: linea " + Linea.getLinea() + " - Redeclaracion de " + s.get_Lex()+ " en el ambito "+ amb);
-                return false;
-                }
+            if (s.get_Ambito().equals(a)) {
+                if (claseVacia(clave)) {
+                        System.out.println("se completo la FORWARD DECLARATION de "+s.get_Ambito());
+                        return true;
+                    } else {
+                        System.out.println("ERROR: linea " + Linea.getLinea() + " - Redeclaracion de " + s.get_Lex()+ " en el ambito "+ amb);
+                        return false;
+                    }
+            }
             else
                 if (s.get_Ambito()=="-")
                     s.set_Ambito(a);
@@ -531,6 +619,45 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
         metodosNoImplementados.put(clave, metsNoImp);
         atributosClases.put(clave, atrs);
         clavePadre = -1;
+    }
+
+    private ArrayList<Integer> obtenerClasesDeclaradas() {
+        HashSet<Integer> keys = new HashSet<>();
+        keys.addAll(metodosClases.keySet());
+        keys.addAll(metodosNoImplementados.keySet());
+        keys.addAll(atributosClases.keySet());
+        return new ArrayList<Integer>(keys);
+    }
+
+    private boolean alAlcance(String a) {
+        String amb= ":" + a.substring(a.indexOf(":")+1);
+        String actual = ambito;
+        if (amb.equals(actual)) 
+            return true;
+        else { int index = actual.lastIndexOf(":");
+                while (index != -1) {
+                    actual = actual.substring(0, index);
+                    if (amb.equals(actual)) 
+                        return true;
+                    else    
+                        index = actual.lastIndexOf(":");
+                }
+        }
+        return false;
+    }
+
+    public String obtenerTipo(String idClase) {
+        //A partir de un ID de una clase, detecta la clase al alcance y devuelve lex+ambito correspondiente
+        ArrayList<Integer> clases = obtenerClasesDeclaradas();
+        for (Integer i: clases) {
+            Simbolo s = TS.get_Simbolo(i);
+            if (s.get_Lex().equals(idClase)) {
+                if (alAlcance(s.get_Ambito())) {
+                    return s.get_Ambito();
+                }
+            }
+        }
+        return " ";
     }
 
     public ArrayList<String> obtenerNombresMetodos(int clave) {
@@ -609,6 +736,21 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
         return false;
     }
     
+    private boolean claseVacia(int clave) {
+        //una calse se considera "vacia" cuando se ha declarado pero no se ha definido su cuerpo
+        ArrayList<Integer> aux = metodosClases.get(clave);
+        if (aux != null && aux.size() == 0) {
+            aux = metodosNoImplementados.get(clave);
+            if (aux != null && aux.size() == 0) {
+                aux = atributosClases.get(clave);
+                if (aux != null && aux.size() == 0) {
+                    return true;
+                }
+            }
+        }  
+        return false;
+    }
+
     public void imprimirAtributosClases() {
         System.out.println("ATRIBUTOS CLASES");
         for (HashMap.Entry<Integer, ArrayList<Integer>> e : atributosClases.entrySet()) {
@@ -630,20 +772,25 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
         }
     }
 
-    public String buscar_Parametro(String id, String amb){
-        // busca el parametro de la funcion que tenga al alcance
-        //primero busca por nombre y luego verifica el ambito
+    public int buscar_Parametro(String id, String amb){
+        //busca el parametro de la funcion que tenga al alcance
+        //primero busca por nombre y luego verifica el ambito en el hashmap de funciones
+        String parametro = "-";
+        int clave;
         for (HashMap.Entry<Integer, Integer> e : funciones.entrySet()) {
             Simbolo s = TS.get_Simbolo(e.getKey());
             if (s.get_Lex().equals(id)) {
                 String ambitoSimbolo = s.get_Ambito();
                 ambitoSimbolo = ":" + ambitoSimbolo.substring(ambitoSimbolo.indexOf(":")+1); 
                 if (ambitoSimbolo.equals(amb)) {
-                    return s.get_Parametro();
+                    parametro = s.get_Parametro();
                 }
             }
-        }    
-        return "-";
+        }
+        if (parametro != "-")
+            clave = Integer.parseInt(parametro);
+        else clave = -1;
+        return clave;
     }
 
     public int crear_terceto(String operador, String punt1, String punt2){
@@ -819,6 +966,23 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
             System.out.println("ERROR: linea " + (Linea.getLinea()-1) + " Falto la coma al final de la sentencia");
     }
 
+    public void agregar_ParametroTS(String lexema, String tipo, String a){
+        int clave = TS.pertenece(lexema);
+        Simbolo elemento = TS.get_Simbolo(clave);
+        System.out.println("tipo: " + tipo);
+        if ((clave != -1) && (elemento.get_Ambito() == "-")){
+            elemento.set_Ambito(a);
+            elemento.set_Tipo(tipo);
+            elemento.set_Uso("Parametro formal");
+        }
+        else{
+            Simbolo s = new Simbolo(257, lexema, tipo);
+            s.set_Ambito(a);
+            s.set_Uso("Parametro formal");
+            TS.agregar_sin_chequear(s);
+        }
+    }
+
     public void setear_Uso(String uso, String a){
         int clave = TS.buscar_por_ambito(a);
         if (clave ==-1){
@@ -882,6 +1046,7 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
             tipo2 = CodigoIntermedio.get(Integer.parseInt(ref2)).get_Tipo();}
         else
             tipo2 = TS.get_Simbolo(Integer.parseInt(elemento2)).get_Tipo();
+        System.out.println("Tipo1: "+tipo1+ " TIpo2: " +tipo2);
         String OperacionTipo = convertible.Convertir(tipo1, tipo2);
         if (OperacionTipo!="-"){
             String elemento = convertible.devolverElementoAConvertir(elemento1, tipo1, elemento2, tipo2);
@@ -939,4 +1104,17 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
                     System.out.println("Los tipos son compatibles. La asignacion puede realizarse sin conversiones");
         return conversion;
     }
+
+
+/*public void comparar_Ambitos(String ladoizquierdo, String ladoderecho){
+    if (ver_ElementoDeclarado($1.sval)){
+        String ambito_ladoizq = TS.get_Simbolo(Integer.parseInt($1.sval)).get_Ambito();
+        if (!ladoderecho.contains('['))
+            
+            System.out.println("La variable está declarada y aparece del lado derecho");
+        else
+            if (a != ambito)
+                System.out.println("Tema 27: La variable no aparece del lado derecho pero sí del lado izquierdo ");
+    }
+}*/
         
