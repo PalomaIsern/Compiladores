@@ -125,7 +125,7 @@ declaracionClase : inicioClase bloque_de_Sentencias {volver_Ambito();
                  | inicioClase '{' conjuntoSentencias ID ',' '}'        {//System.out.println("Clase con herencia por composicion en linea "+Linea.getLinea()); 
                                                                         volver_Ambito();
                                                                         if ($1.sval != " ") 
-                                                                            {   clavePadre = verificarExisteClasePadre($1.sval, $4.sval+ambito);
+                                                                            {   clavePadre = verificarExisteClasePadre($1.sval, $4.sval);
                                                                                 agregarClase($1.sval, metodosTemp, metodosTempNoImp, atributosTemp);
                                                                                 metodosTemp = new ArrayList<Integer>();
                                                                                 atributosTemp = new ArrayList<Integer>();
@@ -164,9 +164,11 @@ declaracionClase : inicioClase bloque_de_Sentencias {volver_Ambito();
 ;
 
 declaracionObjeto : ID lista_Variables {String t = obtenerTipo($1.sval);
-                                        guardar_Tipo(t);
-                                        setear_Tipo();
-                                        ver_ObjetoDeclarado($1.sval);}
+                                        if (t != " ") {
+                                            guardar_Tipo(t);
+                                            setear_Tipo();
+                                        } else variables.clear();
+                                        }
 ;
 
 metodo_objeto : ID '.' ID parametro_real {  ver_ObjetoDeclarado($1.sval);
@@ -251,9 +253,10 @@ clausula_IMPL : IMPL FOR ID ':' '{' funcion_VOID fin_sentencia '}'  {   int idCl
                                                                             System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + $3.sval + " no fue declarado");
                                                                         if (verificarExistencia(idClase, $6.sval, "metodoNoImpl")) {
                                                                             agregarMetodoImplementado($3.sval+ambito, $6.sval+ambito+":"+$3.sval);
-                                                                        } else {    int clave = TS.buscar_por_ambito($6.sval+ambito);
-                                                                                    metodosClases.get(0).remove(Integer.valueOf(clave));
-                                                                                    TS.remove_Simbolo(clave);
+                                                                        int clave = TS.buscar_por_ambito($6.sval+ambito);
+                                                                        metodosClases.get(idClase).remove(Integer.valueOf(clave));
+                                                                        funciones.remove(clave);            
+                                                                        TS.remove_Simbolo(clave);
                                                                         }
                                                                     }
 ;
@@ -359,17 +362,21 @@ declaracion: tipo lista_Variables {setear_Tipo();}
 ;
 
 lista_Variables : lista_Variables ';' ID {  boolean declarado = setear_Ambito($3.sval+ambito, $3.sval); 
-                                            setear_Uso("Variable", $3.sval+ambito); 
-                                            guardar_Var($3.sval+ambito);
-                                            if (!dentroFuncion && declarado)
-                                                atributosTemp.add(TS.buscar_por_ambito($3.sval+ambito));
-                                            }
+                                            if (declarado) {
+                                                setear_Uso("Variable", $3.sval+ambito); 
+                                                guardar_Var($3.sval+ambito);
+                                                if (! dentroFuncion) 
+                                                    atributosTemp.add(TS.buscar_por_ambito($3.sval+ambito));
+                                            }                                                
+                                        }
                 | ID {  boolean declarado = setear_Ambito($1.sval+ambito, $1.sval); 
-                        setear_Uso("Variable", $1.sval+ambito); 
-                        guardar_Var($1.sval+ambito);
-                        if (!dentroFuncion && declarado)
-                            atributosTemp.add(TS.buscar_por_ambito($1.sval+ambito));
+                        if (declarado) {
+                            setear_Uso("Variable", $1.sval+ambito); 
+                            guardar_Var($1.sval+ambito);
+                            if (! dentroFuncion) 
+                                atributosTemp.add(TS.buscar_por_ambito($1.sval+ambito));
                         }
+                }                        
 ;
 
 invocacionFuncion : ID parametro_real {
