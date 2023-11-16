@@ -64,6 +64,7 @@ asignacion : ID simboloAsignacion expresion         {String conv = convertirTipo
                                                         $$.sval = '[' + Integer.toString(crear_terceto($2.sval, Integer.toString(TS.pertenece($1.sval)), $3.sval)) + ']';
                                                     CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(TS.get_Simbolo(TS.pertenece($1.sval)).get_Tipo()));
                                                     //comparar_Ambitos($1.sval, $3.sval);
+                                                    verificarUso($1.sval);
                                                     }
             | atributo_objeto '=' atributo_objeto   {//System.out.println("Se reconocio una asignacion a un atributo objeto en linea "+ Linea.getLinea());
                                                     if (($1.sval != null) && ($3.sval != null))
@@ -1106,15 +1107,50 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
     }
 
 
-/*public void comparar_Ambitos(String ladoizquierdo, String ladoderecho){
-    if (ver_ElementoDeclarado($1.sval)){
-        String ambito_ladoizq = TS.get_Simbolo(Integer.parseInt($1.sval)).get_Ambito();
-        if (!ladoderecho.contains('['))
-            
-            System.out.println("La variable está declarada y aparece del lado derecho");
-        else
-            if (a != ambito)
-                System.out.println("Tema 27: La variable no aparece del lado derecho pero sí del lado izquierdo ");
-    }
-}*/
+public void verificarUso(String elemento){
+        int clave = TS.buscar_por_ambito(elemento+ambito);
+        boolean x = false;
+        if (clave==-1)
+            clave = TS.pertenece(elemento);
+        String aux = ambito;
+        if (clave != -1){
+            Simbolo s = TS.get_Simbolo(clave);
+            ambitos_Programa = aux.split(":");
+            int cantidad = ambitos_Programa.length;
+            while (cantidad > 1){
+                if (!s.get_Ambito().equals(elemento+aux)){
+                    if (!seUsoLadoDerecho(elemento)){
+                         x = true;
+                    }
+                    String nuevo="";
+                    int i = 1;
+                    while (i<cantidad-1) {
+                        nuevo += ":" + ambitos_Programa[i];
+                        i = i+1;
+                    }
+                    aux = nuevo;
+                }
+                cantidad = cantidad -1;
+            }
+        }
+        if (x == true)
+           System.out.println("La variable : " + elemento + " no aparece en el lado derecho del ámbito dónde se declaro");
+    }   
+
+  private boolean seUsoLadoDerecho(String variable) 
+    {   
+        for (HashMap.Entry<Integer, Terceto> i : CodigoIntermedio.entrySet()) {
+                String j = i.getValue().get_Operador();
+                String s = i.getValue().get_Op2();
+                if (!s.contains("[") && s!="-") {
+                    int k = Integer.parseInt(s);
+                    s = TS.get_Simbolo(k).get_Lex();
+                }
+                if (j.equals("=") && s.equals(variable))
+                    return true;
+        }
+        return false;
+    } 
+
+
         
