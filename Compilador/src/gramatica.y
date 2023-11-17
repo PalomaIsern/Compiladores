@@ -191,20 +191,46 @@ metodo_objeto : ID '.' ID parametro_real {  ver_ObjetoDeclarado($1.sval);
                                                         ref = verificarExistencia(padre, $3.sval, "metodo");
                                                     if (ref != -1) {
                                                         //int param = buscar_Parametro($3.sval, ambito);
-                                                        int param = Integer.parseInt(TS.get_Simbolo(ref).get_Parametro());
+                                                        String param = TS.get_Simbolo(ref).get_Parametro();
                                                         String terceto = "-";
-                                                        if ((param == -1 && $4.sval=="-") || (param != -1 && !$4.sval.equals("-"))) //si los parametros no coinciden avisa
-                                                            terceto = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(ref), "-")) + "]";
+                                                        if ((param == "-" && $4.sval=="-") || (param != "-" && !$4.sval.equals("-"))) //si los parametros no coinciden avisa
+                                                            {
+                                                                String tipo_real = "-";
+                                                                String tipo_formal = "-";
+                                                                if (param != "-"){
+                                                                    System.out.println($4.sval);
+                                                                    if ($4.sval.contains("["))
+                                                                        tipo_real = CodigoIntermedio.get(Integer.parseInt(borrarParentesis($4.sval))).get_Tipo();
+                                                                    else
+                                                                        tipo_real = TS.get_Simbolo(Integer.parseInt($4.sval)).get_Tipo();
+                                                                    System.out.println("Tipo parametro real: " + tipo_real+", Tipo formal: " + TS.get_Simbolo(Integer.parseInt(param)).get_Tipo());
+                                                                    tipo_formal = TS.get_Simbolo(Integer.parseInt(param)).get_Tipo();
+                                                                    if (tipo_formal.equals(tipo_real)){
+                                                                        String auxiliar = Integer.toString(crear_terceto("=", param, $4.sval));
+                                                                        System.out.println("No fue necesario hacer conversiones de tipos en los parámetros");
+                                                                        $$.sval = "[" + Integer.toString(crear_terceto ("CALLMetodoClase", Integer.toString(TS.pertenece($3.sval)), $4.sval)) + "]";}
+                                                                    else
+                                                                    {
+                                                                        if (tipo_formal == "USHORT" || (tipo_formal == "LONG" && tipo_real =="DOUBLE"))
+                                                                            System.out.println("ERROR: linea " + Linea.getLinea() + " Los tipos de los parámetros son incompatibles");
+                                                                        else{ 
+                                                                            String conversion = convertible.Convertir(tipo_formal, tipo_real);
+                                                                            String terceto1 = '['+ Integer.toString(crear_terceto(conversion, $4.sval, "-")) + ']';
+                                                                            String auxiliar = Integer.toString(crear_terceto("=", param, terceto1));
+                                                                            System.out.println("La conversión pudo realizarse y fue de " + tipo_real + " a " + tipo_formal );
+                                                                            $$.sval = "[" + Integer.toString(crear_terceto ("CALLMetodoClase", Integer.toString(TS.pertenece($3.sval)), terceto1)) + "]";}
+                                                                    }}
+                                                                else
+                                                                    $$.sval = "[" + Integer.toString(crear_terceto ("CALLMetodoClase", Integer.toString(ref), "-")) + "]";
+                                                            }
                                                         else
                                                             System.out.println("ERROR: linea "+ Linea.getLinea() + " Los parámetros no coinciden");
-                                                        int tercetoAux = crear_terceto("CALLMetodoClase", Integer.toString(TS.pertenece($1.sval)), terceto); 
-                                                    }  else 
+                                                    }else
                                                         System.out.println("ERROR: linea "+ Linea.getLinea()+ " - el metodo "+$3.sval+ " no se encuentra al alcance o no fue declarado");
-                                                } else
+                                                }else
                                                         System.out.println("ERROR: linea "+ Linea.getLinea()+ " - No se puede invocar al metodo \""+$3.sval+ "\" porque la clase \""+TS.get_Simbolo(clase).get_Ambito()+"\" no se encuentra implementada");
-                                            }
-                                        }
-
+}
+}
 ;
 
 atributo_objeto : ID '.' ID {   int clase = obtenerClase($1.sval+ambito);
