@@ -190,9 +190,10 @@ metodo_objeto : ID '.' ID parametro_real {  ver_ObjetoDeclarado($1.sval);
                                                     if (ref == -1 && padre != -1)
                                                         ref = verificarExistencia(padre, $3.sval, "metodo");
                                                     if (ref != -1) {
-                                                        int param = buscar_Parametro($3.sval, ambito);
-                                                        String terceto = " ";
-                                                        if ((param == -1 && $4.sval=="-") || (param != -1 && $4.sval!=null)) //si los parametros no coinciden avisa
+                                                        //int param = buscar_Parametro($3.sval, ambito);
+                                                        int param = Integer.parseInt(TS.get_Simbolo(ref).get_Parametro());
+                                                        String terceto = "-";
+                                                        if ((param == -1 && $4.sval=="-") || (param != -1 && !$4.sval.equals("-"))) //si los parametros no coinciden avisa
                                                             terceto = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(ref), "-")) + "]";
                                                         else
                                                             System.out.println("ERROR: linea "+ Linea.getLinea() + " Los parámetros no coinciden");
@@ -609,7 +610,44 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
     }
 
     public boolean setear_Ambito(String a, String lex){
-        int clave = TS.pertenece(lex);
+        int clave = TS.buscar_por_ambito(a);
+        if (clave != -1){
+            if (claseVacia(clave)) {
+                    System.out.println("se completo la FORWARD DECLARATION de "+a+lex);
+                    return true;                
+            } else {
+                    System.out.println("ERROR: linea " + Linea.getLinea() + " - Redeclaracion de " + lex + " en el ambito " + a);
+                    return false;
+            }
+        }
+        else{
+            clave = TS.pertenece(lex);
+            if (clave != -1){
+                 Simbolo s = TS.get_Simbolo(clave);
+                String amb= a.substring(a.indexOf(":")+1);
+                if (s.get_Ambito().equals(a)) {
+                    if (claseVacia(clave)) {
+                            System.out.println("se completo la FORWARD DECLARATION de "+s.get_Ambito());
+                            return true;
+                        } else {
+                            System.out.println("ERROR: linea " + Linea.getLinea() + " - Redeclaracion de " + s.get_Lex()+ " en el ambito "+ amb);
+                            return false;
+                        }
+                }
+                else
+                    if (s.get_Ambito()=="-")
+                        s.set_Ambito(a);
+                    else
+                        {Simbolo nuevo = new Simbolo(s.get_Token(), s.get_Lex());
+                        nuevo.set_Ambito(a);
+                        TS.agregar_sin_chequear(nuevo);}
+            }
+            return true;
+        }
+    }
+
+    /*public boolean setear_Ambito(String a, String lex){
+        int clave = TS.pertence(lex);
         if (clave!=-1){
             Simbolo s = TS.get_Simbolo(clave);
             String amb= a.substring(a.indexOf(":")+1);
@@ -631,7 +669,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
                     TS.agregar_sin_chequear(nuevo);}
         }
         return true;
-    }
+    }*/
 
     public void agregarClase(String ID, ArrayList<Integer> mets, ArrayList<Integer> metsNoImp, ArrayList<Integer> atrs) {
         int clave = TS.buscar_por_ambito(ID);
@@ -835,11 +873,14 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
         //primero busca por nombre y luego verifica el ambito en el hashmap de funciones
         String parametro = "-";
         int clave;
+        System.out.println("buscar_parametro "+id+" "+amb);
         for (HashMap.Entry<Integer, Integer> e : funciones.entrySet()) {
             Simbolo s = TS.get_Simbolo(e.getKey());
+            System.out.println(s.get_Lex());
             if (s.get_Lex().equals(id)) {
                 String ambitoSimbolo = s.get_Ambito();
                 ambitoSimbolo = ":" + ambitoSimbolo.substring(ambitoSimbolo.indexOf(":")+1); 
+                System.out.println("Ambito simbolo: " + ambitoSimbolo+ " Ambito parametro " + amb);
                 if (ambitoSimbolo.equals(amb)) {
                     parametro = s.get_Parametro();
                 }
@@ -1189,7 +1230,7 @@ public void verificarUso(String elemento){
             }
         }
         if (x == true)
-           System.out.println("La variable : " + elemento + " no aparece en el lado derecho del ámbito dónde se declaro");
+           System.out.println("La variable: " + elemento + " no aparece en el lado derecho del ámbito dónde se declaro");
     }   
 
   private boolean seUsoLadoDerecho(String variable) 
