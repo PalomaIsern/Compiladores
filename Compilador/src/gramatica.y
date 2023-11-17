@@ -70,10 +70,10 @@ asignacion : ID simboloAsignacion expresion         {String conv = convertirTipo
                                                     }
             | atributo_objeto '=' atributo_objeto   {//System.out.println("Se reconocio una asignacion a un atributo objeto en linea "+ Linea.getLinea());
                                                     if (($1.sval != null) && ($3.sval != null))
-                                                        $$.sval = '[' + Integer.toString(crear_terceto("=", Integer.toString(TS.pertenece($1.sval)), $3.sval))+']';}
+                                                        $$.sval = '[' + Integer.toString(crear_terceto("=", $1.sval, $3.sval))+']';}
             | atributo_objeto '=' factor            {//System.out.println("Se reconocio una asignacion a un atributo objeto en linea "+ Linea.getLinea());
                                                     if ($1.sval != null) 
-                                                        $$.sval = '[' + Integer.toString(crear_terceto("=", Integer.toString(TS.pertenece($1.sval)), $3.sval))+']';}
+                                                        $$.sval = '[' + Integer.toString(crear_terceto("=", $1.sval, $3.sval))+']';}
 ;
 
 simboloAsignacion : '='     {//System.out.println("Se reconocio una asignacion en linea "+ Linea.getLinea());
@@ -122,7 +122,8 @@ declaracionClase : inicioClase bloque_de_Sentencias {volver_Ambito();
                                                         metodosTemp = new ArrayList<Integer>();
                                                         atributosTemp = new ArrayList<Integer>();
                                                         metodosTempNoImp = new ArrayList<Integer>();
-                                                        }
+                                                        } else System.out.println(" aca deberiamos borrar los elementos de la TS ");
+
                                                     }
                  | inicioClase '{' conjuntoSentencias ID ',' '}'        {//System.out.println("Clase con herencia por composicion en linea "+Linea.getLinea()); 
                                                                         volver_Ambito();
@@ -140,7 +141,7 @@ declaracionClase : inicioClase bloque_de_Sentencias {volver_Ambito();
                                                                                     if (claveAux != -1) 
                                                                                         TS.remove_Simbolo(claveAux);
                                                                                     }
-                                                                            }
+                                                                            } else System.out.println(" aca deberiamos borrar los elementos de la TS ");
                                                                         }
                  | inicioClase  {if ($1.sval != " ") {
                                     int clave = TS.buscar_por_ambito($1.sval);
@@ -152,7 +153,7 @@ declaracionClase : inicioClase bloque_de_Sentencias {volver_Ambito();
                                         metodosTempNoImp = new ArrayList<Integer>();
                                         } else 
                                             System.out.println("ERROR: linea "+Linea.getLinea()+" se debe declarar la clase"+$1.sval);
-                                    }
+                                    } 
                                     volver_Ambito();
                                 }
 ;
@@ -185,17 +186,19 @@ metodo_objeto : ID '.' ID parametro_real {  ver_ObjetoDeclarado($1.sval);
                                                     String tipo = TS.get_Simbolo(clase).get_Tipo();
                                                     if ( tipo != " "); //hereda de otra clase
                                                         padre = TS.buscar_por_ambito(tipo);
-                                                    if (verificarExistencia(clase, $3.sval, "metodo") || verificarExistencia(padre, $3.sval, "metodo")) // si la funcion no existe en la clase (ni en la clase padre), no se crean tercetos
-                                                    {   int param = buscar_Parametro($3.sval, ambito);
+                                                    int ref = verificarExistencia(clase, $3.sval, "metodo"); //obtengo la referencia al metodo (si existe)
+                                                    if (ref == -1 && padre != -1)
+                                                        ref = verificarExistencia(padre, $3.sval, "metodo");
+                                                    if (ref != -1) {
+                                                        int param = buscar_Parametro($3.sval, ambito);
                                                         String terceto = " ";
                                                         if ((param == -1 && $4.sval=="-") || (param != -1 && $4.sval!=null)) //si los parametros no coinciden avisa
-                                                            terceto = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(TS.pertenece($3.sval)), "-")) + "]";
+                                                            terceto = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(ref), "-")) + "]";
                                                         else
                                                             System.out.println("ERROR: linea "+ Linea.getLinea() + " Los parámetros no coinciden");
                                                         int tercetoAux = crear_terceto("CALLMetodoClase", Integer.toString(TS.pertenece($1.sval)), terceto); 
-                                                    } else {
+                                                    }  else 
                                                         System.out.println("ERROR: linea "+ Linea.getLinea()+ " - el metodo "+$3.sval+ " no se encuentra al alcance o no fue declarado");
-                                                    }
                                                 } else
                                                         System.out.println("ERROR: linea "+ Linea.getLinea()+ " - No se puede invocar al metodo \""+$3.sval+ "\" porque la clase \""+TS.get_Simbolo(clase).get_Ambito()+"\" no se encuentra implementada");
                                             }
@@ -210,8 +213,11 @@ atributo_objeto : ID '.' ID {   int clase = obtenerClase($1.sval+ambito);
                                         String tipo = TS.get_Simbolo(clase).get_Tipo();
                                         if ( tipo != " "); //hereda de otra clase
                                             padre = TS.buscar_por_ambito(tipo);
-                                        if (verificarExistencia(clase, $3.sval, "atributo") || verificarExistencia(padre, $3.sval, "atributo"))
-                                        { $$.sval = '[' + Integer.toString(crear_terceto("atributo_objeto", Integer.toString(TS.pertenece($1.sval)), Integer.toString(TS.pertenece($3.sval)) )) + ']';
+                                        int ref = verificarExistencia(clase, $3.sval, "atributo");
+                                        if (ref == -1 && padre != -1) 
+                                            ref = verificarExistencia(padre, $3.sval, "atributo");
+                                        if (ref != -1) 
+                                        { $$.sval = '[' + Integer.toString(crear_terceto("atributo_objeto", Integer.toString(TS.pertenece($1.sval)), Integer.toString(ref))) + ']';
 
                                         } else {System.out.println("ERROR: linea "+ Linea.getLinea()+ " el atributo \""+$3.sval+ "\" no se encuentra al alcance o no fue declarado");
                                                 $$.sval = null;}
@@ -239,7 +245,7 @@ funcion_VOID_vacia: inicio_Void parametro_formal {//System.out.println("Se recon
                                             String idFuncion = obtenerAmbito($1.sval+ambito);
                                             int clave = TS.buscar_por_ambito(idFuncion);
                                             metodosTempNoImp.add(clave);
-                                            TS.get_Simbolo(clave).set_Parametro($2.sval); //DUDAAA
+                                            TS.get_Simbolo(clave).set_Parametro($2.sval); 
                                             funciones.put(clave, Linea.getLinea());
                                             volver_Ambito();
                                             }
@@ -257,7 +263,7 @@ inicio_Void: VOID ID {$$.sval = $2.sval;
 clausula_IMPL : IMPL FOR ID ':' '{' funcion_VOID fin_sentencia '}'  {   int idClase = TS.buscar_por_ambito($3.sval+ambito);
                                                                         if (!ver_ElementoDeclarado($3.sval)) //verificar que la clase exista
                                                                             System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + $3.sval + " no fue declarado");
-                                                                        if (verificarExistencia(idClase, $6.sval, "metodoNoImpl")) 
+                                                                        if (verificarExistencia(idClase, $6.sval, "metodoNoImpl") != -1) 
                                                                             agregarMetodoImplementado($3.sval+ambito, $6.sval+ambito+":"+$3.sval);
                                                                         int clave = TS.buscar_por_ambito($6.sval+ambito);
                                                                         metodosClases.get(idClase).remove(Integer.valueOf(clave));
@@ -619,8 +625,10 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
                 Integer i = iterator.next();
                 String nombre = TS.get_Simbolo(i).get_Lex();
                 if (metodosPadre.contains(nombre)) {
-                    iterator.remove(); 
                     System.out.println("ERROR: linea "+ funciones.get(i)+" no se puede sobrescribir el método \"" + nombre + "\"");
+                    TS.remove_Simbolo(i);
+                    funciones.remove(i);
+                    iterator.remove(); 
                 }
             }
             iterator = metsNoImp.iterator();
@@ -628,8 +636,10 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
                 Integer i = iterator.next();
                 String nombre = TS.get_Simbolo(i).get_Lex();
                 if (metodosPadre.contains(nombre)) {
-                    iterator.remove(); 
                     System.out.println("ERROR: linea "+ funciones.get(i)+" no se puede sobrescribir el método \"" + nombre + "\"");
+                    TS.remove_Simbolo(i);
+                    funciones.remove(i);
+                    iterator.remove(); 
                 }
             }
         }
@@ -744,7 +754,8 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
             System.out.println(r);
         }
     }
-        public boolean verificarExistencia(int clase, String nombre, String objeto) 
+    
+    public int verificarExistencia(int clase, String nombre, String objeto) 
     {   ArrayList<Integer> o = new ArrayList<Integer>();
         if (objeto.equals("atributo")) 
             o = atributosClases.get(clase);
@@ -755,12 +766,14 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
         if (o != null) {
             for (Integer elemento : o) {
                 if (TS.get_Simbolo(elemento).get_Lex().equals(nombre)) {
-                    return true;
+                    return elemento;
                 }
             }
-            return false;
+            
+            return -1;
+
         }
-        return false;
+        return -1;
     }
     
     private boolean claseVacia(int clave) {

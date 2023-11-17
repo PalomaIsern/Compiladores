@@ -89,8 +89,8 @@ CLASS clase2 {
     },
     VOID metodo_dos(),
     VOID funcion_uno(),
-    CLASS clase1,
     funcionclase(4_l+3_us),
+    clase1,
 },
 
     CLASS ca {
