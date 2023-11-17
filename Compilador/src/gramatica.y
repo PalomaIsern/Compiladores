@@ -68,10 +68,10 @@ asignacion : ID simboloAsignacion expresion         {String conv = convertirTipo
                                                     }
             | atributo_objeto '=' atributo_objeto   {//System.out.println("Se reconocio una asignacion a un atributo objeto en linea "+ Linea.getLinea());
                                                     if (($1.sval != null) && ($3.sval != null))
-                                                        $$.sval = '[' + Integer.toString(crear_terceto("=", $1.sval, $3.sval))+']';}
+                                                        $$.sval = '[' + Integer.toString(crear_terceto("=", Integer.toString(TS.pertenece($1.sval)), $3.sval))+']';}
             | atributo_objeto '=' factor            {//System.out.println("Se reconocio una asignacion a un atributo objeto en linea "+ Linea.getLinea());
-                                                    if (($1.sval != null) && ($3.sval != null))
-                                                        $$.sval = '[' + Integer.toString(crear_terceto("=", $1.sval, $3.sval))+']';}
+                                                    if ($1.sval != null) 
+                                                        $$.sval = '[' + Integer.toString(crear_terceto("=", Integer.toString(TS.pertenece($1.sval)), $3.sval))+']';}
 ;
 
 simboloAsignacion : '='     {//System.out.println("Se reconocio una asignacion en linea "+ Linea.getLinea());
@@ -126,14 +126,18 @@ declaracionClase : inicioClase bloque_de_Sentencias {volver_Ambito();
                                                                         volver_Ambito();
                                                                         if ($1.sval != " ") 
                                                                             {   clavePadre = verificarExisteClasePadre($1.sval, $4.sval);
-                                                                                agregarClase($1.sval, metodosTemp, metodosTempNoImp, atributosTemp);
-                                                                                metodosTemp = new ArrayList<Integer>();
-                                                                                atributosTemp = new ArrayList<Integer>();
-                                                                                metodosTempNoImp = new ArrayList<Integer>();
-                                                                                if (clavePadre != -1);{
+                                                                                if (clavePadre != -1){
+                                                                                    agregarClase($1.sval, metodosTemp, metodosTempNoImp, atributosTemp);
+                                                                                    metodosTemp = new ArrayList<Integer>();
+                                                                                    atributosTemp = new ArrayList<Integer>();
+                                                                                    metodosTempNoImp = new ArrayList<Integer>();
                                                                                     setear_Uso("Clase", $1.sval);
                                                                                     setear_Tipo($1.sval, $4.sval+ambito);
-                                                                                }
+                                                                                } else {
+                                                                                    int claveAux = TS.pertenece($4.sval);
+                                                                                    if (claveAux != -1) 
+                                                                                        TS.remove_Simbolo(claveAux);
+                                                                                    }
                                                                             }
                                                                         }
                  | inicioClase  {if ($1.sval != " ") {
@@ -188,7 +192,7 @@ metodo_objeto : ID '.' ID parametro_real {  ver_ObjetoDeclarado($1.sval);
                                                             System.out.println("ERROR: linea "+ Linea.getLinea() + " Los parámetros no coinciden");
                                                         int tercetoAux = crear_terceto("CALLMetodoClase", Integer.toString(TS.pertenece($1.sval)), terceto); 
                                                     } else {
-                                                        System.out.println("ERROR: linea "+ Linea.getLinea()+ " el metodo "+$3.sval+ " no se encuentra al alcance o no fue declarado");
+                                                        System.out.println("ERROR: linea "+ Linea.getLinea()+ " - el metodo "+$3.sval+ " no se encuentra al alcance o no fue declarado");
                                                     }
                                                 } else
                                                         System.out.println("ERROR: linea "+ Linea.getLinea()+ " - No se puede invocar al metodo \""+$3.sval+ "\" porque la clase \""+TS.get_Simbolo(clase).get_Ambito()+"\" no se encuentra implementada");
@@ -251,13 +255,13 @@ inicio_Void: VOID ID {$$.sval = $2.sval;
 clausula_IMPL : IMPL FOR ID ':' '{' funcion_VOID fin_sentencia '}'  {   int idClase = TS.buscar_por_ambito($3.sval+ambito);
                                                                         if (!ver_ElementoDeclarado($3.sval)) //verificar que la clase exista
                                                                             System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + $3.sval + " no fue declarado");
-                                                                        if (verificarExistencia(idClase, $6.sval, "metodoNoImpl")) {
+                                                                        if (verificarExistencia(idClase, $6.sval, "metodoNoImpl")) 
                                                                             agregarMetodoImplementado($3.sval+ambito, $6.sval+ambito+":"+$3.sval);
                                                                         int clave = TS.buscar_por_ambito($6.sval+ambito);
                                                                         metodosClases.get(idClase).remove(Integer.valueOf(clave));
                                                                         funciones.remove(clave);            
                                                                         TS.remove_Simbolo(clave);
-                                                                        }
+                                                                        
                                                                     }
 ;
 
@@ -549,19 +553,23 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
 
     public int verificarExisteClasePadre(String hijo, String padre) {
         // en el caso de que una clase herede de otra, se verifica que la clase padre de la cual se va a heredar haya sido declarada
-        String clasePadre = padre.split(":")[0];
-        Integer clave = TS.buscar_por_ambito(padre);
-        if (clave != -1) {
-            String ambitoPadre = ":" + padre.substring(padre.indexOf(":")+1); 
-            if (!ambitoPadre.equals(ambito)) {
-                System.out.println("La clase \""+clasePadre+ "\"no se encuentra al alcance");
-                return -1;
-            }
-        } else {
-            System.out.println("ERROR: linea "+ Linea.getLinea()+ " la clase \""+ clasePadre+ "\" no existe");
-            return -1;
+        ArrayList<Integer> clases = obtenerClasesDeclaradas();
+        boolean existe = false;
+        for (Integer i : clases) {
+            Simbolo s = TS.get_Simbolo(i);
+            if (s.get_Lex().equals(padre)) {
+                String aux = s.get_Ambito();
+                aux = aux.substring(aux.indexOf(":"));
+                if (alAlcance(aux)) {
+                    return i;
+                } else existe = true;
+            } 
         }
-        return clave;
+        if (existe) 
+            System.out.println("ERROR: linea "+ Linea.getLinea()+ " - La clase \""+padre+ "\" no se encuentra al alcance");
+        else 
+            System.out.println("ERROR: linea "+ Linea.getLinea()+ " la clase \""+ padre+ "\" no existe");
+        return -1;
     }
 
     public boolean verificar_Limite(){
@@ -645,7 +653,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
         else { int index = actual.lastIndexOf(":");
                 while (index != -1) {
                     actual = actual.substring(0, index);
-                    if (amb.equals(actual)) 
+                    if (amb.equals(actual))
                         return true;
                     else    
                         index = actual.lastIndexOf(":");
@@ -681,6 +689,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
         }
         return retorno;
     }
+    
     public void agregarMetodoImplementado(String clase, String metodo) 
     {   // si se implementa un metodo con IMPL, lo pasa a "implementado" y lo saca de la lista de "No implementados" 
         int clave = TS.buscar_por_ambito(clase);
@@ -703,8 +712,8 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
         ambito = nuevo;
     }
 
-    public void imprimirMetodosClases() {
-        System.out.println("METODOS CLASES");
+     public void imprimirClases() {
+        System.out.println("CLASES");
         for (HashMap.Entry<Integer, ArrayList<Integer>> e : metodosClases.entrySet()) {
             int ref = e.getKey();
             String r = "ref: "+e.getKey()+" - nombre: "+ TS.get_Simbolo(ref).get_Ambito() + " | metodos implementados : ";
@@ -722,10 +731,18 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
                     r +=  TS.get_Simbolo(i).get_Lex() + " ; ";
                 }
             } 
+            mets = atributosClases.get(ref);
+            r += "\n"+"\t \t \t \t";
+            r += "atributos : ";
+            if (mets != null) {
+                for (Integer i: mets) {
+                    r += TS.get_Simbolo(i).get_Lex() + " ; ";
+                }
+            }
             System.out.println(r);
         }
     }
-    public boolean verificarExistencia(int clase, String nombre, String objeto) 
+        public boolean verificarExistencia(int clase, String nombre, String objeto) 
     {   ArrayList<Integer> o = new ArrayList<Integer>();
         if (objeto.equals("atributo")) 
             o = atributosClases.get(clase);
@@ -825,7 +842,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
                     int l = Integer.parseInt(j);
                     j = TS.get_Simbolo(l).get_Lex();
                 }
-                System.out.println("Referencia: " + i.getKey() + ", Terceto: (" + i.getValue().get_Operador() + " , " + j + " , "+ s +")" + " Tipo: " + i.getValue().get_Tipo());
+                System.out.println("Referencia: " + i.getKey() + ", Terceto: (" + i.getValue().get_Operador() + " , " + j + " , "+ s +")" + " Tipo: " + i.getValue().get_Tipo());         
         }
     }
 
@@ -846,9 +863,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
             System.out.println(" "); 
             imprimirCodigoIntermedio(); 
             System.out.println(" ");             
-            imprimirMetodosClases();
-            System.out.println(" ");
-            imprimirAtributosClases();
+            imprimirClases();
             System.out.println(" ");
             imprimirFunciones();
         return 0;
@@ -1054,7 +1069,7 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
             tipo2 = CodigoIntermedio.get(Integer.parseInt(ref2)).get_Tipo();}
         else
             tipo2 = TS.get_Simbolo(Integer.parseInt(elemento2)).get_Tipo();
-        System.out.println("Tipo1: "+tipo1+ " TIpo2: " +tipo2);
+        System.out.println("Tipo1: "+tipo1+ " Tipo2: " +tipo2);
         String OperacionTipo = convertible.Convertir(tipo1, tipo2);
         if (OperacionTipo!="-"){
             String elemento = convertible.devolverElementoAConvertir(elemento1, tipo1, elemento2, tipo2);
