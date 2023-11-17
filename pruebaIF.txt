@@ -65,58 +65,35 @@ VOID func_uno() {
     },
     DOUBLE a2,
 },
+
+
 DOUBLE a3,
 
 clase2 objeto3,
 
 CLASS clase1 {
     USHORT s,
+    VOID no_tiene_que_aparecer(),
+    VOID esta_tampoco() {
+        USHORT ni_este,
+    },
 },
 
 clase1 objeto1; obj4,
 
 objeto1.s = 4_us,
 obj4.s = 5_us,
-otraconstante = 4_l,
-otraconstante1 = 4.0,
 
 objeto1.s = obj4.s,
 
 CLASS clase2 {
-    USHORT atributo,
-    VOID funcionclase(DOUBLE w) {
+    DOUBLE atributo,
+    VOID funcionclase(LONG w) {
         LONG entero_largo,
     },
     VOID metodo_dos(),
     VOID funcion_uno(),
-    funcionclase(4_l+3_us),
     clase1,
 },
 
-    CLASS ca {
-        VOID m() {
-            LONG x,
-        },
-    },
-    
-    CLASS cc,
-    cc c1,
-    CLASS cd {
-        cc c1,
-        ca a1,
-        VOID j() {
-            c1.p(),
-            a1.m(),
-        },
-    },
-
-    CLASS cc {
-        USHORT z,
-        VOID p() {
-            USHORT us,
-        },
-    },
-
 }
-
-

@@ -116,14 +116,13 @@ operadorMasMenos : '+' { $$.sval = "+";}
 
 
 declaracionClase : inicioClase bloque_de_Sentencias {volver_Ambito();
-                                                    if ($1.sval != " ") 
-                                                        {setear_Uso("Clase", $1.sval); 
+                                                    if ($1.sval != " ") {
+                                                        setear_Uso("Clase", $1.sval); 
                                                         agregarClase($1.sval, metodosTemp, metodosTempNoImp, atributosTemp);
                                                         metodosTemp = new ArrayList<Integer>();
                                                         atributosTemp = new ArrayList<Integer>();
                                                         metodosTempNoImp = new ArrayList<Integer>();
-                                                        } else System.out.println(" aca deberiamos borrar los elementos de la TS ");
-
+                                                        } else {eliminarElementos();}
                                                     }
                  | inicioClase '{' conjuntoSentencias ID ',' '}'        {//System.out.println("Clase con herencia por composicion en linea "+Linea.getLinea()); 
                                                                         volver_Ambito();
@@ -141,7 +140,7 @@ declaracionClase : inicioClase bloque_de_Sentencias {volver_Ambito();
                                                                                     if (claveAux != -1) 
                                                                                         TS.remove_Simbolo(claveAux);
                                                                                     }
-                                                                            } else System.out.println(" aca deberiamos borrar los elementos de la TS ");
+                                                                            } else eliminarElementos();
                                                                         }
                  | inicioClase  {if ($1.sval != " ") {
                                     int clave = TS.buscar_por_ambito($1.sval);
@@ -159,14 +158,15 @@ declaracionClase : inicioClase bloque_de_Sentencias {volver_Ambito();
 ;
 
 
-    inicioClase: CLASS ID   { if (setear_Ambito($2.sval+ambito, $2.sval)) {
-                                metodosTemp = new ArrayList<Integer>();
+    inicioClase: CLASS ID   {   metodosTemp = new ArrayList<Integer>();
                                 atributosTemp = new ArrayList<Integer>();
-                                metodosTempNoImp = new ArrayList<Integer>();
-                                $$.sval = $2.sval+ambito;
-                                clavePadre = -1;
-                            } else $$.sval = " ";
-                            ambito += ":" + $2.sval;
+                                metodosTempNoImp = new ArrayList<Integer>(); 
+                                if (setear_Ambito($2.sval+ambito, $2.sval)) {
+                                    $$.sval = $2.sval+ambito;
+                                    clavePadre = -1;
+                                } else  
+                                    $$.sval = " ";
+                                ambito += ":" + $2.sval;
                         }    
 ;
 
@@ -245,7 +245,7 @@ funcion_VOID_vacia: inicio_Void parametro_formal {//System.out.println("Se recon
                                             String idFuncion = obtenerAmbito($1.sval+ambito);
                                             int clave = TS.buscar_por_ambito(idFuncion);
                                             metodosTempNoImp.add(clave);
-                                            TS.get_Simbolo(clave).set_Parametro($2.sval); 
+                                            TS.get_Simbolo(clave).set_Parametro($2.sval); //DUDAAA
                                             funciones.put(clave, Linea.getLinea());
                                             volver_Ambito();
                                             }
@@ -557,6 +557,24 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
         }
         String nombreClase = TS.get_Simbolo(clave).get_Tipo();
         return TS.buscar_por_ambito(nombreClase);       
+    }
+
+    private void eliminarElementos() {
+        for (Integer i : metodosTemp) {
+            TS.remove_Simbolo(i);
+            funciones.remove(i);
+        }
+        metodosTemp = new ArrayList<Integer>();
+        for (Integer i: atributosTemp) {
+            TS.remove_Simbolo(i);
+        }
+        atributosTemp  = new ArrayList<Integer>();
+        for (Integer i : metodosTempNoImp) {
+            TS.remove_Simbolo(i);
+            funciones.remove(i);
+        }
+        metodosTempNoImp  = new ArrayList<Integer>();
+
     }
 
     public int verificarExisteClasePadre(String hijo, String padre) {

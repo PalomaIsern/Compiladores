@@ -615,6 +615,24 @@ final static String yyrule[] = {
         return TS.buscar_por_ambito(nombreClase);       
     }
 
+    private void eliminarElementos() {
+        for (Integer i : metodosTemp) {
+            TS.remove_Simbolo(i);
+            funciones.remove(i);
+        }
+        metodosTemp = new ArrayList<Integer>();
+        for (Integer i: atributosTemp) {
+            TS.remove_Simbolo(i);
+        }
+        atributosTemp  = new ArrayList<Integer>();
+        for (Integer i : metodosTempNoImp) {
+            TS.remove_Simbolo(i);
+            funciones.remove(i);
+        }
+        metodosTempNoImp  = new ArrayList<Integer>();
+
+    }
+
     public int verificarExisteClasePadre(String hijo, String padre) {
         // en el caso de que una clase herede de otra, se verifica que la clase padre de la cual se va a heredar haya sido declarada
         ArrayList<Integer> clases = obtenerClasesDeclaradas();
@@ -1247,7 +1265,7 @@ public void verificarUso(String elemento){
 
 
         
-//#line 1179 "Parser.java"
+//#line 1197 "Parser.java"
 //###############################################################
 // method: yylexdebug : check lexer state
 //###############################################################
@@ -1519,18 +1537,17 @@ break;
 case 31:
 //#line 118 "gramatica.y"
 {volver_Ambito();
-                                                    if (val_peek(1).sval != " ") 
-                                                        {setear_Uso("Clase", val_peek(1).sval); 
+                                                    if (val_peek(1).sval != " ") {
+                                                        setear_Uso("Clase", val_peek(1).sval); 
                                                         agregarClase(val_peek(1).sval, metodosTemp, metodosTempNoImp, atributosTemp);
                                                         metodosTemp = new ArrayList<Integer>();
                                                         atributosTemp = new ArrayList<Integer>();
                                                         metodosTempNoImp = new ArrayList<Integer>();
-                                                        } else System.out.println(" aca deberiamos borrar los elementos de la TS ");
-
+                                                        } else {eliminarElementos();}
                                                     }
 break;
 case 32:
-//#line 128 "gramatica.y"
+//#line 127 "gramatica.y"
 {/*System.out.println("Clase con herencia por composicion en linea "+Linea.getLinea()); */
                                                                         volver_Ambito();
                                                                         if (val_peek(5).sval != " ") 
@@ -1547,11 +1564,11 @@ case 32:
                                                                                     if (claveAux != -1) 
                                                                                         TS.remove_Simbolo(claveAux);
                                                                                     }
-                                                                            } else System.out.println(" aca deberiamos borrar los elementos de la TS ");
+                                                                            } else eliminarElementos();
                                                                         }
 break;
 case 33:
-//#line 146 "gramatica.y"
+//#line 145 "gramatica.y"
 {if (val_peek(0).sval != " ") {
                                     int clave = TS.buscar_por_ambito(val_peek(0).sval);
                                         if (! claseVacia(clave)) {
@@ -1567,15 +1584,16 @@ case 33:
                                 }
 break;
 case 34:
-//#line 162 "gramatica.y"
-{ if (setear_Ambito(val_peek(0).sval+ambito, val_peek(0).sval)) {
-                                metodosTemp = new ArrayList<Integer>();
+//#line 161 "gramatica.y"
+{   metodosTemp = new ArrayList<Integer>();
                                 atributosTemp = new ArrayList<Integer>();
-                                metodosTempNoImp = new ArrayList<Integer>();
-                                yyval.sval = val_peek(0).sval+ambito;
-                                clavePadre = -1;
-                            } else yyval.sval = " ";
-                            ambito += ":" + val_peek(0).sval;
+                                metodosTempNoImp = new ArrayList<Integer>(); 
+                                if (setear_Ambito(val_peek(0).sval+ambito, val_peek(0).sval)) {
+                                    yyval.sval = val_peek(0).sval+ambito;
+                                    clavePadre = -1;
+                                } else  
+                                    yyval.sval = " ";
+                                ambito += ":" + val_peek(0).sval;
                         }
 break;
 case 35:
@@ -1662,7 +1680,7 @@ case 41:
                                             String idFuncion = obtenerAmbito(val_peek(1).sval+ambito);
                                             int clave = TS.buscar_por_ambito(idFuncion);
                                             metodosTempNoImp.add(clave);
-                                            TS.get_Simbolo(clave).set_Parametro(val_peek(0).sval); 
+                                            TS.get_Simbolo(clave).set_Parametro(val_peek(0).sval); /*DUDAAA*/
                                             funciones.put(clave, Linea.getLinea());
                                             volver_Ambito();
                                             }
@@ -2002,7 +2020,7 @@ case 103:
 {setear_Uso("Cadena", val_peek(0).sval);
                     int aux = crear_terceto("PRINT", Integer.toString(TS.pertenece(val_peek(0).sval)), "-");}
 break;
-//#line 1929 "Parser.java"
+//#line 1947 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####
