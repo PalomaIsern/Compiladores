@@ -31,6 +31,40 @@ public class TablaSimbolos {
             TS.get(clave).set_Rep();
     }
 
+    public static void agregarConstante(String valor, Integer id, String tipo) {
+        Simbolo nuevo = new Simbolo(id, valor, tipo);
+        boolean existe = false;
+        for (HashMap.Entry<Integer, Simbolo> entry : TS.entrySet()) {
+            Simbolo s = entry.getValue();
+            if ((s.get_Lex().equals(valor)) && (s.get_Tipo().equals(tipo))) {
+                existe = true;
+            }
+        }
+        if (!existe) {
+            TS.put(puntero, nuevo);
+            puntero = puntero + 1;
+        }
+    }
+
+    public static int buscarConstante(String valor, String tipo) {
+        for (HashMap.Entry<Integer, Simbolo> entry : TS.entrySet()) {
+            Simbolo s = entry.getValue();
+            if ((s.get_Lex().equals(valor)) && (s.get_Tipo().equals(tipo))) {
+                return entry.getKey();
+            }
+        }
+        return -1;
+    }
+
+    public static void eliminarConstante(String valor, String tipo) {
+        for (HashMap.Entry<Integer, Simbolo> entry : TS.entrySet()) {
+            Simbolo s = entry.getValue();
+            if ((s.get_Lex().equals(valor)) && (s.get_Tipo().equals(tipo))) {
+                TS.remove(entry.getKey());
+            }
+        }
+    }
+
     public static void agregar_sin_chequear(Simbolo s) {
         TS.put(puntero, s);
         puntero = puntero + 1;

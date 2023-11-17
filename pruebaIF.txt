@@ -77,6 +77,8 @@ clase1 objeto1; obj4,
 
 objeto1.s = 4_us,
 obj4.s = 5_us,
+otraconstante = 4_l,
+otraconstante1 = 4.0,
 
 objeto1.s = obj4.s,
 

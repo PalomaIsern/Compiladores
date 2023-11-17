@@ -63,8 +63,10 @@ asignacion : ID simboloAsignacion expresion         {String conv = convertirTipo
                                                     else 
                                                         $$.sval = '[' + Integer.toString(crear_terceto($2.sval, Integer.toString(TS.pertenece($1.sval)), $3.sval)) + ']';
                                                     CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(TS.get_Simbolo(TS.pertenece($1.sval)).get_Tipo()));
-                                                    //comparar_Ambitos($1.sval, $3.sval);
-                                                    verificarUso($1.sval);
+                                                    if (!ver_ElementoDeclarado($1.sval))
+                                                        System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + $1.sval + " no fue declarado");
+                                                    else
+                                                        verificarUso($1.sval);
                                                     }
             | atributo_objeto '=' atributo_objeto   {//System.out.println("Se reconocio una asignacion a un atributo objeto en linea "+ Linea.getLinea());
                                                     if (($1.sval != null) && ($3.sval != null))
@@ -480,7 +482,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
         if (clave==-1)
             clave = TS.pertenece(elemento);
         String aux = ambito;
-        if (clave != -1){
+        if (clave != -1 && TS.get_Simbolo(clave).get_Ambito()!="-"){
             //Si está en la tabla de simbolos me fijo si es alcanzable
             Simbolo s = TS.get_Simbolo(clave);
             ambitos_Programa = aux.split(":");
@@ -908,16 +910,16 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
         {   Long entero = Long.valueOf(numero);
             if (entero > 2147483647L) {
                 System.out.println("WARNING: linea " + Linea.getLinea() + " El entero largo positivo es mayor al limite permitido. Tiene valor: "+entero+ ". El valor será reemplazado");
-                TS.eliminar(Long.toString(entero));
+                TS.eliminarConstante(Long.toString(entero), "LONG");
                 String nuevo = "2147483647";
-                TS.agregar(nuevo, 258);
+                TS.agregarConstante(nuevo, 258, "LONG");
                 System.out.println("El numero fue actualizado en la TS a un valor permitido");
                 setear_Uso("Constante", nuevo+ambito);
-                factor.sval = Integer.toString(TS.pertenece(nuevo));
+                factor.sval = Integer.toString(TS.buscarConstante(nuevo, "LONG"));
             }
             else
                 {setear_Uso("Constante", numero+ambito);
-                factor.sval = Integer.toString(TS.pertenece(numero));}
+                factor.sval = Integer.toString(TS.buscarConstante(numero, "LONG"));}
         }
     }
 
@@ -965,19 +967,19 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
             entero = entero * (-1);
             if (entero < -2147483648L) {
                 System.out.println("WARNING: linea "+ Linea.getLinea() + " El entero largo negativo es menor al limite permitido. Tiene valor: "+entero+ ". El valor será reemplazado");
-                TS.eliminar(Long.toString(entero*(-1)));
+                TS.eliminarConstante(Long.toString(entero*(-1)), "LONG");
                 String nuevo = "-2147483648";
-                TS.agregar(nuevo, 258);//Lo agrego a la tabla de simbolos en negativo borrando el numero positivo
+                TS.agregarConstante(nuevo, 258, "LONG");//Lo agrego a la tabla de simbolos en negativo borrando el numero positivo
                 setear_Uso("Constante negativa", nuevo+ambito);
-                factor.sval = Integer.toString(TS.pertenece(nuevo));
+                factor.sval = Integer.toString(TS.buscarConstante(nuevo, "LONG"));
             } else
             {
                 //En caso de respetar el rango solo le agrega el menos en la tabla de simbolos
-                TS.eliminar(Long.toString(entero*(-1)));
+                TS.eliminarConstante(Long.toString(entero*(-1)), "LONG");
                 String nuevo = Long.toString(entero);
-                TS.agregar(nuevo, 258);
+                TS.agregarConstante(nuevo, 258, "LONG");
                 setear_Uso("Constante negativa", nuevo+ambito);
-                factor.sval = Integer.toString(TS.pertenece("-"+numero));
+                factor.sval = Integer.toString(TS.buscarConstante("-"+numero, "LONG"));
             }
         }
     }
