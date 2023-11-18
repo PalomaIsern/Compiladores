@@ -18,7 +18,8 @@ import java.io.IOException;
 
 %}
 
-%token ID CTE CTEPOS IF END_IF ELSE PRINT CLASS VOID LONG USHORT DOUBLE DO UNTIL IMPL FOR CADENA RETURN '<=' '>=' '!!' '+=' '==' '>' '<'
+%token ID CTE CTEPOS IF END_IF ELSE PRINT CLASS VOID LONG USHORT DOUBLE DO UNTIL IMPL FOR CADENA RETURN ">=" "<=" "==" "+="  "!!" '>' '<'
+
 %start programa
 
 %%
@@ -389,7 +390,7 @@ bloque_ELSE: bloque_de_Sentencias
 
 sentencia_de_Control : inicio_DO bloque_de_SentenciasEjecutables UNTIL condicion {int primero = pila.pop();
                                                                 completarTerceto(primero, $1.ival);}
-                        | inicio_DO sentenciaEjecutable UNTIL condicion {int primero = pila.pop();
+                        | inicio_DO sentenciaEjecutable fin_sentencia UNTIL condicion {int primero = pila.pop();
                                                                 completarTerceto(primero, $1.ival);}
                      | inicio_DO bloque_de_SentenciasEjecutables UNTIL error {System.out.println("ERROR: linea " + Linea.getLinea() + " Falta la condicion de la sentencia de control");}
 ;
