@@ -6,6 +6,7 @@ import compiladores.Token;
 import compiladores.Terceto;
 import compiladores.Simbolo;
 import compiladores.Conversion;
+import compiladores.Assembler;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Stack;
@@ -509,6 +510,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
     int clavePadre = -1;
     boolean dentroFuncion = false;
     Conversion convertible = new Conversion();
+    Assembler CodigoAssembler;
 
     public boolean ver_ElementoDeclarado(String elemento){
         int clave = TS.buscar_por_ambito(elemento+ambito);
@@ -958,7 +960,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
             //System.out.println(token.toString()); Este metodo quedo comentado porque era el que imprimía todos los token reconocidos.
             return token.getIdToken();
         }
-        else
+        else{
             TS.imprimirContenido();
             System.out.println(" "); 
             imprimirCodigoIntermedio(); 
@@ -966,8 +968,10 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
             imprimirClases();
             System.out.println(" ");
             imprimirFunciones();
+            transformar();}
         return 0;
     }
+
     public void yyerror(String error) {
         System.out.println(error);
     }
@@ -1259,7 +1263,7 @@ public void verificarUso(String elemento){
            System.out.println("La variable: " + elemento + " no aparece en el lado derecho del ámbito dónde se declaro");
     }   
 
-  private boolean seUsoLadoDerecho(String variable) 
+    private boolean seUsoLadoDerecho(String variable) 
     {   
         for (HashMap.Entry<Integer, Terceto> i : CodigoIntermedio.entrySet()) {
                 String j = i.getValue().get_Operador();
@@ -1272,7 +1276,10 @@ public void verificarUso(String elemento){
                     return true;
         }
         return false;
-    } 
+    }
 
-
+    public void transformar(){
+        CodigoAssembler = new Assembler(CodigoIntermedio, TS);
+        CodigoAssembler.GenerarAssembler();
+    }
         
