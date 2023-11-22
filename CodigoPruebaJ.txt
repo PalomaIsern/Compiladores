@@ -13,6 +13,6 @@
     END_IF,
     RETURN,
  },
-
-    DO {y += 1.0} UNTIL (y == 133.0),
+    DOUBLE y,
+    DO y += 1.0, UNTIL (y >= 133.0),
 }

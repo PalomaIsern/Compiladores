@@ -92,6 +92,7 @@ public class Parser {
         return true;
     }
 
+<<<<<<< HEAD
     // ###############################################################
     // method: dump_stacks : show n levels of the stacks
     // ###############################################################
@@ -511,6 +512,419 @@ public class Parser {
     };
 
     // #line 490 "gramatica.y"
+=======
+String   yytext;//user variable to return contextual strings
+ParserVal yyval; //used to return semantic vals from action routines
+ParserVal yylval;//the 'lval' (result) I got from yylex()
+ParserVal valstk[];
+int valptr;
+//###############################################################
+// methods: value stack push,pop,drop,peek.
+//###############################################################
+void val_init()
+{
+  valstk=new ParserVal[YYSTACKSIZE];
+  yyval=new ParserVal();
+  yylval=new ParserVal();
+  valptr=-1;
+}
+void val_push(ParserVal val)
+{
+  if (valptr>=YYSTACKSIZE)
+    return;
+  valstk[++valptr]=val;
+}
+ParserVal val_pop()
+{
+  if (valptr<0)
+    return new ParserVal();
+  return valstk[valptr--];
+}
+void val_drop(int cnt)
+{
+int ptr;
+  ptr=valptr-cnt;
+  if (ptr<0)
+    return;
+  valptr = ptr;
+}
+ParserVal val_peek(int relative)
+{
+int ptr;
+  ptr=valptr-relative;
+  if (ptr<0)
+    return new ParserVal();
+  return valstk[ptr];
+}
+final ParserVal dup_yyval(ParserVal val)
+{
+  ParserVal dup = new ParserVal();
+  dup.ival = val.ival;
+  dup.dval = val.dval;
+  dup.sval = val.sval;
+  dup.obj = val.obj;
+  return dup;
+}
+//#### end semantic value section ####
+public final static short ID=257;
+public final static short CTE=258;
+public final static short CTEPOS=259;
+public final static short IF=260;
+public final static short END_IF=261;
+public final static short ELSE=262;
+public final static short PRINT=263;
+public final static short CLASS=264;
+public final static short VOID=265;
+public final static short LONG=266;
+public final static short USHORT=267;
+public final static short DOUBLE=268;
+public final static short DO=269;
+public final static short UNTIL=270;
+public final static short IMPL=271;
+public final static short FOR=272;
+public final static short CADENA=273;
+public final static short RETURN=274;
+public final static short YYERRCODE=256;
+final static short yylhs[] = {                           -1,
+    0,    2,    2,    4,    4,    7,    1,    8,    3,    3,
+    6,    6,   10,   10,   10,   11,   11,   11,   12,   12,
+   16,   16,   17,   17,   14,   14,   14,   14,   15,   15,
+   18,   18,   18,   19,   20,   22,   13,   24,   24,   25,
+   26,   27,   29,    5,    5,    5,    5,    5,    5,    5,
+    5,    9,    9,    9,    9,   35,   35,   35,   35,   35,
+   35,   35,   36,   36,   36,   31,   31,   31,   31,   31,
+   31,   31,   31,   31,   37,   39,   38,   38,   33,   33,
+   33,   40,   34,   21,   21,   30,   23,   23,   23,   23,
+   23,   23,   28,   28,   28,   28,   28,   28,   41,   41,
+   41,   41,   32,
+};
+final static short yylen[] = {                            2,
+    1,    2,    1,    3,    2,    1,    3,    3,    2,    2,
+    1,    1,    3,    3,    3,    1,    1,    1,    3,    1,
+    3,    1,    1,    1,    1,    1,    2,    1,    1,    1,
+    2,    6,    1,    2,    2,    4,    3,    1,    1,    5,
+    2,    2,    8,    1,    1,    1,    1,    1,    1,    1,
+    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+    1,    1,    5,    5,    5,    6,    6,    4,    4,    4,
+    4,    6,    6,    3,    1,    1,    1,    1,    4,    5,
+    4,    1,    2,    3,    1,    2,    3,    2,    3,    3,
+    2,    2,    4,    2,    4,    4,    2,    2,    1,    1,
+    1,    1,    2,
+};
+final static short yydefred[] = {                         0,
+    0,    0,    1,  102,    0,    0,    0,    0,    0,  101,
+  100,   99,   82,    0,   51,    0,    3,    0,    0,   44,
+    0,   55,    0,   54,   48,   53,   38,   39,    0,   49,
+   45,   46,   47,   50,   52,    0,    0,   18,    0,   26,
+   28,   17,   16,    0,    0,    0,    0,    0,    0,   22,
+    0,    0,   86,   25,    0,   75,    0,    0,    0,  103,
+   34,   42,    0,    7,    2,   12,   11,   10,    9,    0,
+    0,   31,    0,    0,    0,    0,    0,    0,    0,    0,
+   85,    0,   27,    0,   91,   88,    0,   92,    0,   30,
+   29,    0,    0,   23,   24,    0,    0,    0,   62,   58,
+   59,   61,   60,   56,   57,    0,   76,    0,    0,   74,
+    0,    0,   14,   15,    0,    0,   94,    0,   98,    0,
+    0,    0,    0,    0,    0,   36,   89,   87,   90,    0,
+   21,   84,    0,    0,   70,   68,    0,   71,   69,    0,
+    0,    0,    0,    0,    0,    0,    0,    8,    0,    5,
+    0,   81,   79,    0,    0,   77,   78,    0,    0,    0,
+   37,    0,   95,   93,   40,   96,    4,   80,   64,   63,
+   65,   72,   66,   73,   67,    0,    0,   32,    0,    0,
+   43,
+};
+final static short yydgoto[] = {                          2,
+   56,   16,   17,  122,   18,   68,  146,   80,   19,   20,
+   48,   49,   21,   50,   93,   51,   96,   22,   23,   24,
+   52,   25,   53,   26,   27,   28,   29,   75,   30,   31,
+   32,   33,   34,   35,  106,   58,   59,  158,  109,   36,
+   37,
+};
+final static short yysindex[] = {                       -99,
+ -159,    0,    0,    0,  -23,   20, -225, -198, -166,    0,
+    0,    0,    0, -179,    0,   49,    0,  -42,  -42,    0,
+   65,    0,  -20,    0,    0,    0,    0,    0,    2,    0,
+    0,    0,    0,    0,    0,  -65, -155,    0,    0,    0,
+    0,    0,    0, -131, -126,   35, -120,   42,   89,    0,
+   19,   81,    0,    0,   42,    0,  -16,  -84, -115,    0,
+    0,    0, -113,    0,    0,    0,    0,    0,    0,   45,
+ -159,    0,    8, -114,   22, -111,   -5, -146,  -42, -123,
+    0,   81,    0,   23,    0,    0,   40,    0,   34,    0,
+    0, -108,   42,    0,    0,   42, -107,  -16,    0,    0,
+    0,    0,    0,    0,    0,   42,    0, -143, -140,    0,
+   91,  105,    0,    0,   68,    0,    0, -105,    0, -159,
+  112,   83,  -42, -116,   27,    0,    0,    0,    0,   19,
+    0,    0,   42,   94,    0,    0,  -84,    0,    0,  -84,
+   32, -101,  -40,  -33, -159,   33,  -97,    0,  -42,    0,
+   30,    0,    0,   41,  -96,    0,    0, -161, -132, -104,
+    0,   37,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,  -42,    2,    0,   38,   22,
+    0,
+};
+final static short yyrindex[] = {                         0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,  -41,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,   10,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+  -34,  -25,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,  -24,    0,    0,    0,    0,    0,
+    0,  -19,    0,   96,    0,    0,    0,    0,  -12,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,   -7,    0,    0,    0,  -31,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,  -29,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,   43,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,
+};
+final static short yygindex[] = {                         0,
+   73,  -21,   62,    0,   11,   15,    0,    0,    0,    0,
+    0,  301,   95,   -8,    0,   74,    0,    0,    0,    0,
+  129,    0,   85,    0,   26,    0,   28,   -6,    0,    0,
+    0,    0,    0,    0,   72,  -80,  117,   54,    0,    0,
+    1,
+};
+final static int YYTABLESIZE=452;
+static short yytable[];
+static { yytable();}
+static void yytable(){
+yytable = new short[]{                         46,
+   47,   67,   33,  162,   44,   45,   20,  164,   20,   20,
+   20,   19,   97,   19,   19,   19,   46,   47,   35,   41,
+   43,   44,   45,    1,   83,   20,   91,   20,   90,   76,
+   19,   13,   19,   69,   46,   47,   25,   43,    1,   44,
+   45,   73,   74,  105,  153,  104,   79,   60,  117,  115,
+   25,   25,   25,   85,   25,   43,   25,   78,   61,   55,
+   94,  114,   46,   47,   44,   95,   55,   44,   85,   55,
+  168,   44,    3,  118,   44,   86,   91,   65,   90,   44,
+  128,  170,   91,   91,   90,   90,   44,  131,  123,   44,
+   62,   97,   63,  124,  172,   72,    4,    5,  145,  173,
+    6,   81,   71,    7,    8,    9,   10,   11,   12,   13,
+   77,   14,  135,    6,   15,  138,    7,  136,  137,  107,
+  139,  140,   13,  174,   14,   70,   83,   15,  175,   92,
+   84,   91,  149,   90,  155,   88,   91,  150,   90,   97,
+  110,  119,    1,  111,  120,  121,  125,  129,  141,  132,
+  142,  144,  147,  151,  160,  161,   37,  165,  166,  171,
+    9,  178,  181,  167,  113,   82,  130,    6,  126,  133,
+  180,    4,    5,   64,  108,    6,   65,   76,    7,    8,
+    9,   10,   11,   12,   13,  176,   14,  177,    0,   15,
+  179,   77,   64,  159,    6,    0,    0,    7,  157,    0,
+    0,  157,    0,   13,    0,   14,   65,  148,   15,  156,
+    0,    0,  156,   66,   33,   38,   39,   40,   41,    0,
+    0,   20,  163,    0,   97,  102,   19,    0,    0,    0,
+   35,   41,   38,   39,   40,   41,   83,   42,    0,   99,
+   20,   20,   20,   13,   20,   19,   19,   19,   25,   19,
+   38,   54,   40,   41,   42,    0,    0,    4,  100,  101,
+  102,    0,  103,  116,    0,   85,    0,   10,   11,   12,
+    0,    0,   42,   10,   11,   12,   54,   40,   41,   54,
+   40,   41,  152,   54,   40,   41,   54,   40,   41,    0,
+   85,   54,   40,   41,    0,  127,  169,    0,   54,   40,
+   41,  112,   40,   41,    4,    5,   57,    0,    6,    0,
+    0,    7,    8,    9,   10,   11,   12,   13,    0,   14,
+    0,    0,   15,    4,  143,    0,    0,    6,    0,    0,
+    7,    8,    9,   10,   11,   12,   13,    0,   14,   77,
+    0,   15,    6,    0,    0,    7,   87,    0,   89,    0,
+    0,   13,    0,   14,    0,   98,   15,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,  134,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,   57,    0,    0,    0,    0,
+    0,    0,    0,  154,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,   57,
+};
+}
+static short yycheck[];
+static { yycheck(); }
+static void yycheck() {
+yycheck = new short[] {                         40,
+   41,   44,   44,   44,   45,   46,   41,   41,   43,   44,
+   45,   41,   44,   43,   44,   45,   40,   41,   44,   44,
+   61,   45,   46,  123,   44,   60,   43,   62,   45,   29,
+   60,   44,   62,   19,   40,   41,   44,   61,  123,   45,
+   46,   40,   41,   60,  125,   62,   36,  273,   41,   71,
+   41,   42,   43,   44,   45,   61,   47,  123,  257,   40,
+   42,   70,   40,   41,   45,   47,   40,   45,   59,   40,
+  151,   45,    0,   73,   45,   41,   43,   16,   45,   45,
+   41,   41,   43,   43,   45,   45,   45,   96,   78,   45,
+  257,  123,  272,   79,  256,   23,  256,  257,  120,  261,
+  260,  257,  123,  263,  264,  265,  266,  267,  268,  269,
+  257,  271,  256,  260,  274,  256,  263,  261,  262,   58,
+  261,  262,  269,  256,  271,   61,  258,  274,  261,   41,
+  257,   43,  122,   45,   41,  256,   43,  123,   45,   59,
+  256,  256,  123,  257,  123,  257,  270,  256,   58,  257,
+   46,  257,   41,  270,  123,  257,   61,  125,  256,  256,
+  265,  125,  125,  149,   70,   37,   93,  125,   84,   98,
+  177,  256,  257,  125,   58,  260,  115,  177,  263,  264,
+  265,  266,  267,  268,  269,  160,  271,  160,   -1,  274,
+  176,  257,  125,  140,  260,   -1,   -1,  263,  137,   -1,
+   -1,  140,   -1,  269,   -1,  271,  145,  125,  274,  137,
+   -1,   -1,  140,  256,  256,  256,  257,  258,  259,   -1,
+   -1,  256,  256,   -1,  256,  257,  256,   -1,   -1,   -1,
+  256,  256,  256,  257,  258,  259,  256,  278,   -1,  256,
+  275,  276,  277,  256,  279,  275,  276,  277,  256,  279,
+  256,  257,  258,  259,  278,   -1,   -1,  256,  275,  276,
+  277,   -1,  279,  256,   -1,  256,   -1,  266,  267,  268,
+   -1,   -1,  278,  266,  267,  268,  257,  258,  259,  257,
+  258,  259,  256,  257,  258,  259,  257,  258,  259,   -1,
+  256,  257,  258,  259,   -1,  256,  256,   -1,  257,  258,
+  259,  257,  258,  259,  256,  257,    6,   -1,  260,   -1,
+   -1,  263,  264,  265,  266,  267,  268,  269,   -1,  271,
+   -1,   -1,  274,  256,  257,   -1,   -1,  260,   -1,   -1,
+  263,  264,  265,  266,  267,  268,  269,   -1,  271,  257,
+   -1,  274,  260,   -1,   -1,  263,   46,   -1,   48,   -1,
+   -1,  269,   -1,  271,   -1,   55,  274,   -1,   -1,   -1,
+   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,
+   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,
+   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,
+   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,
+   -1,   -1,   -1,   -1,   -1,   -1,  106,   -1,   -1,   -1,
+   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,
+   -1,   -1,   -1,   -1,   -1,  125,   -1,   -1,   -1,   -1,
+   -1,   -1,   -1,  133,   -1,   -1,   -1,   -1,   -1,   -1,
+   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,
+   -1,  151,
+};
+}
+final static short YYFINAL=2;
+final static short YYMAXTOKEN=279;
+final static String yyname[] = {
+"end-of-file",null,null,null,null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,null,null,"'('","')'","'*'","'+'","','",
+"'-'","'.'","'/'",null,null,null,null,null,null,null,null,null,null,"':'","';'",
+"'<'","'='","'>'",null,null,null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
+"'{'",null,"'}'",null,null,null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,"ID","CTE","CTEPOS","IF","END_IF","ELSE",
+"PRINT","CLASS","VOID","LONG","USHORT","DOUBLE","DO","UNTIL","IMPL","FOR",
+"CADENA","RETURN","\">=\"","\"<=\"","\"==\"","\"+=\"","\"!!\"",
+};
+final static String yyrule[] = {
+"$accept : programa",
+"programa : bloque_de_Sentencias",
+"conjuntoSentencias : conjuntoSentencias sentencia",
+"conjuntoSentencias : sentencia",
+"conjuntoSentenciasEjecutables : conjuntoSentenciasEjecutables sentenciaEjecutable fin_sentencia",
+"conjuntoSentenciasEjecutables : sentenciaEjecutable fin_sentencia",
+"cuerpo_funcion : conjuntoSentencias",
+"bloque_de_Sentencias : '{' conjuntoSentencias '}'",
+"bloque_de_SentenciasEjecutables : '{' conjuntoSentenciasEjecutables '}'",
+"sentencia : sentenciaDeclarativa fin_sentencia",
+"sentencia : sentenciaEjecutable fin_sentencia",
+"fin_sentencia : ','",
+"fin_sentencia : error",
+"asignacion : ID simboloAsignacion expresion",
+"asignacion : atributo_objeto '=' atributo_objeto",
+"asignacion : atributo_objeto '=' factor",
+"simboloAsignacion : '='",
+"simboloAsignacion : \"+=\"",
+"simboloAsignacion : error",
+"expresion : expresion operadorMasMenos termino",
+"expresion : termino",
+"termino : termino simboloTermino factor",
+"termino : factor",
+"simboloTermino : '*'",
+"simboloTermino : '/'",
+"factor : ID",
+"factor : CTE",
+"factor : '-' CTE",
+"factor : CTEPOS",
+"operadorMasMenos : '+'",
+"operadorMasMenos : '-'",
+"declaracionClase : inicioClase bloque_de_Sentencias",
+"declaracionClase : inicioClase '{' conjuntoSentencias ID ',' '}'",
+"declaracionClase : inicioClase",
+"inicioClase : CLASS ID",
+"declaracionObjeto : ID lista_Variables",
+"metodo_objeto : ID '.' ID parametro_real",
+"atributo_objeto : ID '.' ID",
+"declaracionFuncion : funcion_VOID",
+"declaracionFuncion : funcion_VOID_vacia",
+"funcion_VOID : inicio_Void parametro_formal '{' cuerpo_funcion '}'",
+"funcion_VOID_vacia : inicio_Void parametro_formal",
+"inicio_Void : VOID ID",
+"clausula_IMPL : IMPL FOR ID ':' '{' funcion_VOID fin_sentencia '}'",
+"sentenciaEjecutable : asignacion",
+"sentenciaEjecutable : invocacionFuncion",
+"sentenciaEjecutable : clausula_seleccion",
+"sentenciaEjecutable : print",
+"sentenciaEjecutable : metodo_objeto",
+"sentenciaEjecutable : clausula_IMPL",
+"sentenciaEjecutable : sentencia_de_Control",
+"sentenciaEjecutable : RETURN",
+"sentenciaDeclarativa : declaracion",
+"sentenciaDeclarativa : declaracionFuncion",
+"sentenciaDeclarativa : declaracionObjeto",
+"sentenciaDeclarativa : declaracionClase",
+"comparador : '>'",
+"comparador : '<'",
+"comparador : \">=\"",
+"comparador : \"<=\"",
+"comparador : \"!!\"",
+"comparador : \"==\"",
+"comparador : error",
+"condicion : '(' expresion comparador expresion ')'",
+"condicion : '(' expresion comparador expresion error",
+"condicion : expresion comparador expresion ')' error",
+"clausula_seleccion : IF condicion bloque_IF ELSE bloque_ELSE END_IF",
+"clausula_seleccion : IF condicion sentencia_IF ELSE bloque_ELSE END_IF",
+"clausula_seleccion : IF condicion bloque_IF END_IF",
+"clausula_seleccion : IF condicion sentencia_IF END_IF",
+"clausula_seleccion : IF condicion bloque_IF error",
+"clausula_seleccion : IF condicion sentencia_IF error",
+"clausula_seleccion : IF condicion bloque_IF ELSE bloque_ELSE error",
+"clausula_seleccion : IF condicion sentencia_IF ELSE bloque_ELSE error",
+"clausula_seleccion : IF bloque_IF error",
+"bloque_IF : bloque_de_Sentencias",
+"sentencia_IF : sentencia",
+"bloque_ELSE : bloque_de_Sentencias",
+"bloque_ELSE : sentencia",
+"sentencia_de_Control : inicio_DO bloque_de_SentenciasEjecutables UNTIL condicion",
+"sentencia_de_Control : inicio_DO sentenciaEjecutable fin_sentencia UNTIL condicion",
+"sentencia_de_Control : inicio_DO bloque_de_SentenciasEjecutables UNTIL error",
+"inicio_DO : DO",
+"declaracion : tipo lista_Variables",
+"lista_Variables : lista_Variables ';' ID",
+"lista_Variables : ID",
+"invocacionFuncion : ID parametro_real",
+"parametro_real : '(' expresion ')'",
+"parametro_real : '(' ')'",
+"parametro_real : '(' expresion error",
+"parametro_real : expresion ')' error",
+"parametro_real : '(' error",
+"parametro_real : ')' error",
+"parametro_formal : '(' tipo ID ')'",
+"parametro_formal : '(' ')'",
+"parametro_formal : '(' tipo ID error",
+"parametro_formal : tipo ID ')' error",
+"parametro_formal : '(' error",
+"parametro_formal : ')' error",
+"tipo : DOUBLE",
+"tipo : USHORT",
+"tipo : LONG",
+"tipo : error",
+"print : PRINT CADENA",
+};
+
+//#line 490 "gramatica.y"
+>>>>>>> 0f556b69978258a928dae06270b585412ac4ef16
 
     Lexico lex;
     TablaSimbolos TS = new TablaSimbolos();
@@ -1325,6 +1739,7 @@ public class Parser {
         CodigoAssembler.GenerarAssembler();
     }
 
+<<<<<<< HEAD
     // #line 1244 "Parser.java"
     // ###############################################################
     // method: yylexdebug : check lexer state
@@ -1339,6 +1754,23 @@ public class Parser {
             s = "illegal-symbol";
         debug("state " + state + ", reading " + ch + " (" + s + ")");
     }
+=======
+        
+//#line 1252 "Parser.java"
+//###############################################################
+// method: yylexdebug : check lexer state
+//###############################################################
+void yylexdebug(int state,int ch)
+{
+String s=null;
+  if (ch < 0) ch=0;
+  if (ch <= YYMAXTOKEN) //check index bounds
+     s = yyname[ch];    //now get it
+  if (s==null)
+    s = "illegal-symbol";
+  debug("state "+state+", reading "+ch+" ("+s+")");
+}
+>>>>>>> 0f556b69978258a928dae06270b585412ac4ef16
 
     // The following are now global, to aid in error reporting
     int yyn; // next next thing to do
@@ -1362,6 +1794,7 @@ public class Parser {
         {
             doaction = true;
             if (yydebug)
+<<<<<<< HEAD
                 debug("loop");
             // #### NEXT ACTION (from reduction table)
             for (yyn = yydefred[yystate]; yyn == 0; yyn = yydefred[yystate]) {
@@ -1395,6 +1828,311 @@ public class Parser {
                     doaction = false; // but don't process yet
                     break; // quit the yyn=0 loop
                 }
+=======
+              debug("state "+state_peek(0)+", error recovery shifting to state "+yytable[yyn]+" ");
+            yystate = yytable[yyn];
+            state_push(yystate);
+            val_push(yylval);
+            doaction=false;
+            break;
+            }
+          else
+            {
+            if (yydebug)
+              debug("error recovery discarding state "+state_peek(0)+" ");
+            if (stateptr<0)   //check for under & overflow here
+              {
+              yyerror("Stack underflow. aborting...");  //capital 'S'
+              return 1;
+              }
+            state_pop();
+            val_pop();
+            }
+          }
+        }
+      else            //discard this token
+        {
+        if (yychar == 0)
+          return 1; //yyabort
+        if (yydebug)
+          {
+          yys = null;
+          if (yychar <= YYMAXTOKEN) yys = yyname[yychar];
+          if (yys == null) yys = "illegal-symbol";
+          debug("state "+yystate+", error recovery discards token "+yychar+" ("+yys+")");
+          }
+        yychar = -1;  //read another
+        }
+      }//end error recovery
+    }//yyn=0 loop
+    if (!doaction)   //any reason not to proceed?
+      continue;      //skip action
+    yym = yylen[yyn];          //get count of terminals on rhs
+    if (yydebug)
+      debug("state "+yystate+", reducing "+yym+" by rule "+yyn+" ("+yyrule[yyn]+")");
+    if (yym>0)                 //if count of rhs not 'nil'
+      yyval = val_peek(yym-1); //get current semantic value
+    yyval = dup_yyval(yyval); //duplicate yyval if ParserVal is used as semantic value
+    switch(yyn)
+      {
+//########## USER-SUPPLIED ACTIONS ##########
+case 1:
+//#line 27 "gramatica.y"
+{System.out.println("Programa completamente reconocido");}
+break;
+case 7:
+//#line 41 "gramatica.y"
+{ /*System.out.println("Bloque de Sentencias reconocido")*/
+                                                }
+break;
+case 12:
+//#line 53 "gramatica.y"
+{VerificarSalto();}
+break;
+case 13:
+//#line 56 "gramatica.y"
+{String conv = convertirTipoAsignacion(val_peek(2).sval, val_peek(0).sval);
+                                                    if (conv != "-"){
+                                                        val_peek(0).sval = "["+ Integer.toString(crear_terceto(conv, val_peek(0).sval, "-")) +"]";
+                                                        CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(conv));
+                                                    }
+                                                    if (val_peek(1).sval == "+="){
+                                                        String aux = "[" + Integer.toString(crear_terceto("+", Integer.toString(TS.pertenece(val_peek(2).sval)), val_peek(0).sval)) + "]";
+                                                        yyval.sval = '[' + Integer.toString(crear_terceto("=", Integer.toString(TS.pertenece(val_peek(2).sval)), aux)) + ']';}
+                                                    else 
+                                                        yyval.sval = '[' + Integer.toString(crear_terceto(val_peek(1).sval, Integer.toString(TS.pertenece(val_peek(2).sval)), val_peek(0).sval)) + ']';
+                                                    CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(TS.get_Simbolo(TS.pertenece(val_peek(2).sval)).get_Tipo()));
+                                                    if (!ver_ElementoDeclarado(val_peek(2).sval))
+                                                        System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + val_peek(2).sval + " no fue declarado");
+                                                    else
+                                                        verificarUso(val_peek(2).sval);
+                                                    }
+break;
+case 14:
+//#line 72 "gramatica.y"
+{/*System.out.println("Se reconocio una asignacion a un atributo objeto en linea "+ Linea.getLinea());*/
+                                                    if ((val_peek(2).sval != null) && (val_peek(0).sval != null))
+                                                        yyval.sval = '[' + Integer.toString(crear_terceto("=", val_peek(2).sval, val_peek(0).sval))+']';}
+break;
+case 15:
+//#line 75 "gramatica.y"
+{/*System.out.println("Se reconocio una asignacion a un atributo objeto en linea "+ Linea.getLinea());*/
+                                                    if (val_peek(2).sval != null) 
+                                                        yyval.sval = '[' + Integer.toString(crear_terceto("=", val_peek(2).sval, val_peek(0).sval))+']';}
+break;
+case 16:
+//#line 80 "gramatica.y"
+{/*System.out.println("Se reconocio una asignacion en linea "+ Linea.getLinea());*/
+                            yyval.sval = "=";}
+break;
+case 17:
+//#line 82 "gramatica.y"
+{/*System.out.println("Se reconocio una asignacion suma en linea "+ Linea.getLinea());*/
+                            yyval.sval = "+=";}
+break;
+case 18:
+//#line 84 "gramatica.y"
+{System.out.println("ERROR: linea " + Linea.getLinea() + " No es valido el signo de asignacion");}
+break;
+case 19:
+//#line 87 "gramatica.y"
+{realizar_Conversion(val_peek(2).sval, val_peek(0).sval, val_peek(1).sval, yyval);}
+break;
+case 20:
+//#line 88 "gramatica.y"
+{yyval.sval = val_peek(0).sval;}
+break;
+case 21:
+//#line 91 "gramatica.y"
+{realizar_Conversion(val_peek(2).sval, val_peek(0).sval, val_peek(1).sval, yyval);}
+break;
+case 22:
+//#line 92 "gramatica.y"
+{yyval.sval = val_peek(0).sval;}
+break;
+case 23:
+//#line 95 "gramatica.y"
+{ yyval.sval = "*";}
+break;
+case 24:
+//#line 96 "gramatica.y"
+{ yyval.sval = "/";}
+break;
+case 25:
+//#line 99 "gramatica.y"
+{yyval.sval = Integer.toString(TS.buscar_por_ambito(val_peek(0).sval+ambito));
+                setear_Uso("identificador", val_peek(0).sval+ambito);
+                if (!ver_ElementoDeclarado(val_peek(0).sval))
+                    System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + val_peek(0).sval + " no fue declarado");
+                /*TS.get_Simbolo(Integer.parseInt($1.sval)).set_Usada("Lado derecho");*/
+                }
+break;
+case 26:
+//#line 105 "gramatica.y"
+{/*System.out.println("Se reconocio una constante en linea "+Linea.getLinea());*/
+                chequearRangoPositivo(val_peek(0).sval, yyval);
+                }
+break;
+case 27:
+//#line 108 "gramatica.y"
+{/*System.out.println("Se reconocio constante negativa en linea "+ Linea.getLinea());*/
+                    chequearRangoNegativo(val_peek(0).sval, yyval);}
+break;
+case 28:
+//#line 110 "gramatica.y"
+{setear_Uso("ConstantePositiva", val_peek(0).sval+ambito);
+                    yyval.sval = Integer.toString(TS.pertenece(val_peek(0).sval));}
+break;
+case 29:
+//#line 114 "gramatica.y"
+{ yyval.sval = "+";}
+break;
+case 30:
+//#line 115 "gramatica.y"
+{ yyval.sval = "-";}
+break;
+case 31:
+//#line 119 "gramatica.y"
+{volver_Ambito();
+                                                    if (val_peek(1).sval != " ") {
+                                                        setear_Uso("Clase", val_peek(1).sval); 
+                                                        agregarClase(val_peek(1).sval, metodosTemp, metodosTempNoImp, atributosTemp);
+                                                        metodosTemp = new ArrayList<Integer>();
+                                                        atributosTemp = new ArrayList<Integer>();
+                                                        metodosTempNoImp = new ArrayList<Integer>();
+                                                        } else {eliminarElementos();}
+                                                    }
+break;
+case 32:
+//#line 128 "gramatica.y"
+{/*System.out.println("Clase con herencia por composicion en linea "+Linea.getLinea()); */
+                                                                        volver_Ambito();
+                                                                        if (val_peek(5).sval != " ") 
+                                                                            {   clavePadre = verificarExisteClasePadre(val_peek(5).sval, val_peek(2).sval);
+                                                                                if (clavePadre != -1){
+                                                                                    agregarClase(val_peek(5).sval, metodosTemp, metodosTempNoImp, atributosTemp);
+                                                                                    metodosTemp = new ArrayList<Integer>();
+                                                                                    atributosTemp = new ArrayList<Integer>();
+                                                                                    metodosTempNoImp = new ArrayList<Integer>();
+                                                                                    setear_Uso("Clase", val_peek(5).sval);
+                                                                                    setear_Tipo(val_peek(5).sval, val_peek(2).sval+ambito);
+                                                                                } else {
+                                                                                    int claveAux = TS.pertenece(val_peek(2).sval);
+                                                                                    if (claveAux != -1) 
+                                                                                        TS.remove_Simbolo(claveAux);
+                                                                                    }
+                                                                            } else eliminarElementos();
+                                                                        }
+break;
+case 33:
+//#line 146 "gramatica.y"
+{if (val_peek(0).sval != " ") {
+                                    int clave = TS.buscar_por_ambito(val_peek(0).sval);
+                                        if (! claseVacia(clave)) {
+                                        setear_Uso("Clase", val_peek(0).sval);
+                                        agregarClase(val_peek(0).sval, metodosTemp, metodosTempNoImp, atributosTemp);
+                                        metodosTemp = new ArrayList<Integer>();
+                                        atributosTemp = new ArrayList<Integer>();
+                                        metodosTempNoImp = new ArrayList<Integer>();
+                                        } else 
+                                            System.out.println("ERROR: linea "+Linea.getLinea()+" se debe declarar la clase"+val_peek(0).sval);
+                                    } 
+                                    volver_Ambito();
+                                }
+break;
+case 34:
+//#line 162 "gramatica.y"
+{   metodosTemp = new ArrayList<Integer>();
+                                atributosTemp = new ArrayList<Integer>();
+                                metodosTempNoImp = new ArrayList<Integer>(); 
+                                if (setear_Ambito(val_peek(0).sval+ambito, val_peek(0).sval)) {
+                                    yyval.sval = val_peek(0).sval+ambito;
+                                    clavePadre = -1;
+                                } else  
+                                    yyval.sval = " ";
+                                ambito += ":" + val_peek(0).sval;
+                        }
+break;
+case 35:
+//#line 174 "gramatica.y"
+{String t = obtenerTipo(val_peek(1).sval);
+                                        if (t != " ") {
+                                            guardar_Tipo(t);
+                                            setear_Tipo();
+                                        } else variables.clear();
+                                        }
+break;
+case 36:
+//#line 182 "gramatica.y"
+{  ver_ObjetoDeclarado(val_peek(3).sval);
+                                            int clase = obtenerClase(val_peek(3).sval+ambito);
+                                            if (clase != -1) {
+                                                if (! claseVacia(clase)) {
+                                                    int padre = -1;
+                                                    String tipo = TS.get_Simbolo(clase).get_Tipo();
+                                                    if ( tipo != " "); /*hereda de otra clase*/
+                                                        padre = TS.buscar_por_ambito(tipo);
+                                                    int ref = verificarExistencia(clase, val_peek(1).sval, "metodo"); /*obtengo la referencia al metodo (si existe)*/
+                                                    if (ref == -1 && padre != -1)
+                                                        ref = verificarExistencia(padre, val_peek(1).sval, "metodo");
+                                                    if (ref != -1) {
+                                                        /*int param = buscar_Parametro($3.sval, ambito);*/
+                                                        String param = TS.get_Simbolo(ref).get_Parametro();
+                                                        String terceto = "-";
+                                                        if ((param == "-" && val_peek(0).sval=="-") || (param != "-" && !val_peek(0).sval.equals("-"))) /*si los parametros no coinciden avisa*/
+                                                            {
+                                                                String tipo_real = "-";
+                                                                String tipo_formal = "-";
+                                                                if (param != "-"){
+                                                                    System.out.println(val_peek(0).sval);
+                                                                    if (val_peek(0).sval.contains("["))
+                                                                        tipo_real = CodigoIntermedio.get(Integer.parseInt(borrarParentesis(val_peek(0).sval))).get_Tipo();
+                                                                    else
+                                                                        tipo_real = TS.get_Simbolo(Integer.parseInt(val_peek(0).sval)).get_Tipo();
+                                                                    System.out.println("Tipo parametro real: " + tipo_real+", Tipo formal: " + TS.get_Simbolo(Integer.parseInt(param)).get_Tipo());
+                                                                    tipo_formal = TS.get_Simbolo(Integer.parseInt(param)).get_Tipo();
+                                                                    if (tipo_formal.equals(tipo_real)){
+                                                                        String auxiliar = Integer.toString(crear_terceto("=", param, val_peek(0).sval));
+                                                                        System.out.println("No fue necesario hacer conversiones de tipos en los parámetros");
+                                                                        yyval.sval = "[" + Integer.toString(crear_terceto ("CALLMetodoClase", Integer.toString(TS.pertenece(val_peek(1).sval)), val_peek(0).sval)) + "]";}
+                                                                    else
+                                                                    {
+                                                                        if (tipo_formal == "USHORT" || (tipo_formal == "LONG" && tipo_real =="DOUBLE"))
+                                                                            System.out.println("ERROR: linea " + Linea.getLinea() + " Los tipos de los parámetros son incompatibles");
+                                                                        else{ 
+                                                                            String conversion = convertible.Convertir(tipo_formal, tipo_real);
+                                                                            String terceto1 = '['+ Integer.toString(crear_terceto(conversion, val_peek(0).sval, "-")) + ']';
+                                                                            String auxiliar = Integer.toString(crear_terceto("=", param, terceto1));
+                                                                            System.out.println("La conversión pudo realizarse y fue de " + tipo_real + " a " + tipo_formal );
+                                                                            yyval.sval = "[" + Integer.toString(crear_terceto ("CALLMetodoClase", Integer.toString(TS.pertenece(val_peek(1).sval)), terceto1)) + "]";}
+                                                                    }}
+                                                                else
+                                                                    yyval.sval = "[" + Integer.toString(crear_terceto ("CALLMetodoClase", Integer.toString(ref), "-")) + "]";
+                                                            }
+                                                        else
+                                                            System.out.println("ERROR: linea "+ Linea.getLinea() + " Los parámetros no coinciden");
+                                                    }else
+                                                        System.out.println("ERROR: linea "+ Linea.getLinea()+ " - el metodo "+val_peek(1).sval+ " no se encuentra al alcance o no fue declarado");
+                                                }else
+                                                        System.out.println("ERROR: linea "+ Linea.getLinea()+ " - No se puede invocar al metodo \""+val_peek(1).sval+ "\" porque la clase \""+TS.get_Simbolo(clase).get_Ambito()+"\" no se encuentra implementada");
+}
+}
+break;
+case 37:
+//#line 237 "gramatica.y"
+{   int clase = obtenerClase(val_peek(2).sval+ambito);
+                                if (clase != -1) {
+                                    if (! claseVacia(clase)) {
+                                        int padre = -1;
+                                        String tipo = TS.get_Simbolo(clase).get_Tipo();
+                                        if ( tipo != " "); /*hereda de otra clase*/
+                                            padre = TS.buscar_por_ambito(tipo);
+                                        int ref = verificarExistencia(clase, val_peek(0).sval, "atributo");
+                                        if (ref == -1 && padre != -1) 
+                                            ref = verificarExistencia(padre, val_peek(0).sval, "atributo");
+                                        if (ref != -1) 
+                                        { yyval.sval = '[' + Integer.toString(crear_terceto("atributo_objeto", Integer.toString(TS.pertenece(val_peek(2).sval)), Integer.toString(ref))) + ']';
+>>>>>>> 0f556b69978258a928dae06270b585412ac4ef16
 
                 yyn = yyrindex[yystate]; // reduce
                 if ((yyn != 0) && (yyn += yychar) >= 0 &&
@@ -1420,6 +2158,7 @@ public class Parser {
                                 yyerror("stack underflow. aborting..."); // note lower case 's'
                                 return 1;
                             }
+<<<<<<< HEAD
                             yyn = yysindex[state_peek(0)];
                             if ((yyn != 0) && (yyn += YYERRCODE) >= 0 &&
                                     yyn <= YYTABLESIZE && yycheck[yyn] == YYERRCODE) {
@@ -1907,6 +2646,415 @@ public class Parser {
                     metodosClases.get(idClase).remove(Integer.valueOf(clave));
                     funciones.remove(clave);
                     TS.remove_Simbolo(clave);
+=======
+break;
+case 38:
+//#line 258 "gramatica.y"
+{dentroFuncion = false;}
+break;
+case 39:
+//#line 259 "gramatica.y"
+{ dentroFuncion = false;}
+break;
+case 40:
+//#line 262 "gramatica.y"
+{/*System.out.println("Se reconocio una declaracion de una funcion VOID en linea "+ Linea.getLinea());*/
+                                                                String idFuncion = obtenerAmbito(val_peek(4).sval+ambito);
+                                                                int clave = TS.buscar_por_ambito(idFuncion);
+                                                                metodosTemp.add(clave);
+                                                                TS.get_Simbolo(clave).set_Parametro(val_peek(3).sval);
+                                                                funciones.put(clave, Linea.getLinea());
+                                                                volver_Ambito();
+                                                                }
+break;
+case 41:
+//#line 272 "gramatica.y"
+{/*System.out.println("Se reconocio una declaracion de una funcion VOID vacia en linea "+ Linea.getLinea());*/
+                                            String idFuncion = obtenerAmbito(val_peek(1).sval+ambito);
+                                            int clave = TS.buscar_por_ambito(idFuncion);
+                                            metodosTempNoImp.add(clave);
+                                            TS.get_Simbolo(clave).set_Parametro(val_peek(0).sval); /*DUDAAA*/
+                                            funciones.put(clave, Linea.getLinea());
+                                            volver_Ambito();
+                                            }
+break;
+case 42:
+//#line 282 "gramatica.y"
+{yyval.sval = val_peek(0).sval;
+                    setear_Ambito(val_peek(0).sval+ambito, val_peek(0).sval);
+                    setear_Uso("Metodo", val_peek(0).sval+ambito);
+                    setear_Tipo(val_peek(0).sval+ambito, "VOID");
+                    ambito += ":" + val_peek(0).sval;
+                    dentroFuncion = true;
+}
+break;
+case 43:
+//#line 291 "gramatica.y"
+{   int idClase = TS.buscar_por_ambito(val_peek(5).sval+ambito);
+                                                                        if (!ver_ElementoDeclarado(val_peek(5).sval)) /*verificar que la clase exista*/
+                                                                            System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + val_peek(5).sval + " no fue declarado");
+                                                                        if (verificarExistencia(idClase, val_peek(2).sval, "metodoNoImpl") != -1) 
+                                                                            agregarMetodoImplementado(val_peek(5).sval+ambito, val_peek(2).sval+ambito+":"+val_peek(5).sval);
+                                                                        int clave = TS.buscar_por_ambito(val_peek(2).sval+ambito);
+                                                                        metodosClases.get(idClase).remove(Integer.valueOf(clave));
+                                                                        funciones.remove(clave);            
+                                                                        TS.remove_Simbolo(clave);
+                                                                        
+                                                                    }
+break;
+case 46:
+//#line 306 "gramatica.y"
+{/*System.out.println("Se reconocio una clausula de seleccion IF en linea "+ Linea.getLinea());*/
+                    }
+break;
+case 47:
+//#line 308 "gramatica.y"
+{/*System.out.println("Se reconocio una impresion por pantalla en linea "+ Linea.getLinea());*/
+                    }
+break;
+case 48:
+//#line 310 "gramatica.y"
+{/*System.out.println("Se reconocio la invocacion de un metodo de un objeto en linea " + Linea.getLinea());*/
+                    }
+break;
+case 49:
+//#line 312 "gramatica.y"
+{/*System.out.println("Se reconocio sentencia IMPL FOR en linea "+ Linea.getLinea());*/
+                    }
+break;
+case 50:
+//#line 314 "gramatica.y"
+{/*System.out.println("Se reconocio sentencia de control DO UNTIL en linea "+ Linea.getLinea());*/
+                    }
+break;
+case 51:
+//#line 316 "gramatica.y"
+{/*System.out.println("Se reconocio sentencia de retorno RETURN en linea "+ Linea.getLinea());*/
+                            int aux = crear_terceto("RETURN", "-", "-");}
+break;
+case 52:
+//#line 320 "gramatica.y"
+{/*System.out.println("Se reconocio una declaracion simple en linea "+ Linea.getLinea());*/
+}
+break;
+case 54:
+//#line 323 "gramatica.y"
+{/*System.out.println("Se reconocio una declaracion de un objeto de una clase en linea "+ Linea.getLinea());*/
+                    }
+break;
+case 55:
+//#line 325 "gramatica.y"
+{/*System.out.println("Se reconocio una clase en linea "+ Linea.getLinea());*/
+                    }
+break;
+case 56:
+//#line 329 "gramatica.y"
+{yyval.sval = ">";}
+break;
+case 57:
+//#line 330 "gramatica.y"
+{yyval.sval = "<";}
+break;
+case 58:
+//#line 331 "gramatica.y"
+{yyval.sval = ">=";}
+break;
+case 59:
+//#line 332 "gramatica.y"
+{yyval.sval = "<=";}
+break;
+case 60:
+//#line 333 "gramatica.y"
+{yyval.sval = "!!";}
+break;
+case 61:
+//#line 334 "gramatica.y"
+{yyval.sval = "==";}
+break;
+case 62:
+//#line 335 "gramatica.y"
+{System.out.println("ERROR: linea " + Linea.getLinea() +" Comparador no valido");}
+break;
+case 63:
+//#line 338 "gramatica.y"
+{/*System.out.println("Se reconoció una condicion  en linea "+ Linea.getLinea());*/
+                                                    yyval.sval = '[' + Integer.toString(crear_terceto(val_peek(2).sval, val_peek(3).sval, val_peek(1).sval)) + ']';
+                                                    int aux = crear_terceto("BF", yyval.sval, "-");
+                                                    pila.push(aux);}
+break;
+case 64:
+//#line 342 "gramatica.y"
+{System.out.println("ERROR: linea" + Linea.getLinea() + " Falta el parentesis que cierra");
+                                                        yyval.sval = '[' + Integer.toString(crear_terceto(val_peek(2).sval, val_peek(3).sval, val_peek(1).sval)) + ']';
+                                                        int aux = crear_terceto("BF", yyval.sval, "-");
+                                                        pila.push(aux); }
+break;
+case 65:
+//#line 346 "gramatica.y"
+{System.out.println("ERROR: linea "+ Linea.getLinea() + " Falta el parentesis que abre");
+                                                      yyval.sval = '[' + Integer.toString(crear_terceto(val_peek(3).sval, val_peek(4).sval, val_peek(2).sval)) + ']';
+                                                      int aux = crear_terceto("BF", yyval.sval, "-");
+                                                      pila.push(aux);}
+break;
+case 66:
+//#line 352 "gramatica.y"
+{int primero = pila.pop();
+                                                                    completarTerceto(primero, puntero_Terceto);}
+break;
+case 67:
+//#line 354 "gramatica.y"
+{int primero = pila.pop();
+                                                                    completarTerceto(primero, puntero_Terceto);}
+break;
+case 68:
+//#line 356 "gramatica.y"
+{int primero = pila.pop();
+                                                    completarTerceto(primero, puntero_Terceto);}
+break;
+case 69:
+//#line 358 "gramatica.y"
+{int primero = pila.pop();
+                                                    completarTerceto(primero, puntero_Terceto);}
+break;
+case 70:
+//#line 360 "gramatica.y"
+{System.out.println("Falta el END_IF");
+                                                    int primero = pila.pop();
+                                                    completarTerceto(primero, puntero_Terceto);}
+break;
+case 71:
+//#line 363 "gramatica.y"
+{System.out.println("Falta el END_IF");
+                                                    int primero = pila.pop();
+                                                    completarTerceto(primero, puntero_Terceto);}
+break;
+case 72:
+//#line 366 "gramatica.y"
+{System.out.println("Falta el END_IF");
+                                                                    int primero = pila.pop();
+                                                                    completarTerceto(primero, puntero_Terceto);}
+break;
+case 73:
+//#line 369 "gramatica.y"
+{System.out.println("Falta el END_IF");
+                                                                    int primero = pila.pop();
+                                                                    completarTerceto(primero, puntero_Terceto);}
+break;
+case 74:
+//#line 372 "gramatica.y"
+{System.out.println("ERROR: linea " + Linea.getLinea() + " Falto la condicion del IF");}
+break;
+case 75:
+//#line 375 "gramatica.y"
+{int primero = pila.pop();
+                                int aux = crear_terceto("BI", "-", "-");
+                                completarTerceto(primero, aux+1);
+                                pila.push(aux);}
+break;
+case 76:
+//#line 381 "gramatica.y"
+{      int primero = pila.pop();
+                                int aux = crear_terceto("BI", "-", "-");
+                                completarTerceto(primero, aux+1);
+                                pila.push(aux);}
+break;
+case 79:
+//#line 391 "gramatica.y"
+{int primero = pila.pop();
+                                                                completarTerceto(primero, val_peek(3).ival);}
+break;
+case 80:
+//#line 393 "gramatica.y"
+{int primero = pila.pop();
+                                                                completarTerceto(primero, val_peek(4).ival);}
+break;
+case 81:
+//#line 395 "gramatica.y"
+{System.out.println("ERROR: linea " + Linea.getLinea() + " Falta la condicion de la sentencia de control");}
+break;
+case 82:
+//#line 398 "gramatica.y"
+{yyval.ival = puntero_Terceto;}
+break;
+case 83:
+//#line 401 "gramatica.y"
+{setear_Tipo();}
+break;
+case 84:
+//#line 404 "gramatica.y"
+{  boolean declarado = setear_Ambito(val_peek(0).sval+ambito, val_peek(0).sval); 
+                                            if (declarado) {
+                                                setear_Uso("Variable", val_peek(0).sval+ambito); 
+                                                guardar_Var(val_peek(0).sval+ambito);
+                                                if (! dentroFuncion) 
+                                                    atributosTemp.add(TS.buscar_por_ambito(val_peek(0).sval+ambito));
+                                            }                                                
+                                        }
+break;
+case 85:
+//#line 412 "gramatica.y"
+{  boolean declarado = setear_Ambito(val_peek(0).sval+ambito, val_peek(0).sval); 
+                        if (declarado) {
+                            setear_Uso("Variable", val_peek(0).sval+ambito); 
+                            guardar_Var(val_peek(0).sval+ambito);
+                            if (! dentroFuncion) 
+                                atributosTemp.add(TS.buscar_por_ambito(val_peek(0).sval+ambito));
+                        }
+                }
+break;
+case 86:
+//#line 422 "gramatica.y"
+{
+                                    if (!ver_ElementoDeclarado(val_peek(1).sval))
+                                        System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + val_peek(1).sval + " no fue declarado");
+                                    int aux = buscar_Parametro(val_peek(1).sval, ambito);
+                                    String tipo_real;
+                                    if ((aux == -1 && val_peek(0).sval=="-") || (aux != -1 && val_peek(0).sval != "-")) /*si la cantidad de parametros no coinciden avisa*/
+                                        {if (aux != -1){
+                                            if (val_peek(0).sval.contains("["))
+                                                tipo_real = CodigoIntermedio.get(Integer.parseInt(borrarParentesis(val_peek(0).sval))).get_Tipo();
+                                            else
+                                                tipo_real = TS.get_Simbolo(TS.buscar_por_ambito(TS.get_Simbolo(Integer.parseInt(val_peek(0).sval)).get_Lex()+ambito)).get_Tipo();
+                                            System.out.println("Tipo parametro real: " + tipo_real+", Tipo formal: " + TS.get_Simbolo(aux).get_Tipo());
+                                            String tipo_formal = TS.get_Simbolo(aux).get_Tipo();
+                                            if (tipo_formal.equals(tipo_real)){
+                                                String auxiliar = Integer.toString(crear_terceto("=", Integer.toString(aux), val_peek(0).sval));
+                                                System.out.println("No fue necesario hacer conversiones de tipos en los parámetros");
+                                                yyval.sval = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(TS.pertenece(val_peek(1).sval)), val_peek(0).sval)) + "]";}
+                                            else
+                                            {
+                                                if (tipo_formal == "USHORT" || (tipo_formal == "LONG" && tipo_real =="DOUBLE"))
+                                                    System.out.println("ERROR: linea " + Linea.getLinea() + " Los tipos de los parámetros son incompatibles");
+                                                else{ 
+                                                    String conversion = convertible.Convertir(tipo_formal, tipo_real);
+                                                    String terceto = '['+ Integer.toString(crear_terceto(conversion, val_peek(0).sval, "-")) + ']';
+                                                    String auxiliar = Integer.toString(crear_terceto("=", Integer.toString(aux), terceto));
+                                                    System.out.println("La conversión pudo realizarse y fue de " + tipo_real + " a " + tipo_formal );
+                                                    yyval.sval = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(TS.pertenece(val_peek(1).sval)), terceto)) + "]";}
+                                            }}
+                                        else
+                                            yyval.sval = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(TS.pertenece(val_peek(1).sval)), val_peek(0).sval)) + "]";}
+                                    else
+                                        System.out.println("ERROR: linea " + Linea.getLinea() + " Los parámetros no coinciden");
+                                    if ((aux != -1 && val_peek(0).sval == "-") || (aux == -1 && val_peek(0).sval != "-"))
+                                         System.out.println("ERROR: linea " + Linea.getLinea() + " La cantidad de parámetros reales con los formales no coinciden");
+                                    }
+break;
+case 87:
+//#line 459 "gramatica.y"
+{yyval.sval = val_peek(1).sval;}
+break;
+case 88:
+//#line 460 "gramatica.y"
+{yyval.sval = "-";}
+break;
+case 89:
+//#line 461 "gramatica.y"
+{System.out.println("ERROR: linea "+ Linea.getLinea()+ " Falta el parentesis que cierra");}
+break;
+case 90:
+//#line 462 "gramatica.y"
+{System.out.println("ERROR: linea "+ Linea.getLinea() + " Falta el parentesis que abre");}
+break;
+case 91:
+//#line 463 "gramatica.y"
+{System.out.println("ERROR: linea "+ Linea.getLinea()+ " Falta el parentesis que cierra");}
+break;
+case 92:
+//#line 464 "gramatica.y"
+{System.out.println("ERROR: linea "+ Linea.getLinea() + " Falta el parentesis que abre");}
+break;
+case 93:
+//#line 467 "gramatica.y"
+{ agregar_ParametroTS(val_peek(1).sval, val_peek(2).sval, val_peek(1).sval+ambito);
+                                    yyval.sval = Integer.toString(TS.buscar_por_ambito(val_peek(1).sval+ambito));}
+break;
+case 94:
+//#line 469 "gramatica.y"
+{yyval.sval = "-";}
+break;
+case 95:
+//#line 470 "gramatica.y"
+{System.out.println("ERROR: linea "+ Linea.getLinea()+ " Falta el parentesis que cierra"); setear_Uso("Parametro formal", val_peek(1).sval);}
+break;
+case 96:
+//#line 471 "gramatica.y"
+{System.out.println("ERROR: linea "+ Linea.getLinea()+ " Falta el parentesis que abre"); setear_Uso("Parametro formal", val_peek(2).sval);}
+break;
+case 97:
+//#line 472 "gramatica.y"
+{System.out.println("ERROR: linea "+ Linea.getLinea() + " Falta el parentesis que cierra.");}
+break;
+case 98:
+//#line 473 "gramatica.y"
+{System.out.println("ERROR: linea "+ Linea.getLinea() + " Falta el parentesis que abre");}
+break;
+case 99:
+//#line 476 "gramatica.y"
+{guardar_Tipo("DOUBLE");
+                yyval.sval = "DOUBLE";}
+break;
+case 100:
+//#line 478 "gramatica.y"
+{guardar_Tipo("USHORT");
+                yyval.sval = "USHORT";}
+break;
+case 101:
+//#line 480 "gramatica.y"
+{guardar_Tipo("LONG");
+                yyval.sval = "LONG";}
+break;
+case 102:
+//#line 482 "gramatica.y"
+{System.out.println("Error: linea " + Linea.getLinea() +  " No es un tipo definido");}
+break;
+case 103:
+//#line 485 "gramatica.y"
+{setear_Uso("Cadena", val_peek(0).sval);
+                    int aux = crear_terceto("PRINT", Integer.toString(TS.pertenece(val_peek(0).sval)), "-");}
+break;
+//#line 2030 "Parser.java"
+//########## END OF USER-SUPPLIED ACTIONS ##########
+    }//switch
+    //#### Now let's reduce... ####
+    if (yydebug) debug("reduce");
+    state_drop(yym);             //we just reduced yylen states
+    yystate = state_peek(0);     //get new state
+    val_drop(yym);               //corresponding value drop
+    yym = yylhs[yyn];            //select next TERMINAL(on lhs)
+    if (yystate == 0 && yym == 0)//done? 'rest' state and at first TERMINAL
+      {
+      if (yydebug) debug("After reduction, shifting from state 0 to state "+YYFINAL+"");
+      yystate = YYFINAL;         //explicitly say we're done
+      state_push(YYFINAL);       //and save it
+      val_push(yyval);           //also save the semantic value of parsing
+      if (yychar < 0)            //we want another character?
+        {
+        yychar = yylex();        //get next character
+        if (yychar<0) yychar=0;  //clean, if necessary
+        if (yydebug)
+          yylexdebug(yystate,yychar);
+        }
+      if (yychar == 0)          //Good exit (if lex returns 0 ;-)
+         break;                 //quit the loop--all DONE
+      }//if yystate
+    else                        //else not done yet
+      {                         //get next state and push, for next yydefred[]
+      yyn = yygindex[yym];      //find out where to go
+      if ((yyn != 0) && (yyn += yystate) >= 0 &&
+            yyn <= YYTABLESIZE && yycheck[yyn] == yystate)
+        yystate = yytable[yyn]; //get new state
+      else
+        yystate = yydgoto[yym]; //else go to new defred
+      if (yydebug) debug("after reduction, shifting from state "+state_peek(0)+" to state "+yystate+"");
+      state_push(yystate);     //going again, so push state & val...
+      val_push(yyval);         //for next action
+      }
+    }//main loop
+  return 0;//yyaccept!!
+}
+//## end of method parse() ######################################
+>>>>>>> 0f556b69978258a928dae06270b585412ac4ef16
 
                 }
                     break;
