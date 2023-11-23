@@ -25,9 +25,10 @@ public class Terceto {
         variableAuxiliar = "@aux";
     }
 
-    public void set_VA() {
+    public String set_VA() {
         contadorVA += 1;
         variableAuxiliar += Integer.toString(contadorVA);
+        return variableAuxiliar;
     }
 
     public void set_Tipo(String t) {

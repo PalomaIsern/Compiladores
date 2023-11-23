@@ -1,0 +1,10 @@
+{
+   DOUBLE x,
+   LONG y,
+   USHORT z,
+   x = 2.0 + 1.0,
+   y = 6_l,
+   y = x - y, 
+   z = 3_us * y,
+   
+}

@@ -119,21 +119,21 @@ public class TablaSimbolos {
                 if (token == 257)
                     sb.append(s.get_Lex() + " dd " + " ?\n");
                 else
-                    sb.append("@cteLong" + " dd " + s.get_Lex() + " \n");
+                    sb.append("@cteLong" + " dd " + s.get_Ambito() + " \n");
             else if (tipo == "USHORT")
                 if (token == 257)
                     sb.append(s.get_Lex() + " db " + " ?\n");
                 else
-                    sb.append("@cteUS" + " db " + s.get_Lex() + " \n");
+                    sb.append("@cteUS" + " db " + s.get_Ambito() + " \n");
             else if (tipo == "DOUBLE")
                 if (token == 257)
                     sb.append(s.get_Lex() + " dq " + " ?\n");
                 else
-                    sb.append("@cteDouble" + " dq " + s.get_Lex() + " \n");
+                    sb.append("@cteDouble" + " dq " + s.get_Ambito() + " \n");
             else if (tipo == "VOID")
-                sb.append("@funcion" + " db " + s.get_Lex() + " \n");
+                sb.append("@funcion" + " db " + s.get_Ambito() + " \n");
             else if (token == 273)
-                sb.append("@cadena" + " db " + s.get_Lex() + " \n");
+                sb.append("@cadena" + " db " + s.get_Ambito() + " \n");
         }
         return sb;
     }
