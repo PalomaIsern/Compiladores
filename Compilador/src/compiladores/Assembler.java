@@ -60,7 +60,7 @@ public class Assembler {
         codigo.append("includelib \\masm32\\lib\\user32.lib\n");
         codigo.append(".data\n");
         codigo.append("MaxNumUSHORT db 255");
-        codigo.append("MinNumLong dd -2147483648")
+        codigo.append("MinNumLong dd -2147483648");
         codigo.append("MaxNumLong dd 2147483647");
         codigo.append("MinNumDouble dq 2.2250738585072014e-308");
         codigo.append("MaxNumDouble dq 1.7976931348623157e+308");
@@ -81,40 +81,41 @@ public class Assembler {
 
     public void generarInstrucciones() {
         for (HashMap.Entry<Integer, Terceto> i : CodIntermedio.entrySet()) {
-            if (seguir){
-            Terceto t = i.getValue();
-            String instruccion = devolverOperacion(t);
-            String operador = t.get_Operador();
-            if (instruccion !="ERROR") {
-                if ((operador == "+") || (operador == "-") || (operador == "*") || (operador == "/") || (operador == "=")) {
-                    String registro = " ";
-                    if (t.get_Tipo() == "DOUBLE") {
-                        registro = "ST(O)";
-                    } else {
-                        registro = getRegistroDisponible();
+            if (seguir) {
+                Terceto t = i.getValue();
+                String instruccion = devolverOperacion(t);
+                String operador = t.get_Operador();
+                if (instruccion != "ERROR") {
+                    if ((operador == "+") || (operador == "-") || (operador == "*") || (operador == "/")
+                            || (operador == "=")) {
+                        String registro = " ";
+                        if (t.get_Tipo() == "DOUBLE") {
+                            registro = "ST(O)";
+                        } else {
+                            registro = getRegistroDisponible();
+                        }
+                        String op1 = t.get_Op1();
+                        String op2 = t.get_Op2();
+                        if (op1.startsWith("[")) {
+                            op1 = CodIntermedio.get(Integer.parseInt(borrarCorchetes(op1))).get_VA();
+                        } else {
+                            op1 = "_" + op1;
+                        }
+                        if (op2.startsWith("[")) {
+                            op1 = CodIntermedio.get(Integer.parseInt(borrarCorchetes(op2))).get_VA();
+                        } else {
+                            op2 = "_" + op2;
+                        }
+                        codigo.append("MOV " + registro + ", " + op1);
+                        if (operador != "=")
+                            codigo.append(instruccion + " " + registro + ", " + op2);
+                        String vAux = t.set_VA();
+                        codigo.append("MOV " + vAux + ", " + registro);
                     }
-                    String op1 = t.get_Op1();
-                    String op2 = t.get_Op2();
-                    if (op1.startsWith("[")) {
-                        op1 = CodIntermedio.get(Integer.parseInt(borrarCorchetes(op1))).get_VA();
-                    } else {
-                        op1 = "_" + op1;
-                    }
-                    if (op2.startsWith("[")) {
-                        op1 = CodIntermedio.get(Integer.parseInt(borrarCorchetes(op2))).get_VA();
-                    } else {
-                        op2 = "_" + op2;
-                    }
-                    codigo.append("MOV " + registro + ", " + op1);
-                    if (operador != "=") 
-                        codigo.append(instruccion + " " + registro + ", " + op2);
-                    String vAux = t.set_VA();
-                    codigo.append("MOV " + vAux + ", " + registro);
-                } 
-            }
-            else{
-                System.out.println("La ejecución ha sido interrumpida porque se ha detectado un error");
-                seguir = false;
+                } else {
+                    System.out.println("La ejecución ha sido interrumpida porque se ha detectado un error");
+                    seguir = false;
+                }
             }
         }
     }
@@ -203,8 +204,7 @@ public class Assembler {
                 // completar
                 return " ";
             case "BI":
-                // completar
-                return " ";
+                return "JMP";
             case "BF":
                 // completar
                 return " ";

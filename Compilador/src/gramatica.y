@@ -351,37 +351,47 @@ condicion : '(' expresion comparador expresion ')' {//System.out.println("Se rec
 ;
 
 clausula_seleccion : IF condicion bloque_IF ELSE bloque_ELSE END_IF {int primero = pila.pop();
-                                                                    completarTerceto(primero, puntero_Terceto);}
+                                                                    completarTerceto(primero, puntero_Terceto);
+                                                                    int aux = crear_terceto("Label"+puntero_Terceto, "-","-");}
                    | IF condicion sentencia_IF ELSE bloque_ELSE END_IF {int primero = pila.pop();
-                                                                    completarTerceto(primero, puntero_Terceto);}
+                                                                    completarTerceto(primero, puntero_Terceto);
+                                                                    int aux = crear_terceto("Label"+puntero_Terceto, "-","-");}
                    | IF condicion bloque_IF END_IF {int primero = pila.pop();
-                                                    completarTerceto(primero, puntero_Terceto);}
+                                                    completarTerceto(primero, puntero_Terceto);
+                                                    int aux = crear_terceto("Label"+puntero_Terceto, "-","-");}
                    | IF condicion sentencia_IF END_IF {int primero = pila.pop();
-                                                    completarTerceto(primero, puntero_Terceto);}
+                                                    completarTerceto(primero, puntero_Terceto);
+                                                    int aux = crear_terceto("Label"+puntero_Terceto, "-","-");}
                    | IF condicion bloque_IF error {System.out.println("Falta el END_IF");
                                                     int primero = pila.pop();
-                                                    completarTerceto(primero, puntero_Terceto);}
+                                                    completarTerceto(primero, puntero_Terceto);
+                                                    int aux = crear_terceto("Label"+puntero_Terceto, "-","-");}
                    | IF condicion sentencia_IF error {System.out.println("Falta el END_IF");
                                                     int primero = pila.pop();
-                                                    completarTerceto(primero, puntero_Terceto);}
+                                                    completarTerceto(primero, puntero_Terceto);
+                                                    int aux = crear_terceto("Label"+puntero_Terceto, "-","-");}
                    | IF condicion bloque_IF ELSE bloque_ELSE error {System.out.println("Falta el END_IF");
                                                                     int primero = pila.pop();
-                                                                    completarTerceto(primero, puntero_Terceto);}
+                                                                    completarTerceto(primero, puntero_Terceto);
+                                                                    int aux = crear_terceto("Label"+puntero_Terceto, "-","-");}
                    | IF condicion sentencia_IF ELSE bloque_ELSE error {System.out.println("Falta el END_IF");
                                                                     int primero = pila.pop();
-                                                                    completarTerceto(primero, puntero_Terceto);}
+                                                                    completarTerceto(primero, puntero_Terceto);
+                                                                    int aux = crear_terceto("Label"+puntero_Terceto, "-","-");}
                    | IF bloque_IF error {System.out.println("ERROR: linea " + Linea.getLinea() + " Falto la condicion del IF");}
 ;
 
 bloque_IF: bloque_de_Sentencias {int primero = pila.pop();
                                 int aux = crear_terceto("BI", "-", "-");
                                 completarTerceto(primero, aux+1);
+                                int aux2 = crear_terceto("Label"+Integer.toString(aux+1), "-", "-");
                                 pila.push(aux);}
 ;
 
 sentencia_IF : sentencia {      int primero = pila.pop();
                                 int aux = crear_terceto("BI", "-", "-");
                                 completarTerceto(primero, aux+1);
+                                int aux2 = crear_terceto("Label"+Integer.toString(aux+1), "-", "-");
                                 pila.push(aux);}
 ;
 
@@ -390,13 +400,14 @@ bloque_ELSE: bloque_de_Sentencias
 ;
 
 sentencia_de_Control : inicio_DO bloque_de_SentenciasEjecutables UNTIL condicion {int primero = pila.pop();
-                                                                completarTerceto(primero, $1.ival);}
+                                                                                completarTerceto(primero, $1.ival);}
                         | inicio_DO sentenciaEjecutable fin_sentencia UNTIL condicion {int primero = pila.pop();
                                                                 completarTerceto(primero, $1.ival);}
                      | inicio_DO bloque_de_SentenciasEjecutables UNTIL error {System.out.println("ERROR: linea " + Linea.getLinea() + " Falta la condicion de la sentencia de control");}
 ;
 
-inicio_DO: DO {$$.ival = puntero_Terceto;}
+inicio_DO: DO {$$.ival = puntero_Terceto;
+                crear_terceto("Label"+puntero_Terceto, "-","-");}
 ;
 
 declaracion: tipo lista_Variables {setear_Tipo();}
@@ -581,12 +592,14 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
     public int obtenerClase(String id) {
         //Dado el ID de un objeto, obtenemos la referencia a la TS de la clase a la cual pertenece
         int clave = TS.buscar_por_ambito(id);
-        while (clave == -1) {
+        while (clave == -1 && id.contains(":")) {
             id = id.substring(0, id.lastIndexOf(":"));
             clave = TS.buscar_por_ambito(id);
         }
-        String nombreClase = TS.get_Simbolo(clave).get_Tipo();
-        return TS.buscar_por_ambito(nombreClase);       
+        if (clave != -1) {
+            String nombreClase = TS.get_Simbolo(clave).get_Tipo();
+            return TS.buscar_por_ambito(nombreClase);
+        } else return clave;
     }
 
     private void eliminarElementos() {
@@ -969,7 +982,8 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
             imprimirClases();
             System.out.println(" ");
             imprimirFunciones();
-            transformar();}
+            //transformar();
+            }
         return 0;
     }
 
