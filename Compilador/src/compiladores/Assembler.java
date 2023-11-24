@@ -59,11 +59,11 @@ public class Assembler {
         // codigo.append("includelib \\masm32\\lib\\masm32.lib\n");
         codigo.append("includelib \\masm32\\lib\\user32.lib\n");
         codigo.append(".data\n");
-        codigo.append("MaxNumUSHORT db 255");
-        codigo.append("MinNumLong dd -2147483648");
-        codigo.append("MaxNumLong dd 2147483647");
-        codigo.append("MinNumDouble dq 2.2250738585072014e-308");
-        codigo.append("MaxNumDouble dq 1.7976931348623157e+308");
+        // codigo.append("MaxNumUSHORT db 255");
+        // codigo.append("MinNumLong dd -2147483648");
+        // codigo.append("MaxNumLong dd 2147483647");
+        // codigo.append("MinNumDouble dq 2.2250738585072014e-308");
+        // codigo.append("MaxNumDouble dq 1.7976931348623157e+308");
         codigo.append(datos.getDatosAssembler());
         codigo.append(".code\n");
         // codigo
@@ -139,14 +139,33 @@ public class Assembler {
         String tipo = t.get_Tipo();
         String op1 = t.get_Op1();
         String op2 = t.get_Op2();
+        System.out.println("Op1: " + op1);
+        String uso1, uso2 = "-";
+        if (op1.contains("["))
+            uso1 = "terceto";
+        else if (op1 != "-")
+            uso1 = datos.get_Simbolo(Integer.parseInt(op1)).get_Uso();
+        else
+            uso1 = "-";
+        if (op2.contains("["))
+            uso2 = "terceto";
+        else if (op2 != "-")
+            uso2 = datos.get_Simbolo(Integer.parseInt(op2)).get_Uso();
+        else
+            uso2 = "-";
         switch (operador) {
             case "+":
                 if (tipo == "DOUBLE") {
-                    if ((Integer.parseInt(op1) + Integer.parseInt(op2)) < 2.2250738585072014e-308
-                            || (Integer.parseInt(op1) + Integer.parseInt(op2)) > 1.7976931348623157e+308) {
-                        System.out.println("ERROR: linea " + Linea.getLinea()
-                                + " El resultado de la suma esta fuera del rango permitido");
-                        return "ERROR";
+                    if (uso1 == "Constante" && uso2 == "Constante") {
+                        if ((Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op1)).get_Lex()) + Integer
+                                .parseInt(datos.get_Simbolo(Integer.parseInt(op2)).get_Lex())) < 2.2250738585072014e-308
+                                || (Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op1)).get_Lex())
+                                        + Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op2))
+                                                .get_Lex())) > 1.7976931348623157e+308) {
+                            System.out.println("ERROR: linea " + Linea.getLinea()
+                                    + " El resultado de la suma esta fuera del rango permitido");
+                            return "ERROR";
+                        }
                     }
                     return "fadd";
                 } else
@@ -154,29 +173,39 @@ public class Assembler {
             case "-":
                 if (tipo == "DOUBLE")
                     return "fsub";
-                else if (tipo == "USHORT")
-                    if ((Integer.parseInt(op1) - Integer.parseInt(op2)) < 0) {
-                        System.out.println("ERROR: linea " + Linea.getLinea()
-                                + " El resultado de la resta en enteros sin signos no puede dar un resultado negativo");
-                        return "ERROR";
+                else if (tipo == "USHORT") {
+                    if (uso1 == "Constante" && uso2 == "Constante") {
+                        if ((Integer.parseInt(op1) - Integer.parseInt(op2)) < 0) {
+                            System.out.println("ERROR: linea " + Linea.getLinea()
+                                    + " El resultado de la resta en enteros sin signos no puede dar un resultado negativo");
+                            return "ERROR";
+                        }
                     }
+                }
                 return "sub";
             case "*":
                 if (tipo == "DOUBLE")
                     return "fmul";
                 else if (tipo == "LONG") {
-                    if ((Integer.parseInt(op1) + Integer.parseInt(op2)) < -2147483648
-                            || (Integer.parseInt(op1) + Integer.parseInt(op2)) > 2147483647) {
-                        System.out.println("ERROR: linea " + Linea.getLinea()
-                                + " El resultado del producto esta fuera del rango permitido");
-                        return "ERROR";
+                    if (uso1 == "Constante" && uso2 == "Constante") {
+                        if (((Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op1)).get_Lex())
+                                + Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op2)).get_Lex())) < -2147483648)
+                                || ((Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op1)).get_Lex()) + Integer
+                                        .parseInt(datos.get_Simbolo(Integer.parseInt(op2)).get_Lex())) > 2147483647)) {
+                            System.out.println("ERROR: linea " + Linea.getLinea()
+                                    + " El resultado del producto esta fuera del rango permitido");
+                            return "ERROR";
+                        }
                     }
                     return "imul";
                 } else if (tipo == "USHORT") {
-                    if ((Integer.parseInt(op1) + Integer.parseInt(op2)) > 255) {
-                        System.out.println("ERROR: linea " + Linea.getLinea()
-                                + " El resultado del producto esta fuera del rango permitido");
-                        return "ERROR";
+                    if (uso1 == "Constante" && uso2 == "Constante") {
+                        if ((Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op1)).get_Lex())
+                                + Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op2)).get_Lex())) > 255) {
+                            System.out.println("ERROR: linea " + Linea.getLinea()
+                                    + " El resultado del producto esta fuera del rango permitido");
+                            return "ERROR";
+                        }
                     }
                     return "mul";
                 }
@@ -188,6 +217,7 @@ public class Assembler {
                 else if (tipo == "USHORT")
                     return "div";
             case "=":
+                return " ";
             case "<":
                 return "jg";
             case "<=":
@@ -210,27 +240,28 @@ public class Assembler {
                 return " ";
             case "UStoL":
                 // ocupar los registros y chequear esto
-                codigo.append("MOV BL, _" + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex());
-                codigo.append("MOV BH, 0");
-                codigo.append("MOV BX, _" + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex());
-                codigo.append("MOV ECX, 0");
-                codigo.append("MOV CX, BX");
-                codigo.append("MOV EBX, ECX");
+                codigo.append("MOV BL, _" + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
+                codigo.append("MOV BH, 0" + "\n");
+                codigo.append("MOV BX, _" + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
+                codigo.append("MOV ECX, 0" + "\n");
+                codigo.append("MOV CX, BX" + "\n");
+                codigo.append("MOV EBX, ECX" + "\n");
                 return " ";
             case "UStoD":
                 // ocupar los registros y chequear
-                codigo.append("MOV BL, _" + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex());
-                codigo.append("MOV BH, 0");
-                codigo.append("MOV BX, _" + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex());
-                codigo.append("MOV ECX, 0");
-                codigo.append("MOV CX, BX");
-                codigo.append("MOV EBX, ECX");
-                codigo.append("MOV EAX, _" + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex());
-                codigo.append("MOV EDX, 0");
+                codigo.append("MOV BL, _" + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
+                codigo.append("MOV BH, 0" + "\n");
+                codigo.append("MOV BX, _" + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
+                codigo.append("MOV ECX, 0" + "\n");
+                codigo.append("MOV CX, BX" + "\n");
+                codigo.append("MOV EBX, ECX" + "\n");
+                codigo.append("MOV EAX, _" + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
+                codigo.append("MOV EDX, 0" + "\n");
                 return " ";
             case "LtoD":
                 // ocupar los registros y chequear
-                codigo.append("FILD _" + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex()); // en st(0)
+                // codigo.append("FILD _" + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex());
+                // // en st(0)
                 return " ";
             default:
                 return " ";

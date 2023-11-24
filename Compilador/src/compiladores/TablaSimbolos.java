@@ -111,29 +111,43 @@ public class TablaSimbolos {
 
     public StringBuilder getDatosAssembler() {
         StringBuilder sb = new StringBuilder();
+        int contadorLong = 1;
+        int contadorDouble = 1;
+        int contadorUshort = 1;
+        int funciones = 1;
+        int cadenas = 1;
         for (HashMap.Entry<Integer, Simbolo> entry : TS.entrySet()) {
             Simbolo s = entry.getValue();
             String tipo = s.get_Tipo();
             int token = s.get_Token();
             if (tipo == "LONG")
                 if (token == 257)
-                    sb.append(s.get_Lex() + " dd " + " ?\n");
-                else
-                    sb.append("@cteLong" + " dd " + s.get_Ambito() + " \n");
+                    sb.append(s.get_Ambito() + " dd " + " ?\n");
+                else {
+                    sb.append("@cteLong" + contadorLong + " dd " + s.get_Lex() + " \n");
+                    contadorLong += 1;
+                }
             else if (tipo == "USHORT")
                 if (token == 257)
-                    sb.append(s.get_Lex() + " db " + " ?\n");
-                else
-                    sb.append("@cteUS" + " db " + s.get_Ambito() + " \n");
+                    sb.append(s.get_Ambito() + " db " + " ?\n");
+                else {
+                    sb.append("@cteUS" + contadorUshort + " db " + s.get_Lex() + " \n");
+                    contadorUshort += 1;
+                }
             else if (tipo == "DOUBLE")
                 if (token == 257)
-                    sb.append(s.get_Lex() + " dq " + " ?\n");
-                else
-                    sb.append("@cteDouble" + " dq " + s.get_Ambito() + " \n");
-            else if (tipo == "VOID")
-                sb.append("@funcion" + " db " + s.get_Ambito() + " \n");
-            else if (token == 273)
-                sb.append("@cadena" + " db " + s.get_Ambito() + " \n");
+                    sb.append(s.get_Ambito() + " dq " + " ?\n");
+                else {
+                    sb.append("@cteDouble" + contadorDouble + " dq " + s.get_Lex() + " \n");
+                    contadorDouble += 1;
+                }
+            else if (tipo == "VOID") {
+                sb.append("@funcion" + funciones + " db " + s.get_Ambito() + " \n");
+                funciones += 1;
+            } else if (token == 273) {
+                sb.append("@cadena" + cadenas + " db " + s.get_Lex() + " \n");
+                cadenas += 1;
+            }
         }
         return sb;
     }
