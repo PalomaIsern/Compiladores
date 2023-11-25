@@ -13,6 +13,7 @@ public class Assembler {
     private HashMap<String, Boolean> registros = new HashMap<String, Boolean>();
     private HashMap<String, Boolean> registrosPtoFlot = new HashMap<String, Boolean>();
     private boolean seguir = true;
+    private static String ultimoComparador;
 
     public Assembler(HashMap<Integer, Terceto> ci, TablaSimbolos d) {
         CodIntermedio = new HashMap<Integer, Terceto>(ci);
@@ -86,31 +87,37 @@ public class Assembler {
                 String instruccion = devolverOperacion(t);
                 String operador = t.get_Operador();
                 if (instruccion != "ERROR") {
+                    String registro = " ";
+                    if (t.get_Tipo() == "DOUBLE") {
+                        registro = "ST(O)";
+                    } else {
+                        registro = getRegistroDisponible();
+                    }
+                    String op1 = t.get_Op1();
+                    String op2 = t.get_Op2();
+                    if (op1.startsWith("[")) {
+                        op1 = CodIntermedio.get(Integer.parseInt(borrarCorchetes(op1))).get_VA();
+                    } else {
+                        op1 = "_" + op1;
+                    }
+                    if (op2.startsWith("[")) {
+                        op1 = CodIntermedio.get(Integer.parseInt(borrarCorchetes(op2))).get_VA();
+                    } else {
+                        op2 = "_" + op2;
+                    }
                     if ((operador == "+") || (operador == "-") || (operador == "*") || (operador == "/")
                             || (operador == "=")) {
-                        String registro = " ";
-                        if (t.get_Tipo() == "DOUBLE") {
-                            registro = "ST(O)";
-                        } else {
-                            registro = getRegistroDisponible();
-                        }
-                        String op1 = t.get_Op1();
-                        String op2 = t.get_Op2();
-                        if (op1.startsWith("[")) {
-                            op1 = CodIntermedio.get(Integer.parseInt(borrarCorchetes(op1))).get_VA();
-                        } else {
-                            op1 = "_" + op1;
-                        }
-                        if (op2.startsWith("[")) {
-                            op1 = CodIntermedio.get(Integer.parseInt(borrarCorchetes(op2))).get_VA();
-                        } else {
-                            op2 = "_" + op2;
-                        }
                         codigo.append("MOV " + registro + ", " + op1);
-                        if (operador != "=")
+                        if (operador != "=") {
                             codigo.append(instruccion + " " + registro + ", " + op2);
-                        String vAux = t.set_VA();
-                        codigo.append("MOV " + vAux + ", " + registro);
+                            String vAux = t.set_VA();
+                            codigo.append("MOV " + vAux + ", " + registro);
+                        } else {
+                            codigo.append("MOV" + op1 + ", " + registro); // chequear si tamb es asi para double
+                        }
+                    } else if (operador == ">" || operador == ">=" || operador == "<" || operador == "<=") {
+                        codigo.append("MOV " + registro + ", " + op1);
+                        codigo.append("CMP" + registro + ", " + op2);
                     }
                 } else {
                     System.out.println("La ejecución ha sido interrumpida porque se ha detectado un error");
@@ -118,6 +125,18 @@ public class Assembler {
                 }
             }
         }
+    }
+
+    public void generarSaltoCondicional(Terceto t) {
+        String nro = borrarCorchetes(t.get_Op2());
+        if (ultimoComparador == ">")
+            codigo.append("JLE Label" + nro);
+        else if (ultimoComparador == ">=")
+            codigo.append("JL Label" + nro);
+        else if (ultimoComparador == "<")
+            codigo.append("JGE Label" + nro);
+        else if (ultimoComparador == "<=")
+            codigo.append("JG Label" + nro);
     }
 
     public String getRegistroDisponible() {
@@ -217,15 +236,19 @@ public class Assembler {
                 else if (tipo == "USHORT")
                     return "div";
             case "=":
-                return " ";
+                return "=";
             case "<":
-                return "jg";
-            case "<=":
+                ultimoComparador = "<";
                 return "jge";
+            case "<=":
+                ultimoComparador = "<=";
+                return "jg";
             case ">":
-                return "jl";
-            case ">=":
+                ultimoComparador = ">";
                 return "jle";
+            case ">=":
+                ultimoComparador = ">=";
+                return "jl";
             case "==":
                 return "jne";
             case "!!":
@@ -234,10 +257,12 @@ public class Assembler {
                 // completar
                 return " ";
             case "BI":
+                String destino = borrarCorchetes(op2);
+                codigo.append("JMP" + "Label" + destino);
                 return "JMP";
             case "BF":
-                // completar
-                return " ";
+                generarSaltoCondicional(t);
+                return "BF";
             case "UStoL":
                 // ocupar los registros y chequear esto
                 codigo.append("MOV BL, _" + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
