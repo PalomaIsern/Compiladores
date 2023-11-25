@@ -958,7 +958,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
                     int l = Integer.parseInt(j);
                     j = TS.get_Simbolo(l).get_Lex();
                 }
-                System.out.println("Referencia: " + i.getKey() + ", Terceto: (" + i.getValue().get_Operador() + " , " + j + " , "+ s +")" + " Tipo: " + i.getValue().get_Tipo());         
+                System.out.println("Referencia: " + i.getKey() + ", Terceto: (" + i.getValue().get_Operador() + " , " + j + " , "+ s +")" + " Tipo: " + i.getValue().get_Tipo() + " VA: " + i.getValue().get_VA());         
         }
     }
 
@@ -982,7 +982,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
             imprimirClases();
             System.out.println(" ");
             imprimirFunciones();
-            //transformar();
+            transformar();
             }
         return 0;
     }
