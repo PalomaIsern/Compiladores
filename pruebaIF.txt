@@ -86,6 +86,7 @@ obj4.s = 5_us,
 
 objeto1.s = obj4.s,
 
+objeto1.funcionclase(),
 CLASS clase2 {
     DOUBLE atributo,
     VOID funcionclase(LONG w) {

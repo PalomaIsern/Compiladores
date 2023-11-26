@@ -159,7 +159,7 @@ public class TablaSimbolos {
             String uso = s.get_Uso();
             if (uso == "Metodo") {
                 sb.append(s.get_Ambito() + ":" + "\n");
-                sb.append("ret");
+                sb.append("ret" + "\n");
             }
         }
         return sb;

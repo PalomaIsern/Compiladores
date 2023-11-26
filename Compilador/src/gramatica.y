@@ -252,7 +252,9 @@ atributo_objeto : ID '.' ID {   int clase = obtenerClase($1.sval+ambito);
                                                 $$.sval = null;}
                                         } else
                                                 System.out.println("ERROR: linea "+ Linea.getLinea()+ " - No se puede acceder al atributo \""+$3.sval+ "\"  porque la clase \""+TS.get_Simbolo(clase).get_Ambito()+"\" no se encuentra implementada");
-                                    }
+                                } else {System.out.println("ERROR: linea "+ Linea.getLinea()+ " - El objeto \""+$1.sval+ "\" no se encuentra declarado");
+                                        $$.sval = null;}
+
                             }
 ;
 
@@ -295,10 +297,12 @@ clausula_IMPL : IMPL FOR ID ':' '{' funcion_VOID fin_sentencia '}'  {   int idCl
                                                                         if (verificarExistencia(idClase, $6.sval, "metodoNoImpl") != -1) 
                                                                             agregarMetodoImplementado($3.sval+ambito, $6.sval+ambito+":"+$3.sval);
                                                                         int clave = TS.buscar_por_ambito($6.sval+ambito);
-                                                                        metodosClases.get(idClase).remove(Integer.valueOf(clave));
-                                                                        funciones.remove(clave);            
-                                                                        TS.remove_Simbolo(clave);
-                                                                        
+                                                                        if (clave != -1) { 
+                                                                            if (metodosClases.get(idClase)!=null) 
+                                                                                metodosClases.get(idClase).remove(Integer.valueOf(clave));
+                                                                            funciones.remove(clave);            
+                                                                            TS.remove_Simbolo(clave);
+                                                                        }
                                                                     }
 ;
 
@@ -982,6 +986,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
             imprimirClases();
             System.out.println(" ");
             imprimirFunciones();
+            System.out.println(" ");
             transformar();
             }
         return 0;

@@ -104,6 +104,9 @@ public class Assembler {
                 Terceto t = i.getValue();
                 String instruccion = devolverOperacion(t);
                 String operador = t.get_Operador();
+                if (operador.startsWith("Label")) {
+                    codigo.append(operador + ":" + "\n");
+                }
                 System.out.println("Vuelta");
                 if (instruccion != "ERROR") {
                     String registro = " ";
@@ -114,19 +117,30 @@ public class Assembler {
                     }
                     String op1 = t.get_Op1();
                     String op2 = t.get_Op2();
+
                     if (op1.startsWith("[")) {
-                        op1 = CodIntermedio.get(Integer.parseInt(borrarCorchetes(op1))).get_VA();
-                    } else if (op1 != "-" && datos.get_Simbolo(Integer.parseInt(t.get_Op1())).get_Uso() != "Constante")
-                        op1 = "_" + datos.get_Simbolo(Integer.parseInt(t.get_Op1())).get_Ambito();
-                    else if (op1 != "-" && datos.get_Simbolo(Integer.parseInt(t.get_Op1())).get_Uso() == "Constante")
-                        op1 = datos.get_Simbolo(Integer.parseInt(t.get_Op1())).get_Lex();
+                        if (instruccion != "JMP")
+                            op1 = CodIntermedio.get(Integer.parseInt(borrarCorchetes(op1))).get_VA();
+                    } else if (op1 != "-") {
+                        Simbolo s1 = datos.get_Simbolo(Integer.parseInt(t.get_Op1()));
+                        if (op1 != "-" && s1.get_Uso() != "Constante" && s1.get_Uso() != "ConstantePositiva")
+                            op1 = "_" + s1.get_Ambito();
+                        else if (op1 != "-" && s1.get_Uso() == "Constante"
+                                || op1 != "-" && s1.get_Uso() == "ConstantePositiva")
+                            op1 = s1.get_Lex();
+                    }
+
                     if (op2.startsWith("[")) {
-                        op2 = CodIntermedio.get(Integer.parseInt(borrarCorchetes(op2))).get_VA();
-                    } else if (op2 != "-" && datos.get_Simbolo(Integer.parseInt(t.get_Op2())).get_Uso() != "Constante")
-                        op2 = "_" + datos.get_Simbolo(Integer.parseInt(t.get_Op2())).get_Ambito();
-                    else if (op2 != "-"
-                            && datos.get_Simbolo(Integer.parseInt(t.get_Op2())).get_Uso().equals("Constante"))
-                        op2 = datos.get_Simbolo(Integer.parseInt(t.get_Op2())).get_Lex();
+                        if (instruccion != "JMP")
+                            op2 = CodIntermedio.get(Integer.parseInt(borrarCorchetes(op2))).get_VA();
+                    } else if (op2 != "-") {
+                        Simbolo s2 = datos.get_Simbolo(Integer.parseInt(t.get_Op2()));
+                        if (op2 != "-" && s2.get_Uso() != "Constante" && s2.get_Uso() != "ConstantePositiva")
+                            op2 = "_" + s2.get_Ambito();
+                        else if (op2 != "-" && s2.get_Uso() == "Constante"
+                                || op2 != "-" && s2.get_Uso() == "ConstantePositiva")
+                            op2 = s2.get_Lex();
+                    }
                     if ((operador == "+") || (operador == "-") || (operador == "*") || (operador == "/")
                             || (operador == "=")) {
                         codigo.append("MOV " + registro + ", " + op1 + "\n");
@@ -140,13 +154,16 @@ public class Assembler {
                     } else if (operador == ">" || operador == ">=" || operador == "<" || operador == "<=") {
                         codigo.append("MOV " + registro + ", " + op1 + "\n");
                         codigo.append("CMP " + registro + ", " + op2 + "\n");
-                    } else if (instruccion == "BI") {
+                    } else if (instruccion == "JMP") {
                         String destino = borrarCorchetes(op2);
-                        codigo.append("JMP" + "Label" + destino + "\n");
+                        codigo.append("JMP " + "Label" + destino + "\n");
                     } else if (instruccion == "BF") {
                         generarSaltoCondicional(t);
                     } else if (instruccion == "CALL") {
-                        codigo.append("CALL " + "\n");
+                        codigo.append("CALL " + op1.substring(1) + "\n");
+                    } else if (instruccion == "CALLMetodoClase") {
+                        String metodo = datos.get_Simbolo(Integer.parseInt(t.get_Op1())).get_Ambito();
+                        codigo.append("CALL " + metodo + "\n");
                     }
                 } else {
                     System.out.println("La ejecución ha sido interrumpida porque se ha detectado un error");
@@ -159,13 +176,13 @@ public class Assembler {
     public void generarSaltoCondicional(Terceto t) {
         String nro = borrarCorchetes(t.get_Op2());
         if (ultimoComparador == ">")
-            codigo.append("JLE Label " + nro + "\n");
+            codigo.append("JLE Label" + nro + "\n");
         else if (ultimoComparador == ">=")
-            codigo.append("JL Label " + nro + "\n");
+            codigo.append("JL Label" + nro + "\n");
         else if (ultimoComparador == "<")
-            codigo.append("JGE Label " + nro + "\n");
+            codigo.append("JGE Label" + nro + "\n");
         else if (ultimoComparador == "<=")
-            codigo.append("JG Label " + nro + "\n");
+            codigo.append("JG Label" + nro + "\n");
     }
 
     public String getRegistroDisponible() {
@@ -300,6 +317,8 @@ public class Assembler {
                 return "je";
             case "CALL":
                 return "CALL";
+            case "CALLMetodoClase":
+                return "CALLMetodoClase";
             case "BI":
                 return "JMP";
             case "BF":
