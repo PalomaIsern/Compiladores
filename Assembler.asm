@@ -54,6 +54,13 @@ w:main:clase2:funcionclase dd  ?
 entero_largo:main:clase2:funcionclase dd  ?
 @funcion7 db metodo_dos:main:clase2 
 .code
+funcion1:main:
+funcionclase:main:clase1:
+funcion_uno:main:clase1:
+func_uno:main:
+funcion_uno:main:func_uno:
+funcion_dos:main:func_uno:funcion_uno:
+metodo_dos:main:clase2:
 START:
 MOV BL, _m
 MOV BH, 0
@@ -61,7 +68,7 @@ MOV BX, _m
 MOV ECX, 0
 MOV CX, BX
 MOV EBX, ECX
-MOV EDX, @auximul EDX, [0]MOV @aux2, EDXMOV ST(O), @auxfadd ST(O), [2]MOV @aux3, ST(O)MOV ST(O), @aux3MOV @aux4, ST(O)MOV ST(O), _6fsub ST(O), _7MOV @aux5, ST(O)MOV ST(O), _8fadd ST(O), _9MOV @aux6, ST(O)MOV ST(O), _10fmul ST(O), _11MOV @aux7, ST(O)MOV ST(O), @aux7MOV @aux8, ST(O)MOV ST(O), _5fadd ST(O), _12MOV @aux9, ST(O)MOV ST(O), @aux9MOV @aux10, ST(O)MOV ST(O), _7fsub ST(O), _8MOV @aux11, ST(O)MOV ST(O), @aux11MOV @aux12, ST(O)MOV ST(O), _6fmul ST(O), _13MOV @aux13, ST(O)MOV ST(O), @aux13MOV @aux14, ST(O)MOV ST(O), _0MOV @aux15, ST(O)MOV BL, _10
+MOV EBX, @auximul EBX, [0]MOV @aux2, EBXMOV ST(O), @auxfadd ST(O), [2]MOV @aux3, ST(O)MOV ST(O), @aux3MOV@aux3, ST(O)MOV ST(O), _6fsub ST(O), _7MOV @aux4, ST(O)MOV ST(O), _8fadd ST(O), _9MOV @aux5, ST(O)MOV ST(O), @aux5CMPST(O), [6]JLE Label14MOV ST(O), _10fmul ST(O), _11MOV @aux6, ST(O)MOV ST(O), @aux6MOV@aux6, ST(O)MOV ST(O), _5fadd ST(O), _12MOV @aux7, ST(O)MOV ST(O), @aux7MOV@aux7, ST(O)MOV ST(O), _7fsub ST(O), _8MOV @aux8, ST(O)MOV ST(O), @aux8MOV@aux8, ST(O)MOV ST(O), _6fmul ST(O), _13MOV @aux9, ST(O)MOV ST(O), @aux9MOV@aux9, ST(O)MOV ST(O), _0MOV_0, ST(O)MOV BL, _10
 MOV BH, 0
 MOV BX, _10
 MOV ECX, 0
@@ -69,4 +76,4 @@ MOV CX, BX
 MOV EBX, ECX
 MOV EAX, _10
 MOV EDX, 0
-MOV ST(O), _0MOV @aux16, ST(O)MOV EBX, _17MOV @aux17, EBXMOV ST(O), _21MOV @aux18, ST(O)MOV ECX, _24MOV @aux19, ECXEND START
+MOV ST(O), @auxCMPST(O), [22]JLE Label18MOV ST(O), _0MOV_0, ST(O)MOV  , _17MOV_17,  CALL MOV ST(O), _21MOV_21, ST(O)CALL MOV  , _24MOV_24,  CALL END START

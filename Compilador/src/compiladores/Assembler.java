@@ -67,6 +67,7 @@ public class Assembler {
         // codigo.append("MaxNumDouble dq 1.7976931348623157e+308");
         codigo.append(datos.getDatosAssembler());
         codigo.append(".code\n");
+        codigo.append(datos.getFuncionesAssembler());
         // codigo
         codigo.append("START:\n");
         generarInstrucciones();
@@ -118,6 +119,13 @@ public class Assembler {
                     } else if (operador == ">" || operador == ">=" || operador == "<" || operador == "<=") {
                         codigo.append("MOV " + registro + ", " + op1);
                         codigo.append("CMP" + registro + ", " + op2);
+                    } else if (instruccion == "BI") {
+                        String destino = borrarCorchetes(op2);
+                        codigo.append("JMP" + "Label" + destino);
+                    } else if (instruccion == "BF") {
+                        generarSaltoCondicional(t);
+                    } else if (instruccion == "CALL") {
+                        codigo.append("CALL ");
                     }
                 } else {
                     System.out.println("La ejecución ha sido interrumpida porque se ha detectado un error");
@@ -158,7 +166,6 @@ public class Assembler {
         String tipo = t.get_Tipo();
         String op1 = t.get_Op1();
         String op2 = t.get_Op2();
-        System.out.println("Op1: " + op1);
         String uso1, uso2 = "-";
         if (op1.contains("["))
             uso1 = "terceto";
@@ -254,14 +261,10 @@ public class Assembler {
             case "!!":
                 return "je";
             case "CALL":
-                // completar
-                return " ";
+                return "CALL";
             case "BI":
-                String destino = borrarCorchetes(op2);
-                codigo.append("JMP" + "Label" + destino);
                 return "JMP";
             case "BF":
-                generarSaltoCondicional(t);
                 return "BF";
             case "UStoL":
                 // ocupar los registros y chequear esto

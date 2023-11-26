@@ -152,6 +152,19 @@ public class TablaSimbolos {
         return sb;
     }
 
+    public StringBuilder getFuncionesAssembler() {
+        StringBuilder sb = new StringBuilder();
+        for (HashMap.Entry<Integer, Simbolo> entry : TS.entrySet()) {
+            Simbolo s = get_Simbolo(entry.getKey());
+            String uso = s.get_Uso();
+            if (uso == "Metodo") {
+                sb.append(s.get_Ambito() + ":" + "\n");
+                sb.append("ret");
+            }
+        }
+        return sb;
+    }
+
     public void imprimirContenido() {
         System.out.println("   TABLA DE SIMBOLOS\n");
         for (HashMap.Entry<Integer, Simbolo> i : TS.entrySet()) {

@@ -982,7 +982,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
             imprimirClases();
             System.out.println(" ");
             imprimirFunciones();
-            //transformar();
+            transformar();
             }
         return 0;
     }
