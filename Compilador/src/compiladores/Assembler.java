@@ -9,6 +9,7 @@ public class Assembler {
 
     private HashMap<Integer, Terceto> CodIntermedio;
     private static StringBuilder codigo = new StringBuilder();
+    private static StringBuilder instrucciones = new StringBuilder();
     private TablaSimbolos datos;
     private HashMap<String, Boolean> registros = new HashMap<String, Boolean>();
     private HashMap<String, Boolean> registrosPtoFlot = new HashMap<String, Boolean>();
@@ -31,23 +32,6 @@ public class Assembler {
         registrosPtoFlot.put("ST(6)", false);
         registrosPtoFlot.put("ST(7)", false);
     }
-
-    /*
-     * public String get_RegistroEnteros() {
-     * if (registros.get("EAX"))
-     * return "EAX";
-     * else if (registros.get("EBX"))
-     * return "EBX";
-     * else if (registros.get("ECX"))
-     * return "ECX";
-     * else if (registros.get("EDX"))
-     * return "EDX";
-     * else {
-     * System.out.println("Los registros de enteros están ocupados");
-     * return "-";
-     * }
-     * }
-     */
 
     public static void generarArchivo() {
         try {
@@ -77,17 +61,20 @@ public class Assembler {
         // codigo.append("includelib \\masm32\\lib\\masm32.lib\n");
         codigo.append("includelib \\masm32\\lib\\user32.lib\n");
         codigo.append(".data\n");
-        codigo.append("MaxNumUSHORT db 255");
-        codigo.append("MinNumLong dd -2147483648");
-        codigo.append("MaxNumLong dd 2147483647");
-        codigo.append("MinNumDouble dq 2.2250738585072014e-308");
-        codigo.append("MaxNumDouble dq 1.7976931348623157e+308");
+        codigo.append("MaxNumUSHORT db 255\n");
+        codigo.append("MinNumLong dd -2147483648\n");
+        codigo.append("MaxNumLong dd 2147483647\n");
+        codigo.append("MinNumDouble dq 2.2250738585072014e-308\n");
+        codigo.append("MaxNumDouble dq 1.7976931348623157e+308\n");
+
+        generarInstrucciones();
+
         codigo.append(datos.getDatosAssembler());
         codigo.append(".code\n");
         codigo.append(datos.getFuncionesAssembler());
         // codigo
         codigo.append("START:\n");
-        generarInstrucciones();
+        codigo.append(instrucciones);
         codigo.append("END START");
         generarArchivo();
     }
@@ -105,13 +92,12 @@ public class Assembler {
                 String instruccion = devolverOperacion(t);
                 String operador = t.get_Operador();
                 if (operador.startsWith("Label")) {
-                    codigo.append(operador + ":" + "\n");
+                    instrucciones.append(operador + ":" + "\n");
                 }
-                System.out.println("Vuelta");
                 if (instruccion != "ERROR") {
                     String registro = " ";
                     if (t.get_Tipo() == "DOUBLE") {
-                        registro = "ST(O)";
+                        registro = "ST(0)";
                     } else {
                         registro = getRegistroDisponible();
                     }
@@ -124,7 +110,7 @@ public class Assembler {
                     } else if (op1 != "-") {
                         Simbolo s1 = datos.get_Simbolo(Integer.parseInt(t.get_Op1()));
                         if (op1 != "-" && s1.get_Uso() != "Constante" && s1.get_Uso() != "ConstantePositiva")
-                            op1 = "_" + s1.get_Ambito();
+                            op1 = "_" + datos.reemplazarPuntos(s1.get_Ambito());
                         else if (op1 != "-" && s1.get_Uso() == "Constante"
                                 || op1 != "-" && s1.get_Uso() == "ConstantePositiva")
                             op1 = s1.get_Lex();
@@ -136,34 +122,38 @@ public class Assembler {
                     } else if (op2 != "-") {
                         Simbolo s2 = datos.get_Simbolo(Integer.parseInt(t.get_Op2()));
                         if (op2 != "-" && s2.get_Uso() != "Constante" && s2.get_Uso() != "ConstantePositiva")
-                            op2 = "_" + s2.get_Ambito();
+                            op2 = "_" + datos.reemplazarPuntos(s2.get_Ambito());
                         else if (op2 != "-" && s2.get_Uso() == "Constante"
                                 || op2 != "-" && s2.get_Uso() == "ConstantePositiva")
                             op2 = s2.get_Lex();
                     }
                     if ((operador == "+") || (operador == "-") || (operador == "*") || (operador == "/")
                             || (operador == "=")) {
-                        codigo.append("MOV " + registro + ", " + op1 + "\n");
+                        instrucciones.append("MOV " + registro + ", " + op1 + "\n");
                         if (operador != "=") {
-                            codigo.append(instruccion + " " + registro + ", " + op2 + "\n");
+                            instrucciones.append(instruccion + " " + registro + ", " + op2 + "\n");
                             String vAux = t.set_VA();
-                            codigo.append("MOV " + vAux + ", " + registro + "\n");
+                            Simbolo sim = new Simbolo(280, vAux);
+                            TablaSimbolos.agregar_sin_chequear(sim);
+                            instrucciones.append("MOV " + vAux + ", " + registro + "\n");
                         } else {
-                            codigo.append("MOV " + op1 + ", " + registro + "\n"); // chequear si tamb es asi para double
+                            instrucciones.append("MOV " + op1 + ", " + registro + "\n"); // chequear si tamb es asi para
+                                                                                         // double
                         }
                     } else if (operador == ">" || operador == ">=" || operador == "<" || operador == "<=") {
-                        codigo.append("MOV " + registro + ", " + op1 + "\n");
-                        codigo.append("CMP " + registro + ", " + op2 + "\n");
+                        instrucciones.append("MOV " + registro + ", " + op1 + "\n");
+                        instrucciones.append("CMP " + registro + ", " + op2 + "\n");
                     } else if (instruccion == "JMP") {
                         String destino = borrarCorchetes(op2);
-                        codigo.append("JMP " + "Label" + destino + "\n");
+                        instrucciones.append("JMP " + "Label" + destino + "\n");
                     } else if (instruccion == "BF") {
                         generarSaltoCondicional(t);
                     } else if (instruccion == "CALL") {
-                        codigo.append("CALL " + op1.substring(1) + "\n");
+                        instrucciones.append("CALL " + op1.substring(1) + "\n");
                     } else if (instruccion == "CALLMetodoClase") {
-                        String metodo = datos.get_Simbolo(Integer.parseInt(t.get_Op1())).get_Ambito();
-                        codigo.append("CALL " + metodo + "\n");
+                        String metodo = datos
+                                .reemplazarPuntos(datos.get_Simbolo(Integer.parseInt(t.get_Op1())).get_Ambito());
+                        instrucciones.append("CALL " + metodo + "\n");
                     }
                 } else {
                     System.out.println("La ejecución ha sido interrumpida porque se ha detectado un error");
@@ -176,13 +166,13 @@ public class Assembler {
     public void generarSaltoCondicional(Terceto t) {
         String nro = borrarCorchetes(t.get_Op2());
         if (ultimoComparador == ">")
-            codigo.append("JLE Label" + nro + "\n");
+            instrucciones.append("JLE Label" + nro + "\n");
         else if (ultimoComparador == ">=")
-            codigo.append("JL Label" + nro + "\n");
+            instrucciones.append("JL Label" + nro + "\n");
         else if (ultimoComparador == "<")
-            codigo.append("JGE Label" + nro + "\n");
+            instrucciones.append("JGE Label" + nro + "\n");
         else if (ultimoComparador == "<=")
-            codigo.append("JG Label" + nro + "\n");
+            instrucciones.append("JG Label" + nro + "\n");
     }
 
     public String getRegistroDisponible() {
@@ -235,12 +225,12 @@ public class Assembler {
                      * }
                      * }
                      */
-                    return "fadd";
+                    return "FADD";
                 } else
-                    return "add";
+                    return "ADD";
             case "-":
                 if (tipo == "DOUBLE")
-                    return "fsub";
+                    return "FSUB";
                 else if (tipo == "USHORT") {
                     /*
                      * if (uso1 == "Constante" && uso2 == "Constante") {
@@ -254,10 +244,10 @@ public class Assembler {
                      * }
                      */
                 }
-                return "sub";
+                return "SUB";
             case "*":
                 if (tipo == "DOUBLE")
-                    return "fmul";
+                    return "FMUL";
                 else if (tipo == "LONG") {
                     /*
                      * if (uso1 == "Constante" && uso2 == "Constante") {
@@ -274,7 +264,7 @@ public class Assembler {
                      * }
                      * }
                      */
-                    return "imul";
+                    return "IMUL";
                 } else if (tipo == "USHORT") {
 
                     /*
@@ -288,33 +278,33 @@ public class Assembler {
                      * }
                      * }
                      */
-                    return "mul";
+                    return "MUL";
                 }
             case "/":
                 if (tipo == "DOUBLE")
-                    return "fdiv";
+                    return "FDIV";
                 else if (tipo == "LONG")
-                    return "idiv";
+                    return "IDIV";
                 else if (tipo == "USHORT")
-                    return "div";
+                    return "DIV";
             case "=":
                 return "=";
             case "<":
                 ultimoComparador = "<";
-                return "jge";
+                return "JGE";
             case "<=":
                 ultimoComparador = "<=";
-                return "jg";
+                return "JG";
             case ">":
                 ultimoComparador = ">";
-                return "jle";
+                return "JLE";
             case ">=":
                 ultimoComparador = ">=";
-                return "jl";
+                return "JL";
             case "==":
-                return "jne";
+                return "JNE";
             case "!!":
-                return "je";
+                return "JE";
             case "CALL":
                 return "CALL";
             case "CALLMetodoClase":
@@ -325,23 +315,23 @@ public class Assembler {
                 return "BF";
             case "UStoL":
                 // ocupar los registros y chequear esto
-                codigo.append("MOV BL, _" + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
-                codigo.append("MOV BH, 0" + "\n");
-                codigo.append("MOV BX, _" + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
-                codigo.append("MOV ECX, 0" + "\n");
-                codigo.append("MOV CX, BX" + "\n");
-                codigo.append("MOV EBX, ECX" + "\n");
+                instrucciones.append("MOV BL, _" + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
+                instrucciones.append("MOV BH, 0" + "\n");
+                instrucciones.append("MOV BX, _" + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
+                instrucciones.append("MOV ECX, 0" + "\n");
+                instrucciones.append("MOV CX, BX" + "\n");
+                instrucciones.append("MOV EBX, ECX" + "\n");
                 return " ";
             case "UStoD":
                 // ocupar los registros y chequear
-                codigo.append("MOV BL, _" + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
-                codigo.append("MOV BH, 0" + "\n");
-                codigo.append("MOV BX, _" + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
-                codigo.append("MOV ECX, 0" + "\n");
-                codigo.append("MOV CX, BX" + "\n");
-                codigo.append("MOV EBX, ECX" + "\n");
-                codigo.append("MOV EAX, _" + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
-                codigo.append("MOV EDX, 0" + "\n");
+                instrucciones.append("MOV BL, _" + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
+                instrucciones.append("MOV BH, 0" + "\n");
+                instrucciones.append("MOV BX, _" + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
+                instrucciones.append("MOV ECX, 0" + "\n");
+                instrucciones.append("MOV CX, BX" + "\n");
+                instrucciones.append("MOV EBX, ECX" + "\n");
+                instrucciones.append("MOV EAX, _" + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
+                instrucciones.append("MOV EDX, 0" + "\n");
                 return " ";
             case "LtoD":
                 // ocupar los registros y chequear
