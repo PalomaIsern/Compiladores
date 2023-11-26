@@ -32,6 +32,23 @@ public class Assembler {
         registrosPtoFlot.put("ST(7)", false);
     }
 
+    /*
+     * public String get_RegistroEnteros() {
+     * if (registros.get("EAX"))
+     * return "EAX";
+     * else if (registros.get("EBX"))
+     * return "EBX";
+     * else if (registros.get("ECX"))
+     * return "ECX";
+     * else if (registros.get("EDX"))
+     * return "EDX";
+     * else {
+     * System.out.println("Los registros de enteros están ocupados");
+     * return "-";
+     * }
+     * }
+     */
+
     public static void generarArchivo() {
         try {
             String nombre = "Assembler.asm";
@@ -60,11 +77,11 @@ public class Assembler {
         // codigo.append("includelib \\masm32\\lib\\masm32.lib\n");
         codigo.append("includelib \\masm32\\lib\\user32.lib\n");
         codigo.append(".data\n");
-        // codigo.append("MaxNumUSHORT db 255");
-        // codigo.append("MinNumLong dd -2147483648");
-        // codigo.append("MaxNumLong dd 2147483647");
-        // codigo.append("MinNumDouble dq 2.2250738585072014e-308");
-        // codigo.append("MaxNumDouble dq 1.7976931348623157e+308");
+        codigo.append("MaxNumUSHORT db 255");
+        codigo.append("MinNumLong dd -2147483648");
+        codigo.append("MaxNumLong dd 2147483647");
+        codigo.append("MinNumDouble dq 2.2250738585072014e-308");
+        codigo.append("MaxNumDouble dq 1.7976931348623157e+308");
         codigo.append(datos.getDatosAssembler());
         codigo.append(".code\n");
         codigo.append(datos.getFuncionesAssembler());
@@ -87,6 +104,7 @@ public class Assembler {
                 Terceto t = i.getValue();
                 String instruccion = devolverOperacion(t);
                 String operador = t.get_Operador();
+                System.out.println("Vuelta");
                 if (instruccion != "ERROR") {
                     String registro = " ";
                     if (t.get_Tipo() == "DOUBLE") {
@@ -98,34 +116,37 @@ public class Assembler {
                     String op2 = t.get_Op2();
                     if (op1.startsWith("[")) {
                         op1 = CodIntermedio.get(Integer.parseInt(borrarCorchetes(op1))).get_VA();
-                    } else {
-                        op1 = "_" + op1;
-                    }
+                    } else if (op1 != "-" && datos.get_Simbolo(Integer.parseInt(t.get_Op1())).get_Uso() != "Constante")
+                        op1 = "_" + datos.get_Simbolo(Integer.parseInt(t.get_Op1())).get_Ambito();
+                    else if (op1 != "-" && datos.get_Simbolo(Integer.parseInt(t.get_Op1())).get_Uso() == "Constante")
+                        op1 = datos.get_Simbolo(Integer.parseInt(t.get_Op1())).get_Lex();
                     if (op2.startsWith("[")) {
-                        op1 = CodIntermedio.get(Integer.parseInt(borrarCorchetes(op2))).get_VA();
-                    } else {
-                        op2 = "_" + op2;
-                    }
+                        op2 = CodIntermedio.get(Integer.parseInt(borrarCorchetes(op2))).get_VA();
+                    } else if (op2 != "-" && datos.get_Simbolo(Integer.parseInt(t.get_Op2())).get_Uso() != "Constante")
+                        op2 = "_" + datos.get_Simbolo(Integer.parseInt(t.get_Op2())).get_Ambito();
+                    else if (op2 != "-"
+                            && datos.get_Simbolo(Integer.parseInt(t.get_Op2())).get_Uso().equals("Constante"))
+                        op2 = datos.get_Simbolo(Integer.parseInt(t.get_Op2())).get_Lex();
                     if ((operador == "+") || (operador == "-") || (operador == "*") || (operador == "/")
                             || (operador == "=")) {
-                        codigo.append("MOV " + registro + ", " + op1);
+                        codigo.append("MOV " + registro + ", " + op1 + "\n");
                         if (operador != "=") {
-                            codigo.append(instruccion + " " + registro + ", " + op2);
+                            codigo.append(instruccion + " " + registro + ", " + op2 + "\n");
                             String vAux = t.set_VA();
-                            codigo.append("MOV " + vAux + ", " + registro);
+                            codigo.append("MOV " + vAux + ", " + registro + "\n");
                         } else {
-                            codigo.append("MOV" + op1 + ", " + registro); // chequear si tamb es asi para double
+                            codigo.append("MOV " + op1 + ", " + registro + "\n"); // chequear si tamb es asi para double
                         }
                     } else if (operador == ">" || operador == ">=" || operador == "<" || operador == "<=") {
-                        codigo.append("MOV " + registro + ", " + op1);
-                        codigo.append("CMP" + registro + ", " + op2);
+                        codigo.append("MOV " + registro + ", " + op1 + "\n");
+                        codigo.append("CMP " + registro + ", " + op2 + "\n");
                     } else if (instruccion == "BI") {
                         String destino = borrarCorchetes(op2);
-                        codigo.append("JMP" + "Label" + destino);
+                        codigo.append("JMP" + "Label" + destino + "\n");
                     } else if (instruccion == "BF") {
                         generarSaltoCondicional(t);
                     } else if (instruccion == "CALL") {
-                        codigo.append("CALL ");
+                        codigo.append("CALL " + "\n");
                     }
                 } else {
                     System.out.println("La ejecución ha sido interrumpida porque se ha detectado un error");
@@ -138,13 +159,13 @@ public class Assembler {
     public void generarSaltoCondicional(Terceto t) {
         String nro = borrarCorchetes(t.get_Op2());
         if (ultimoComparador == ">")
-            codigo.append("JLE Label" + nro);
+            codigo.append("JLE Label " + nro + "\n");
         else if (ultimoComparador == ">=")
-            codigo.append("JL Label" + nro);
+            codigo.append("JL Label " + nro + "\n");
         else if (ultimoComparador == "<")
-            codigo.append("JGE Label" + nro);
+            codigo.append("JGE Label " + nro + "\n");
         else if (ultimoComparador == "<=")
-            codigo.append("JG Label" + nro);
+            codigo.append("JG Label " + nro + "\n");
     }
 
     public String getRegistroDisponible() {
@@ -182,17 +203,21 @@ public class Assembler {
         switch (operador) {
             case "+":
                 if (tipo == "DOUBLE") {
-                    if (uso1 == "Constante" && uso2 == "Constante") {
-                        if ((Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op1)).get_Lex()) + Integer
-                                .parseInt(datos.get_Simbolo(Integer.parseInt(op2)).get_Lex())) < 2.2250738585072014e-308
-                                || (Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op1)).get_Lex())
-                                        + Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op2))
-                                                .get_Lex())) > 1.7976931348623157e+308) {
-                            System.out.println("ERROR: linea " + Linea.getLinea()
-                                    + " El resultado de la suma esta fuera del rango permitido");
-                            return "ERROR";
-                        }
-                    }
+                    /*
+                     * if (uso1 == "Constante" && uso2 == "Constante") {
+                     * if ((Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op1)).get_Lex()) +
+                     * Integer
+                     * .parseInt(datos.get_Simbolo(Integer.parseInt(op2)).get_Lex())) <
+                     * 2.2250738585072014e-308
+                     * || (Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op1)).get_Lex())
+                     * + Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op2))
+                     * .get_Lex())) > 1.7976931348623157e+308) {
+                     * System.out.println("ERROR: linea " + Linea.getLinea()
+                     * + " El resultado de la suma esta fuera del rango permitido");
+                     * return "ERROR";
+                     * }
+                     * }
+                     */
                     return "fadd";
                 } else
                     return "add";
@@ -200,39 +225,52 @@ public class Assembler {
                 if (tipo == "DOUBLE")
                     return "fsub";
                 else if (tipo == "USHORT") {
-                    if (uso1 == "Constante" && uso2 == "Constante") {
-                        if ((Integer.parseInt(op1) - Integer.parseInt(op2)) < 0) {
-                            System.out.println("ERROR: linea " + Linea.getLinea()
-                                    + " El resultado de la resta en enteros sin signos no puede dar un resultado negativo");
-                            return "ERROR";
-                        }
-                    }
+                    /*
+                     * if (uso1 == "Constante" && uso2 == "Constante") {
+                     * if ((Integer.parseInt(op1) - Integer.parseInt(op2)) < 0) {
+                     * System.out.println("ERROR: linea " + Linea.getLinea()
+                     * +
+                     * " El resultado de la resta en enteros sin signos no puede dar un resultado negativo"
+                     * );
+                     * return "ERROR";
+                     * }
+                     * }
+                     */
                 }
                 return "sub";
             case "*":
                 if (tipo == "DOUBLE")
                     return "fmul";
                 else if (tipo == "LONG") {
-                    if (uso1 == "Constante" && uso2 == "Constante") {
-                        if (((Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op1)).get_Lex())
-                                + Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op2)).get_Lex())) < -2147483648)
-                                || ((Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op1)).get_Lex()) + Integer
-                                        .parseInt(datos.get_Simbolo(Integer.parseInt(op2)).get_Lex())) > 2147483647)) {
-                            System.out.println("ERROR: linea " + Linea.getLinea()
-                                    + " El resultado del producto esta fuera del rango permitido");
-                            return "ERROR";
-                        }
-                    }
+                    /*
+                     * if (uso1 == "Constante" && uso2 == "Constante") {
+                     * if (((Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op1)).get_Lex())
+                     * + Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op2)).get_Lex())) <
+                     * -2147483648)
+                     * || ((Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op1)).get_Lex()) +
+                     * Integer
+                     * .parseInt(datos.get_Simbolo(Integer.parseInt(op2)).get_Lex())) > 2147483647))
+                     * {
+                     * System.out.println("ERROR: linea " + Linea.getLinea()
+                     * + " El resultado del producto esta fuera del rango permitido");
+                     * return "ERROR";
+                     * }
+                     * }
+                     */
                     return "imul";
                 } else if (tipo == "USHORT") {
-                    if (uso1 == "Constante" && uso2 == "Constante") {
-                        if ((Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op1)).get_Lex())
-                                + Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op2)).get_Lex())) > 255) {
-                            System.out.println("ERROR: linea " + Linea.getLinea()
-                                    + " El resultado del producto esta fuera del rango permitido");
-                            return "ERROR";
-                        }
-                    }
+
+                    /*
+                     * if (uso1 == "Constante" && uso2 == "Constante") {
+                     * if ((Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op1)).get_Lex())
+                     * + Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op2)).get_Lex())) >
+                     * 255) {
+                     * System.out.println("ERROR: linea " + Linea.getLinea()
+                     * + " El resultado del producto esta fuera del rango permitido");
+                     * return "ERROR";
+                     * }
+                     * }
+                     */
                     return "mul";
                 }
             case "/":
