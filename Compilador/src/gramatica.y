@@ -180,9 +180,9 @@ declaracionObjeto : ID lista_Variables {String t = obtenerTipo($1.sval);
                                         }
 ;
 
-metodo_objeto : ID '.' ID parametro_real {  ver_ObjetoDeclarado($1.sval);
+metodo_objeto : ID '.' ID parametro_real {  int refObjeto = verObjetoDeclarado($1.sval);
                                             int clase = obtenerClase($1.sval+ambito);
-                                            if (clase != -1) {
+                                            if (refObjeto != -1 && clase != -1) {
                                                 if (! claseVacia(clase)) {
                                                     int padre = -1;
                                                     String tipo = TS.get_Simbolo(clase).get_Tipo();
@@ -190,9 +190,8 @@ metodo_objeto : ID '.' ID parametro_real {  ver_ObjetoDeclarado($1.sval);
                                                         padre = TS.buscar_por_ambito(tipo);
                                                     int ref = verificarExistencia(clase, $3.sval, "metodo"); //obtengo la referencia al metodo (si existe)
                                                     if (ref == -1 && padre != -1)
-                                                        ref = verificarExistencia(padre, $3.sval, "metodo");
+                                                        ref = verificarExistencia(padre, $3.sval, "metodo"); //busco el metodo en la clase padre
                                                     if (ref != -1) {
-                                                        //int param = buscar_Parametro($3.sval, ambito);
                                                         String param = TS.get_Simbolo(ref).get_Parametro();
                                                         String terceto = "-";
                                                         if ((param == "-" && $4.sval=="-") || (param != "-" && !$4.sval.equals("-"))) //si los parametros no coinciden avisa
@@ -200,7 +199,6 @@ metodo_objeto : ID '.' ID parametro_real {  ver_ObjetoDeclarado($1.sval);
                                                                 String tipo_real = "-";
                                                                 String tipo_formal = "-";
                                                                 if (param != "-"){
-                                                                    System.out.println($4.sval);
                                                                     if ($4.sval.contains("["))
                                                                         tipo_real = CodigoIntermedio.get(Integer.parseInt(borrarCorchetes($4.sval))).get_Tipo();
                                                                     else
@@ -210,7 +208,7 @@ metodo_objeto : ID '.' ID parametro_real {  ver_ObjetoDeclarado($1.sval);
                                                                     if (tipo_formal.equals(tipo_real)){
                                                                         String auxiliar = Integer.toString(crear_terceto("=", param, $4.sval));
                                                                         System.out.println("No fue necesario hacer conversiones de tipos en los parámetros");
-                                                                        $$.sval = "[" + Integer.toString(crear_terceto ("CALLMetodoClase", Integer.toString(TS.pertenece($3.sval)), $4.sval)) + "]";}
+                                                                        $$.sval = "[" + Integer.toString(crear_terceto ("CALLMetodoClase", Integer.toString(ref), $4.sval)) + "]";}
                                                                     else
                                                                     {
                                                                         if (tipo_formal == "USHORT" || (tipo_formal == "LONG" && tipo_real =="DOUBLE"))
@@ -220,23 +218,23 @@ metodo_objeto : ID '.' ID parametro_real {  ver_ObjetoDeclarado($1.sval);
                                                                             String terceto1 = '['+ Integer.toString(crear_terceto(conversion, $4.sval, "-")) + ']';
                                                                             String auxiliar = Integer.toString(crear_terceto("=", param, terceto1));
                                                                             System.out.println("La conversión pudo realizarse y fue de " + tipo_real + " a " + tipo_formal );
-                                                                            $$.sval = "[" + Integer.toString(crear_terceto ("CALLMetodoClase", Integer.toString(TS.pertenece($3.sval)), terceto1)) + "]";}
+                                                                            $$.sval = "[" + Integer.toString(crear_terceto ("CALLMetodoClase", Integer.toString(ref), terceto1)) + "]";}
                                                                     }}
                                                                 else
                                                                     $$.sval = "[" + Integer.toString(crear_terceto ("CALLMetodoClase", Integer.toString(ref), "-")) + "]";
-                                                            }
-                                                        else
-                                                            System.out.println("ERROR: linea "+ Linea.getLinea() + " Los parámetros no coinciden");
-                                                    }else
+                                                            } else
+                                                                System.out.println("ERROR: linea "+ Linea.getLinea() + " Los parámetros no coinciden");
+                                                    } else
                                                         System.out.println("ERROR: linea "+ Linea.getLinea()+ " - el metodo "+$3.sval+ " no se encuentra al alcance o no fue declarado");
-                                                }else
+                                                } else
                                                         System.out.println("ERROR: linea "+ Linea.getLinea()+ " - No se puede invocar al metodo \""+$3.sval+ "\" porque la clase \""+TS.get_Simbolo(clase).get_Ambito()+"\" no se encuentra implementada");
-}
-}
+                                                } 
+                                            }
 ;
 
-atributo_objeto : ID '.' ID {   int clase = obtenerClase($1.sval+ambito);
-                                if (clase != -1) {
+atributo_objeto : ID '.' ID {   int refObjeto = verObjetoDeclarado($1.sval);
+                                int clase = obtenerClase($1.sval+ambito);
+                                if (refObjeto != -1 && clase != -1) {
                                     if (! claseVacia(clase)) {
                                         int padre = -1;
                                         String tipo = TS.get_Simbolo(clase).get_Tipo();
@@ -245,15 +243,14 @@ atributo_objeto : ID '.' ID {   int clase = obtenerClase($1.sval+ambito);
                                         int ref = verificarExistencia(clase, $3.sval, "atributo");
                                         if (ref == -1 && padre != -1) 
                                             ref = verificarExistencia(padre, $3.sval, "atributo");
-                                        if (ref != -1) 
-                                        { $$.sval = '[' + Integer.toString(crear_terceto("atributo_objeto", Integer.toString(TS.pertenece($1.sval)), Integer.toString(ref))) + ']';
-
-                                        } else {System.out.println("ERROR: linea "+ Linea.getLinea()+ " el atributo \""+$3.sval+ "\" no se encuentra al alcance o no fue declarado");
-                                                $$.sval = null;}
-                                        } else
-                                                System.out.println("ERROR: linea "+ Linea.getLinea()+ " - No se puede acceder al atributo \""+$3.sval+ "\"  porque la clase \""+TS.get_Simbolo(clase).get_Ambito()+"\" no se encuentra implementada");
-                                } else {System.out.println("ERROR: linea "+ Linea.getLinea()+ " - El objeto \""+$1.sval+ "\" no se encuentra declarado");
-                                        $$.sval = null;}
+                                        if (ref != -1) { 
+                                            $$.sval = '[' + Integer.toString(crear_terceto("atributo_objeto", Integer.toString(refObjeto), Integer.toString(ref))) + ']';
+                                        } else 
+                                            {System.out.println("ERROR: linea "+ Linea.getLinea()+ " el atributo \""+$3.sval+ "\" no se encuentra al alcance o no fue declarado");
+                                            $$.sval = null;}
+                                    } else
+                                        System.out.println("ERROR: linea "+ Linea.getLinea()+ " - No se puede acceder al atributo \""+$3.sval+ "\"  porque la clase \""+TS.get_Simbolo(clase).get_Ambito()+"\" no se encuentra implementada");
+                                } else {$$.sval = null;}
 
                             }
 ;
@@ -435,41 +432,49 @@ lista_Variables : lista_Variables ';' ID {  boolean declarado = setear_Ambito($3
                 }                        
 ;
 
-invocacionFuncion : ID parametro_real {
-                                    if (!ver_ElementoDeclarado($1.sval))
-                                        System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + $1.sval + " no fue declarado");
-                                    int aux = buscar_Parametro($1.sval, ambito);
-                                    String tipo_real;
-                                    if ((aux == -1 && $2.sval=="-") || (aux != -1 && $2.sval != "-")) //si la cantidad de parametros no coinciden avisa
-                                        {if (aux != -1){
-                                            if ($2.sval.contains("["))
-                                                tipo_real = CodigoIntermedio.get(Integer.parseInt(borrarCorchetes($2.sval))).get_Tipo();
+invocacionFuncion : ID parametro_real  {
+                                        if (!ver_ElementoDeclarado($1.sval))
+                                            System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + $1.sval + " no fue declarado");
+                                        int ref = obtenerReferenciaFuncion($1.sval, ambito);
+                                        if (ref != -1)
+                                            System.out.println("Linea "+Linea.getLinea()+" "+$1.sval+" ref "+ref+" "+TS.get_Simbolo(ref).get_Ambito());
+                                        int aux = buscar_Parametro($1.sval, ambito);
+                                        String tipo_real;
+                                        if (ref != -1) {
+                                            if ((aux == -1 && $2.sval=="-") || (aux != -1 && $2.sval != "-")) //si la cantidad de parametros no coinciden avisa
+                                                {if (aux != -1){
+                                                    if ($2.sval.contains("["))
+                                                        tipo_real = CodigoIntermedio.get(Integer.parseInt(borrarCorchetes($2.sval))).get_Tipo();
+                                                    else
+                                                        tipo_real = TS.get_Simbolo(TS.buscar_por_ambito(TS.get_Simbolo(Integer.parseInt($2.sval)).get_Lex()+ambito)).get_Tipo();
+                                                    System.out.println("Tipo parametro real: " + tipo_real+", Tipo formal: " + TS.get_Simbolo(aux).get_Tipo());
+                                                    String tipo_formal = TS.get_Simbolo(aux).get_Tipo();
+                                                    if (tipo_formal.equals(tipo_real)){
+                                                        String auxiliar = Integer.toString(crear_terceto("=", Integer.toString(aux), $2.sval));
+                                                        System.out.println("No fue necesario hacer conversiones de tipos en los parámetros");
+                                                        $$.sval = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(ref), $2.sval)) + "]";}
+                                                    else
+                                                        {
+                                                        if (tipo_formal == "USHORT" || (tipo_formal == "LONG" && tipo_real =="DOUBLE"))
+                                                            System.out.println("ERROR: linea " + Linea.getLinea() + " Los tipos de los parámetros son incompatibles");
+                                                        else{ 
+                                                            String conversion = convertible.Convertir(tipo_formal, tipo_real);
+                                                            String terceto = '['+ Integer.toString(crear_terceto(conversion, $2.sval, "-")) + ']';
+                                                            String auxiliar = Integer.toString(crear_terceto("=", Integer.toString(aux), terceto));
+                                                            System.out.println("La conversión pudo realizarse y fue de " + tipo_real + " a " + tipo_formal );
+                                                            $$.sval = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(ref), terceto)) + "]";
+                                                            }
+                                                        }
+                                                    }
+                                                else
+                                                    $$.sval = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(ref), $2.sval)) + "]";
+                                                    }
                                             else
-                                                tipo_real = TS.get_Simbolo(TS.buscar_por_ambito(TS.get_Simbolo(Integer.parseInt($2.sval)).get_Lex()+ambito)).get_Tipo();
-                                            System.out.println("Tipo parametro real: " + tipo_real+", Tipo formal: " + TS.get_Simbolo(aux).get_Tipo());
-                                            String tipo_formal = TS.get_Simbolo(aux).get_Tipo();
-                                            if (tipo_formal.equals(tipo_real)){
-                                                String auxiliar = Integer.toString(crear_terceto("=", Integer.toString(aux), $2.sval));
-                                                System.out.println("No fue necesario hacer conversiones de tipos en los parámetros");
-                                                $$.sval = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(TS.pertenece($1.sval)), $2.sval)) + "]";}
-                                            else
-                                            {
-                                                if (tipo_formal == "USHORT" || (tipo_formal == "LONG" && tipo_real =="DOUBLE"))
-                                                    System.out.println("ERROR: linea " + Linea.getLinea() + " Los tipos de los parámetros son incompatibles");
-                                                else{ 
-                                                    String conversion = convertible.Convertir(tipo_formal, tipo_real);
-                                                    String terceto = '['+ Integer.toString(crear_terceto(conversion, $2.sval, "-")) + ']';
-                                                    String auxiliar = Integer.toString(crear_terceto("=", Integer.toString(aux), terceto));
-                                                    System.out.println("La conversión pudo realizarse y fue de " + tipo_real + " a " + tipo_formal );
-                                                    $$.sval = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(TS.pertenece($1.sval)), terceto)) + "]";}
-                                            }}
-                                        else
-                                            $$.sval = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(TS.pertenece($1.sval)), $2.sval)) + "]";}
-                                    else
-                                        System.out.println("ERROR: linea " + Linea.getLinea() + " Los parámetros no coinciden");
-                                    if ((aux != -1 && $2.sval == "-") || (aux == -1 && $2.sval != "-"))
-                                         System.out.println("ERROR: linea " + Linea.getLinea() + " La cantidad de parámetros reales con los formales no coinciden");
-                                    }
+                                                System.out.println("ERROR: linea " + Linea.getLinea() + " Los parámetros no coinciden");
+                                            if ((aux != -1 && $2.sval == "-") || (aux == -1 && $2.sval != "-"))
+                                                System.out.println("ERROR: linea " + Linea.getLinea() + " La cantidad de parámetros reales con los formales no coinciden");
+                                            }
+                                        }
 ;
 
 parametro_real  : '(' expresion ')' {$$.sval = $2.sval;}
@@ -532,6 +537,8 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
         int clave = TS.buscar_por_ambito(elemento+ambito);
         if (clave==-1)
             clave = TS.pertenece(elemento);
+        else 
+            return true;
         String aux = ambito;
         if (clave != -1 && TS.get_Simbolo(clave).get_Ambito()!="-"){
             //Si está en la tabla de simbolos me fijo si es alcanzable
@@ -563,7 +570,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
     }
 
 
-    private void ver_ObjetoDeclarado(String objeto) {
+    private int verObjetoDeclarado(String objeto) {
         int clave = TS.buscar_por_ambito(objeto+ambito);
         if (clave == -1) {
             String a = ambito;
@@ -573,15 +580,16 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
                 clave = TS.buscar_por_ambito(objeto+a);
                 index = a.lastIndexOf(":");
             }
-            if (clave == -1) {
-                System.out.println("ERROR: linea "+Linea.getLinea()+" el objeto \""+objeto+"\" no se encuentra declarado o no está al alcance");
-            } else {
-                System.out.println("objeto \""+objeto+"\" está declarado y al alcance");
-            }
-        } else {
-            System.out.println("objeto \""+objeto+"\" está declarado y al alcance");
         }
-        
+        if (clave != -1) {
+            String tipo = TS.get_Simbolo(clave).get_Tipo();
+            if (tipo != "LONG" && tipo != "USHORT" && tipo != "DOUBLE") 
+                return clave;
+            else 
+                System.out.println("ERROR: linea "+Linea.getLinea()+" el objeto \""+objeto+"\" no se encuentra declarado o no está al alcance");
+        } else 
+                System.out.println("ERROR: linea "+Linea.getLinea()+" el objeto \""+objeto+"\" no se encuentra declarado o no está al alcance");
+        return clave;        
     }
     
     public String obtenerAmbito(String ambito) 
@@ -669,24 +677,14 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
         else{
             clave = TS.pertenece(lex);
             if (clave != -1){
-                 Simbolo s = TS.get_Simbolo(clave);
+                Simbolo s = TS.get_Simbolo(clave);
                 String amb= a.substring(a.indexOf(":")+1);
-                if (s.get_Ambito().equals(a)) {
-                    if (claseVacia(clave)) {
-                            System.out.println("se completo la FORWARD DECLARATION de "+s.get_Ambito());
-                            return true;
-                        } else {
-                            System.out.println("ERROR: linea " + Linea.getLinea() + " - Redeclaracion de " + s.get_Lex()+ " en el ambito "+ amb);
-                            return false;
-                        }
-                }
+                if (s.get_Ambito()=="-")
+                    s.set_Ambito(a);
                 else
-                    if (s.get_Ambito()=="-")
-                        s.set_Ambito(a);
-                    else
-                        {Simbolo nuevo = new Simbolo(s.get_Token(), s.get_Lex());
-                        nuevo.set_Ambito(a);
-                        TS.agregar_sin_chequear(nuevo);}
+                    {Simbolo nuevo = new Simbolo(s.get_Token(), s.get_Lex());
+                    nuevo.set_Ambito(a);
+                    TS.agregar_sin_chequear(nuevo);}
             }
             return true;
         }
@@ -871,9 +869,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
                     return elemento;
                 }
             }
-            
             return -1;
-
         }
         return -1;
     }
@@ -914,19 +910,28 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
         }
     }
 
+    private int obtenerReferenciaFuncion(String nombre, String ambito) {
+        for (HashMap.Entry<Integer, Integer> e : funciones.entrySet()) {
+            Simbolo s = TS.get_Simbolo(e.getKey());
+            if (s.get_Lex().equals(nombre)) {
+                if (alAlcance(s.get_Ambito())) {
+                    return e.getKey();
+                }
+            }
+        } 
+        return -1;
+    }
+
     public int buscar_Parametro(String id, String amb){
         //busca el parametro de la funcion que tenga al alcance
         //primero busca por nombre y luego verifica el ambito en el hashmap de funciones
         String parametro = "-";
         int clave;
-        System.out.println("buscar_parametro "+id+" "+amb);
         for (HashMap.Entry<Integer, Integer> e : funciones.entrySet()) {
             Simbolo s = TS.get_Simbolo(e.getKey());
-            System.out.println(s.get_Lex());
             if (s.get_Lex().equals(id)) {
                 String ambitoSimbolo = s.get_Ambito();
                 ambitoSimbolo = ":" + ambitoSimbolo.substring(ambitoSimbolo.indexOf(":")+1); 
-                System.out.println("Ambito simbolo: " + ambitoSimbolo+ " Ambito parametro " + amb);
                 if (ambitoSimbolo.equals(amb)) {
                     parametro = s.get_Parametro();
                 }
@@ -962,7 +967,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
                     int l = Integer.parseInt(j);
                     j = TS.get_Simbolo(l).get_Lex();
                 }
-                System.out.println("Referencia: " + i.getKey() + ", Terceto: (" + i.getValue().get_Operador() + " , " + j + " , "+ s +")" + " Tipo: " + i.getValue().get_Tipo() + " VA: " + i.getValue().get_VA());         
+                System.out.println("Referencia: " + i.getKey() + ", Terceto: (" + i.getValue().get_Operador() + " , " + j + " , "+ s +")" + " Tipo: " + i.getValue().get_Tipo());         
         }
     }
 
