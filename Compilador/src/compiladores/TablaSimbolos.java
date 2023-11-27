@@ -145,15 +145,14 @@ public class TablaSimbolos {
                     sb.append("@cteDouble" + contadorDouble + " dq " + s.get_Lex() + " \n");
                     contadorDouble += 1;
                 }
-            /*
-             * else if (tipo == "VOID") {
-             * sb.append("@funcion" + funciones + " db " + reemplazarPuntos(s.get_Ambito())
-             * + " \n");
-             * funciones += 1;}
-             */
-            else if (token == 273) {
-                sb.append("@cadena" + cadenas + " db " + s.get_Lex() + " \n");
+            else if (tipo == "VOID") {
+                sb.append("@funcion" + funciones + " db " + reemplazarPuntos(s.get_Ambito()) + " \n");
+                funciones += 1;
+            } else if (token == 273) {
+                sb.append("@cadena" + cadenas + " db " + "\"" + s.get_Lex() + "\"\n");
                 cadenas += 1;
+            } else if (s.get_Uso() == "Clase") {
+                sb.append(reemplazarPuntos(s.get_Ambito()) + " db  ?\n");
             } else {
                 sb.append(s.get_Lex() + " db " + " ?\n");
             }
