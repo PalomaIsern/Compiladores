@@ -137,8 +137,7 @@ public class Assembler {
                             TablaSimbolos.agregar_sin_chequear(sim);
                             instrucciones.append("MOV " + vAux + ", " + registro + "\n");
                         } else {
-                            instrucciones.append("MOV " + op1 + ", " + registro + "\n"); // chequear si tamb es asi para
-                                                                                         // double
+                            instrucciones.append("MOV " + op1 + ", " + registro + "\n");
                         }
                     } else if (operador == ">" || operador == ">=" || operador == "<" || operador == "<=") {
                         instrucciones.append("MOV " + registro + ", " + op1 + "\n");
@@ -315,22 +314,22 @@ public class Assembler {
                 return "BF";
             case "UStoL":
                 // ocupar los registros y chequear esto
-                instrucciones.append("MOV BL, _" + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
+                instrucciones.append("MOV BL, " + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
                 instrucciones.append("MOV BH, 0" + "\n");
-                instrucciones.append("MOV BX, _" + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
+                instrucciones.append("MOV BX, " + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
                 instrucciones.append("MOV ECX, 0" + "\n");
                 instrucciones.append("MOV CX, BX" + "\n");
                 instrucciones.append("MOV EBX, ECX" + "\n");
                 return " ";
             case "UStoD":
                 // ocupar los registros y chequear
-                instrucciones.append("MOV BL, _" + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
+                instrucciones.append("MOV BL, " + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
                 instrucciones.append("MOV BH, 0" + "\n");
-                instrucciones.append("MOV BX, _" + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
+                instrucciones.append("MOV BX, " + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
                 instrucciones.append("MOV ECX, 0" + "\n");
                 instrucciones.append("MOV CX, BX" + "\n");
                 instrucciones.append("MOV EBX, ECX" + "\n");
-                instrucciones.append("MOV EAX, _" + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
+                instrucciones.append("MOV EAX, " + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
                 instrucciones.append("MOV EDX, 0" + "\n");
                 return " ";
             case "LtoD":

@@ -126,33 +126,34 @@ public class TablaSimbolos {
             int token = s.get_Token();
             if (tipo == "LONG")
                 if (token == 257)
-                    sb.append(reemplazarPuntos(s.get_Ambito()) + " db " + " ?\n");
+                    sb.append("_" + reemplazarPuntos(s.get_Ambito()) + " db " + " ?\n");
                 else {
                     sb.append("@cteLong" + contadorLong + " dd " + s.get_Lex() + " \n");
                     contadorLong += 1;
                 }
             else if (tipo == "USHORT")
                 if (token == 257)
-                    sb.append(reemplazarPuntos(s.get_Ambito()) + " db " + " ?\n");
+                    sb.append("_" + reemplazarPuntos(s.get_Ambito()) + " db " + " ?\n");
                 else {
                     sb.append("@cteUS" + contadorUshort + " db " + s.get_Lex() + " \n");
                     contadorUshort += 1;
                 }
             else if (tipo == "DOUBLE")
                 if (token == 257)
-                    sb.append(reemplazarPuntos(s.get_Ambito()) + " db " + " ?\n");
+                    sb.append("_" + reemplazarPuntos(s.get_Ambito()) + " db " + " ?\n");
                 else {
                     sb.append("@cteDouble" + contadorDouble + " dq " + s.get_Lex() + " \n");
                     contadorDouble += 1;
                 }
             else if (tipo == "VOID") {
-                sb.append("@funcion" + funciones + " db " + reemplazarPuntos(s.get_Ambito()) + " \n");
-                funciones += 1;
+                // sb.append("@funcion" + funciones + " db " + reemplazarPuntos(s.get_Ambito())
+                // + " \n");
+                // funciones += 1;
             } else if (token == 273) {
                 sb.append("@cadena" + cadenas + " db " + "\"" + s.get_Lex() + "\"\n");
                 cadenas += 1;
             } else if (s.get_Uso() == "Clase") {
-                sb.append(reemplazarPuntos(s.get_Ambito()) + " db  ?\n");
+                sb.append("_" + reemplazarPuntos(s.get_Ambito()) + " db  ?\n");
             } else {
                 sb.append(s.get_Lex() + " db " + " ?\n");
             }

@@ -18,7 +18,6 @@ public class Simbolo {
         cantRep = 1;
         parametro = "-";
         ambito = "-";
-        usada = "-";
     }
 
     public Simbolo(int tk, String lex, String t) {
@@ -29,11 +28,6 @@ public class Simbolo {
         cantRep = 1;
         parametro = "-";
         ambito = "-";
-        usada = "-";
-    }
-
-    public void set_Usada(String u) {
-        usada = u;
     }
 
     public void set_Tipo(String t) {
@@ -62,10 +56,6 @@ public class Simbolo {
 
     public String parametro() {
         return parametro;
-    }
-
-    public String get_Usada() {
-        return usada;
     }
 
     public int get_Token() {
@@ -98,8 +88,7 @@ public class Simbolo {
 
     public String imprimir() {
         String contenido = "Token: " + token + ", Lexema: " + lexema + ", Tipo: " + tipo + ", Uso: " + uso
-                + ", Repeticiones: " + cantRep + ", Parametro: " + parametro + ", Ambito: " + ambito + ", Usada: "
-                + usada;
+                + ", Parametro: " + parametro + ", Ambito: " + ambito;
         return contenido;
     }
 }

@@ -1199,7 +1199,7 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
         t.set_Op(operando);
     }
 
-    public String borrarParentesis(String palabra){
+    public String borrarCorchetes(String palabra){
         StringBuilder builder = new StringBuilder(palabra);
         for (int i = 0; i < builder.length(); i++) {
             if (builder.charAt(i) == '[' || builder.charAt(i) == ']' )
@@ -1212,12 +1212,12 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
     public void realizar_Conversion(String elemento1, String elemento2, String operador, ParserVal valorfinal){
         String tipo1 = "-", tipo2 = "-";
         if (elemento1.contains("[")){
-            String ref1 = borrarParentesis(elemento1);
+            String ref1 = borrarCorchetes(elemento1);
             tipo1 = CodigoIntermedio.get(Integer.parseInt(ref1)).get_Tipo();}
         else 
             tipo1 = TS.get_Simbolo(Integer.parseInt(elemento1)).get_Tipo();
         if (elemento2.contains("[")){
-            String ref2 = borrarParentesis(elemento2); 
+            String ref2 = borrarCorchetes(elemento2); 
             tipo2 = CodigoIntermedio.get(Integer.parseInt(ref2)).get_Tipo();}
         else
             tipo2 = TS.get_Simbolo(Integer.parseInt(elemento2)).get_Tipo();
@@ -1245,7 +1245,7 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
         String tipoExpresion;
         String conversion = "-";
         if (expresion.contains("[")){
-            String refTerceto = borrarParentesis(expresion);
+            String refTerceto = borrarCorchetes(expresion);
             tipoExpresion = CodigoIntermedio.get(Integer.parseInt(refTerceto)).get_Tipo();
         }
         else
@@ -1695,7 +1695,7 @@ case 36:
                                                                 if (param != "-"){
                                                                     System.out.println(val_peek(0).sval);
                                                                     if (val_peek(0).sval.contains("["))
-                                                                        tipo_real = CodigoIntermedio.get(Integer.parseInt(borrarParentesis(val_peek(0).sval))).get_Tipo();
+                                                                        tipo_real = CodigoIntermedio.get(Integer.parseInt(borrarCorchetes(val_peek(0).sval))).get_Tipo();
                                                                     else
                                                                         tipo_real = TS.get_Simbolo(Integer.parseInt(val_peek(0).sval)).get_Tipo();
                                                                     System.out.println("Tipo parametro real: " + tipo_real+", Tipo formal: " + TS.get_Simbolo(Integer.parseInt(param)).get_Tipo());
@@ -2028,7 +2028,7 @@ case 86:
                                     if ((aux == -1 && val_peek(0).sval=="-") || (aux != -1 && val_peek(0).sval != "-")) /*si la cantidad de parametros no coinciden avisa*/
                                         {if (aux != -1){
                                             if (val_peek(0).sval.contains("["))
-                                                tipo_real = CodigoIntermedio.get(Integer.parseInt(borrarParentesis(val_peek(0).sval))).get_Tipo();
+                                                tipo_real = CodigoIntermedio.get(Integer.parseInt(borrarCorchetes(val_peek(0).sval))).get_Tipo();
                                             else
                                                 tipo_real = TS.get_Simbolo(TS.buscar_por_ambito(TS.get_Simbolo(Integer.parseInt(val_peek(0).sval)).get_Lex()+ambito)).get_Tipo();
                                             System.out.println("Tipo parametro real: " + tipo_real+", Tipo formal: " + TS.get_Simbolo(aux).get_Tipo());
