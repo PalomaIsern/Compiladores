@@ -1015,9 +1015,11 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
                         TS.agregar(nuevo, 258);
                         System.out.println("El numero fue actualizado en la TS a un valor permitido");
                         setear_Uso("Constante", nuevo+ambito);
+                        setear_Tipo(nuevo+ambito, "DOUBLE");
                         factor.sval = Integer.toString(TS.pertenece(nuevo));
                     }
                     else {  setear_Uso("Constante", numero+ambito);
+                            setear_Tipo(numero+ambito, "DOUBLE");
                             factor.sval = Integer.toString(TS.pertenece(numero));}
                 }
             else if (num > 1.7976931348623157e+308)
@@ -1027,10 +1029,12 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
                 String nuevo = "1.7976931348623157e+308";
                 TS.agregar(nuevo, 258);
                 setear_Uso("Constante", nuevo+ambito);
+                setear_Tipo(nuevo+ambito, "DOUBLE");
                 factor.sval = Integer.toString(TS.pertenece(nuevo));
             }
             else
                 {setear_Uso("Constante", numero+ambito);
+                setear_Tipo(numero+ambito, "DOUBLE");
                 factor.sval = Integer.toString(TS.pertenece(numero));}
         }
         else
@@ -1042,10 +1046,12 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
                 TS.agregarConstante(nuevo, 258, "LONG");
                 System.out.println("El numero fue actualizado en la TS a un valor permitido");
                 setear_Uso("Constante", nuevo+ambito);
+                setear_Tipo(nuevo+ambito, "LONG");
                 factor.sval = Integer.toString(TS.buscarConstante(nuevo, "LONG"));
             }
             else
                 {setear_Uso("Constante", numero+ambito);
+                setear_Tipo(numero+ambito, "LONG");
                 factor.sval = Integer.toString(TS.buscarConstante(numero, "LONG"));}
         }
     }
@@ -1064,6 +1070,7 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
                         String nuevo = "-2.2250738585072014e-308";
                         TS.agregar(nuevo, 258);//Lo agrego a la tabla de simbolos con el signo
                         setear_Uso("Constante negativa", nuevo+ambito);
+                        setear_Tipo(nuevo+ambito, "DOUBLE");
                         System.out.println("El numero fue actualizado en la TS a un valor permitido");
                         factor.sval = Integer.toString(TS.pertenece(nuevo));
                     }
@@ -1075,6 +1082,7 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
                 String nuevo = "-1.7976931348623157e+308";
                 TS.agregar(nuevo, 258);
                 setear_Uso("Constante negativa", nuevo+ambito);
+                setear_Tipo(nuevo+ambito, "DOUBLE");
                 factor.sval = Integer.toString(TS.pertenece(nuevo));
             }
             else 
@@ -1083,6 +1091,7 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
                 String nuevo = Double.toString(num);
                 TS.agregar(nuevo, 258);
                 setear_Uso("Constante negativa", nuevo+ambito);
+                setear_Tipo(nuevo+ambito, "DOUBLE");
                 System.out.println("Se actualizo el double dentro del rango a negativo");
                 factor.sval = Integer.toString(TS.pertenece("-"+numero));
             }
@@ -1098,6 +1107,7 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
                 String nuevo = "-2147483648";
                 TS.agregarConstante(nuevo, 258, "LONG");//Lo agrego a la tabla de simbolos en negativo borrando el numero positivo
                 setear_Uso("Constante negativa", nuevo+ambito);
+                setear_Tipo(nuevo+ambito, "LONG");
                 factor.sval = Integer.toString(TS.buscarConstante(nuevo, "LONG"));
             } else
             {
@@ -1106,6 +1116,7 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
                 String nuevo = Long.toString(entero);
                 TS.agregarConstante(nuevo, 258, "LONG");
                 setear_Uso("Constante negativa", nuevo+ambito);
+                setear_Tipo(nuevo+ambito, "LONG");
                 factor.sval = Integer.toString(TS.buscarConstante("-"+numero, "LONG"));
             }
         }
@@ -1162,6 +1173,11 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
 
     public void setear_Tipo(String var, String tipo) {
         int clave = TS.buscar_por_ambito(var);
+        if (clave ==-1){
+            ambitos_Programa = var.split(":");
+            String lexema = ambitos_Programa[0];
+            clave = TS.pertenece(lexema);
+        }
         Simbolo s = TS.get_Simbolo(clave);
         s.set_Tipo(tipo);
     }

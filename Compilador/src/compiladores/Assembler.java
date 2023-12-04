@@ -109,10 +109,12 @@ public class Assembler {
                             op1 = CodIntermedio.get(Integer.parseInt(borrarCorchetes(op1))).get_VA();
                     } else if (op1 != "-") {
                         Simbolo s1 = datos.get_Simbolo(Integer.parseInt(t.get_Op1()));
-                        if (op1 != "-" && s1.get_Uso() != "Constante" && s1.get_Uso() != "ConstantePositiva")
+                        if (op1 != "-" && s1.get_Uso() != "Constante" && s1.get_Uso() != "ConstantePositiva"
+                                && s1.get_Uso() != "Constante negativa")
                             op1 = "_" + datos.reemplazarPuntos(s1.get_Ambito());
                         else if (op1 != "-" && s1.get_Uso() == "Constante"
-                                || op1 != "-" && s1.get_Uso() == "ConstantePositiva")
+                                || op1 != "-" && s1.get_Uso() == "ConstantePositiva"
+                                || op1 != "-" && s1.get_Uso() == "Constante negativa")
                             op1 = s1.get_Lex();
                     }
 
@@ -121,22 +123,33 @@ public class Assembler {
                             op2 = CodIntermedio.get(Integer.parseInt(borrarCorchetes(op2))).get_VA();
                     } else if (op2 != "-") {
                         Simbolo s2 = datos.get_Simbolo(Integer.parseInt(t.get_Op2()));
-                        if (op2 != "-" && s2.get_Uso() != "Constante" && s2.get_Uso() != "ConstantePositiva")
+                        if (op2 != "-" && s2.get_Uso() != "Constante" && s2.get_Uso() != "ConstantePositiva"
+                                && s2.get_Uso() != "Constante negativa")
                             op2 = "_" + datos.reemplazarPuntos(s2.get_Ambito());
                         else if (op2 != "-" && s2.get_Uso() == "Constante"
-                                || op2 != "-" && s2.get_Uso() == "ConstantePositiva")
+                                || op2 != "-" && s2.get_Uso() == "ConstantePositiva"
+                                || op1 != "-" && s2.get_Uso() == "Constante negativa")
                             op2 = s2.get_Lex();
                     }
-                    if ((operador == "+") || (operador == "-") || (operador == "*") || (operador == "/")
-                            || (operador == "=")) {
-                        instrucciones.append("MOV " + registro + ", " + op1 + "\n");
-                        if (operador != "=") {
-                            instrucciones.append(instruccion + " " + registro + ", " + op2 + "\n");
-                            String vAux = t.set_VA();
-                            Simbolo sim = new Simbolo(280, vAux);
-                            TablaSimbolos.agregar_sin_chequear(sim);
+                    if ((operador == "+") || (operador == "-") || (operador == "*") || (operador == "/")) {
+                        if (t.get_Tipo() == "DOUBLE")
+                            instrucciones.append("FLD " + op1 + "\n");
+                        else
+                            instrucciones.append("MOV " + registro + ", " + op1 + "\n");
+                        instrucciones.append(instruccion + " " + registro + ", " + op2 + "\n");
+                        String vAux = t.set_VA();
+                        Simbolo sim = new Simbolo(280, vAux);
+                        TablaSimbolos.agregar_sin_chequear(sim);
+                        if (t.get_Tipo() == "DOUBLE")
+                            instrucciones.append("FSTP " + vAux + "\n");
+                        else
                             instrucciones.append("MOV " + vAux + ", " + registro + "\n");
+                    } else if (operador == "=") {
+                        if (t.get_Tipo() == "DOUBLE") {
+                            instrucciones.append("FLD " + op2 + "\n");
+                            instrucciones.append("FSTP " + op1 + "\n");
                         } else {
+                            instrucciones.append("MOV " + registro + ", " + op2 + "\n");
                             instrucciones.append("MOV " + op1 + ", " + registro + "\n");
                         }
                     } else if (operador == ">" || operador == ">=" || operador == "<" || operador == "<=") {
@@ -265,7 +278,6 @@ public class Assembler {
                      */
                     return "IMUL";
                 } else if (tipo == "USHORT") {
-
                     /*
                      * if (uso1 == "Constante" && uso2 == "Constante") {
                      * if ((Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op1)).get_Lex())
@@ -312,6 +324,9 @@ public class Assembler {
                 return "JMP";
             case "BF":
                 return "BF";
+            case "PRINT":
+                instrucciones.append("invoke MessageBox, NULL, addr " +)
+                return " ";
             case "UStoL":
                 // ocupar los registros y chequear esto
                 instrucciones.append("MOV BL, " + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
@@ -333,9 +348,11 @@ public class Assembler {
                 instrucciones.append("MOV EDX, 0" + "\n");
                 return " ";
             case "LtoD":
-                // ocupar los registros y chequear
-                // codigo.append("FILD _" + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex());
-                // // en st(0)
+                if (op1.startsWith("["))
+                    op1 = CodIntermedio.get(Integer.parseInt(borrarCorchetes(op1))).get_VA();
+                else
+                    op1 = "_" + datos.reemplazarPuntos(datos.get_Simbolo(Integer.parseInt(op1)).get_Ambito());
+                instrucciones.append("FILD " + op1 + "\n");
                 return " ";
             default:
                 return " ";
