@@ -12,25 +12,16 @@ public class Assembler {
     private static StringBuilder instrucciones = new StringBuilder();
     private TablaSimbolos datos;
     private HashMap<String, Boolean> registros = new HashMap<String, Boolean>();
-    private HashMap<String, Boolean> registrosPtoFlot = new HashMap<String, Boolean>();
     private boolean seguir = true;
     private static String ultimoComparador;
 
     public Assembler(HashMap<Integer, Terceto> ci, TablaSimbolos d) {
         CodIntermedio = new HashMap<Integer, Terceto>(ci);
         datos = d;
-        registros.put("EAX", false);
+        registros.put("EDX", false);
         registros.put("EBX", false);
         registros.put("ECX", false);
-        registros.put("EDX", false);
-        registrosPtoFlot.put("ST(0)", false);
-        registrosPtoFlot.put("ST(1)", false);
-        registrosPtoFlot.put("ST(2)", false);
-        registrosPtoFlot.put("ST(3)", false);
-        registrosPtoFlot.put("ST(4)", false);
-        registrosPtoFlot.put("ST(5)", false);
-        registrosPtoFlot.put("ST(6)", false);
-        registrosPtoFlot.put("ST(7)", false);
+        registros.put("EAX", false);
     }
 
     public static void generarArchivo() {
@@ -55,10 +46,10 @@ public class Assembler {
         codigo.append("option casemap :none\n");
         codigo.append("include \\masm32\\include\\windows.inc\n");
         codigo.append("include \\masm32\\include\\kernel32.inc\n");
-        // codigo.append("include \\masm32\\include\\masm32.inc\n");
+        codigo.append("include \\masm32\\include\\masm32.inc\n");
         codigo.append("include \\masm32\\include\\user32.inc\n");
         codigo.append("includelib \\masm32\\lib\\kernel32.lib\n");
-        // codigo.append("includelib \\masm32\\lib\\masm32.lib\n");
+        codigo.append("includelib \\masm32\\lib\\masm32.lib\n");
         codigo.append("includelib \\masm32\\lib\\user32.lib\n");
         codigo.append(".data\n");
         codigo.append("MaxNumUSHORT db 255\n");
@@ -77,6 +68,25 @@ public class Assembler {
         codigo.append(instrucciones);
         codigo.append("END START");
         generarArchivo();
+        imprimirCodigoIntermedio();
+    }
+
+    private void imprimirCodigoIntermedio() {
+        System.out.println("CODIGO INTERMEDIO");
+        for (HashMap.Entry<Integer, Terceto> i : CodIntermedio.entrySet()) {
+            String j = i.getValue().get_Op1();
+            String s = i.getValue().get_Op2();
+            if (!s.contains("[") && s != "-") {
+                int k = Integer.parseInt(s);
+                s = datos.get_Simbolo(k).get_Lex();
+            }
+            if (!j.contains("[") && j != "-") {
+                int l = Integer.parseInt(j);
+                j = datos.get_Simbolo(l).get_Lex();
+            }
+            System.out.println("Referencia: " + i.getKey() + ", Terceto: (" + i.getValue().get_Operador() + " , " + j
+                    + " , " + s + ")" + " Tipo: " + i.getValue().get_Tipo() + " VA: " + i.getValue().get_VA());
+        }
     }
 
     public String borrarCorchetes(String p) {
@@ -89,18 +99,17 @@ public class Assembler {
         for (HashMap.Entry<Integer, Terceto> i : CodIntermedio.entrySet()) {
             if (seguir) {
                 Terceto t = i.getValue();
+                String registro = " ";
                 String instruccion = devolverOperacion(t);
                 String operador = t.get_Operador();
                 if (operador.startsWith("Label")) {
                     instrucciones.append(operador + ":" + "\n");
                 }
                 if (instruccion != "ERROR") {
-                    String registro = " ";
-                    if (t.get_Tipo() == "DOUBLE") {
-                        registro = "ST(0)";
-                    } else {
-                        registro = getRegistroDisponible();
-                    }
+                    // if (t.get_Tipo() == "DOUBLE") {
+                    // registro = "ST(0)";
+                    // } else {
+                    // }
                     String op1 = t.get_Op1();
                     String op2 = t.get_Op2();
 
@@ -132,19 +141,26 @@ public class Assembler {
                             op2 = s2.get_Lex();
                     }
                     if ((operador == "+") || (operador == "-") || (operador == "*") || (operador == "/")) {
-                        if (t.get_Tipo() == "DOUBLE")
+                        registro = getRegistroDisponible();
+                        if (t.get_Tipo() == "DOUBLE") {
                             instrucciones.append("FLD " + op1 + "\n");
-                        else
-                            instrucciones.append("MOV " + registro + ", " + op1 + "\n");
-                        instrucciones.append(instruccion + " " + registro + ", " + op2 + "\n");
-                        String vAux = t.set_VA();
-                        Simbolo sim = new Simbolo(280, vAux);
-                        TablaSimbolos.agregar_sin_chequear(sim);
-                        if (t.get_Tipo() == "DOUBLE")
+                            instrucciones.append("FLD " + op2 + "\n");
+                            instrucciones.append(instruccion + "\n");
+                            String vAux = t.set_VA();
+                            Simbolo sim = new Simbolo(280, vAux);
+                            TablaSimbolos.agregar_sin_chequear(sim);
                             instrucciones.append("FSTP " + vAux + "\n");
-                        else
+                        } else {
+                            instrucciones.append("MOV " + registro + ", " + op1 + "\n");
+                            instrucciones.append(instruccion + " " + registro + ", " + op2 + "\n");
+                            String vAux = t.set_VA();
+                            Simbolo sim = new Simbolo(280, vAux);
+                            TablaSimbolos.agregar_sin_chequear(sim);
                             instrucciones.append("MOV " + vAux + ", " + registro + "\n");
+                        }
+                        setRegistroDisponible(registro);
                     } else if (operador == "=") {
+                        registro = getRegistroDisponible();
                         if (t.get_Tipo() == "DOUBLE") {
                             instrucciones.append("FLD " + op2 + "\n");
                             instrucciones.append("FSTP " + op1 + "\n");
@@ -152,9 +168,12 @@ public class Assembler {
                             instrucciones.append("MOV " + registro + ", " + op2 + "\n");
                             instrucciones.append("MOV " + op1 + ", " + registro + "\n");
                         }
+                        setRegistroDisponible(registro);
                     } else if (operador == ">" || operador == ">=" || operador == "<" || operador == "<=") {
+                        registro = getRegistroDisponible();
                         instrucciones.append("MOV " + registro + ", " + op1 + "\n");
                         instrucciones.append("CMP " + registro + ", " + op2 + "\n");
+                        setRegistroDisponible(registro);
                     } else if (instruccion == "JMP") {
                         String destino = borrarCorchetes(op2);
                         instrucciones.append("JMP " + "Label" + destino + "\n");
@@ -191,6 +210,7 @@ public class Assembler {
         for (HashMap.Entry<String, Boolean> e : registros.entrySet()) {
             if (!e.getValue()) {
                 registros.put(e.getKey(), true);
+                System.out.println(e.getKey());
                 return e.getKey();
             }
         }
@@ -325,16 +345,29 @@ public class Assembler {
             case "BF":
                 return "BF";
             case "PRINT":
-                instrucciones.append("invoke MessageBox, NULL, addr " +)
+                instrucciones
+                        .append("invoke MessageBox, NULL, addr @cadena" + op1 + ", addr @cadena" + op1 + ", MB_OK"
+                                + "\n");
                 return " ";
             case "UStoL":
                 // ocupar los registros y chequear esto
-                instrucciones.append("MOV BL, " + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
-                instrucciones.append("MOV BH, 0" + "\n");
-                instrucciones.append("MOV BX, " + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
-                instrucciones.append("MOV ECX, 0" + "\n");
-                instrucciones.append("MOV CX, BX" + "\n");
-                instrucciones.append("MOV EBX, ECX" + "\n");
+                // instrucciones.append("MOV BL, " +
+                // datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
+                // instrucciones.append("MOV BH, 0" + "\n");
+                // instrucciones.append("MOV BX, " +
+                // datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
+                // instrucciones.append("MOV ECX, 0" + "\n");
+                // instrucciones.append("MOV CX, BX" + "\n");
+                // instrucciones.append("MOV EBX, ECX" + "\n");
+                String registro = getRegistroDisponible();
+                System.out.println("Registro: " + registro);
+                char segundo = registro.charAt(1);
+                if (registro != " ") {
+                    instrucciones.append(
+                            "MOV " + segundo + "L, " + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
+                    instrucciones.append("MOVSX " + registro + ", " + segundo + "L" + "\n");
+                }
+                setRegistroDisponible(registro);
                 return " ";
             case "UStoD":
                 // ocupar los registros y chequear
@@ -353,6 +386,7 @@ public class Assembler {
                 else
                     op1 = "_" + datos.reemplazarPuntos(datos.get_Simbolo(Integer.parseInt(op1)).get_Ambito());
                 instrucciones.append("FILD " + op1 + "\n");
+                t.set_VA();
                 return " ";
             default:
                 return " ";

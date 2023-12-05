@@ -7,14 +7,14 @@ public class Terceto {
     private String op2;
     private String tipo;
     private String variableAuxiliar;
-    private static int contadorVA = 1;
+    private static int contadorVA = 0;
 
     public Terceto(String op, String o1, String o2) {
         operador = op;
         op1 = o1;
         op2 = o2;
         tipo = "-";
-        variableAuxiliar = "@aux";
+        variableAuxiliar = " ";
     }
 
     public Terceto(String op, String o1) {
@@ -22,12 +22,12 @@ public class Terceto {
         op1 = o1;
         op2 = " ";
         tipo = "-";
-        variableAuxiliar = "@aux";
+        variableAuxiliar = " ";
     }
 
     public String set_VA() {
         contadorVA += 1;
-        variableAuxiliar += Integer.toString(contadorVA);
+        variableAuxiliar = "@aux" + Integer.toString(contadorVA);
         return variableAuxiliar;
     }
 
