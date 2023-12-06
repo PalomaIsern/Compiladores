@@ -352,15 +352,6 @@ public class Assembler {
                                 + "\n");
                 return " ";
             case "UStoL":
-                // ocupar los registros y chequear esto
-                // instrucciones.append("MOV BL, " +
-                // datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
-                // instrucciones.append("MOV BH, 0" + "\n");
-                // instrucciones.append("MOV BX, " +
-                // datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
-                // instrucciones.append("MOV ECX, 0" + "\n");
-                // instrucciones.append("MOV CX, BX" + "\n");
-                // instrucciones.append("MOV EBX, ECX" + "\n");
                 String registro = getRegistroDisponible();
                 System.out.println("Registro: " + registro);
                 char segundo = registro.charAt(1);
@@ -369,25 +360,33 @@ public class Assembler {
                             "MOV " + segundo + "L, " + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
                     instrucciones.append("MOVSX " + registro + ", " + segundo + "L" + "\n");
                 }
+                t.set_VA();
                 setRegistroDisponible(registro);
                 return " ";
             case "UStoD":
-                // ocupar los registros y chequear
-                instrucciones.append("MOV BL, " + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
-                instrucciones.append("MOV BH, 0" + "\n");
-                instrucciones.append("MOV BX, " + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
-                instrucciones.append("MOV ECX, 0" + "\n");
-                instrucciones.append("MOV CX, BX" + "\n");
-                instrucciones.append("MOV EBX, ECX" + "\n");
-                instrucciones.append("MOV EAX, " + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
-                instrucciones.append("MOV EDX, 0" + "\n");
+                String registro_aux = getRegistroDisponible();
+                System.out.println("Registro: " + registro_aux);
+                char segundo_aux = registro_aux.charAt(1);
+                if (op1.startsWith("["))
+                    op1 = CodIntermedio.get(Integer.parseInt(borrarCorchetes(op1))).get_VA();
+                else
+                    op1 = "_" + datos.reemplazarPuntos(datos.get_Simbolo(Integer.parseInt(op1)).get_Ambito());
+                if (registro_aux != " ") {
+                    instrucciones.append(
+                            "MOV " + segundo_aux + "L, " + op1 + "\n");
+                    instrucciones.append("MOVSX " + registro_aux + ", " + segundo_aux + "L" + "\n");
+                }
+                instrucciones.append("FLD " + op1 + "\n");
+                instrucciones.append("FST " + op1 + "\n");
+                t.set_VA();
+                setRegistroDisponible(registro_aux);
                 return " ";
             case "LtoD":
                 if (op1.startsWith("["))
                     op1 = CodIntermedio.get(Integer.parseInt(borrarCorchetes(op1))).get_VA();
                 else
                     op1 = "_" + datos.reemplazarPuntos(datos.get_Simbolo(Integer.parseInt(op1)).get_Ambito());
-                instrucciones.append("FILD " + op1 + "\n");
+                instrucciones.append("FLD " + op1 + "\n");
                 t.set_VA();
                 return " ";
             default:
