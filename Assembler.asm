@@ -14,6 +14,8 @@ MinNumLong dd -2147483648
 MaxNumLong dd 2147483647
 MinNumDouble dq 2.2250738585072014e-308
 MaxNumDouble dq 1.7976931348623157e+308
+OverflowMultiplicacion db "Overflow en multiplicacion de enteros"
+OverflowResta db "Resultado negativo en resta de enteros sin signo"
 _x$main dq  ?
 _y$main dd  ?
 _z$main db  ?
@@ -46,10 +48,10 @@ FLD @aux3
 FSTP _x$main
 FLD -5.0
 FSTP _x$main
-MOV EDX, 6
-MOV _y$main, EDX
-MOV DL, _z$main
-MOVSX EDX, DL
+MOV ECX, 6
+MOV _y$main, ECX
+MOV CL, _z$main
+MOVSX ECX, CL
 FLD _z$main
 FST _z$main
 FLD _x$main
@@ -58,8 +60,8 @@ FADD
 FSTP @aux5
 FLD @aux5
 FSTP _x$main
-MOV EDX, 4.0
-CMP EDX, 5.0
+MOV ECX, 4.0
+CMP ECX, 5.0
 JGE Label15
 invoke MessageBox, NULL, addr @cadena11, addr @cadena11, MB_OK
 JMP Label16
@@ -70,13 +72,19 @@ FLD _x$main
 FLD @aux6
 FSUB
 FSTP @aux7
-MOV EDX, @aux7
-MOV _y$main, EDX
-MOV DL, 3
-MOVSX EDX, DL
-MOV EDX, @aux8
-IMUL EDX, _y$main
-MOV @aux9, EDX
-MOV EDX, @aux9
-MOV _z$main, EDX
-END START
+MOV EAX, @aux7
+MOV _y$main, EAX
+MOV AL, 3
+MOVSX EAX, AL
+MOV EAX, @aux8
+IMUL EAX, _y$main
+MOV @aux9, EAX
+JO OverFlowMul 
+JMP ContinuarSinOverFlowMul 
+OverFlowMul: 
+invoke  MessageBox, NULL, ADDR OverFlowMultiplicacion, ADDR OverFlowMultiplicacion, MB_OK 
+invoke ExitProcess, 0
+ContinuarSinOverFlowMul: 
+MOV EAX, @aux9
+MOV _z$main, EAX
+END START 

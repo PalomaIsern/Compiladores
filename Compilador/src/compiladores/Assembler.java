@@ -59,6 +59,8 @@ public class Assembler {
         codigo.append("MaxNumLong dd 2147483647\n");
         codigo.append("MinNumDouble dq 2.2250738585072014e-308\n");
         codigo.append("MaxNumDouble dq 1.7976931348623157e+308\n");
+        codigo.append("OverflowMultiplicacion db \"Overflow en multiplicacion de enteros\"" + "\n");
+        codigo.append("OverflowResta db \"Resultado negativo en resta de enteros sin signo\"" + "\n");
 
         generarInstrucciones();
 
@@ -97,6 +99,32 @@ public class Assembler {
         return p;
     }
 
+    public void controlar_OverFlowMul(String tipo) {
+        if (tipo == "LONG")
+            instrucciones.append("JO OverFlowMul \n");
+        else
+            instrucciones.append("JC OverFlowMul \n");
+        instrucciones.append("JMP ContinuarSinOverFlowMul \n");
+        instrucciones.append("OverFlowMul: \n");
+        instrucciones
+                .append("invoke  MessageBox, NULL, ADDR OverFlowMultiplicacion, ADDR OverFlowMultiplicacion, MB_OK \n");
+        instrucciones.append("invoke ExitProcess, 0" + "\n");
+        instrucciones.append("ContinuarSinOverFlowMul: \n");
+    }
+
+    public void controlar_OverFlowResta() {
+        instrucciones.append("JC OverFlowResta \n");
+        instrucciones.append("JMP ContinuarSinOverFlowResta \n");
+        instrucciones.append("OverFlowResta: \n");
+        instrucciones.append("invoke  MessageBox, NULL, ADDR OverFlowResta, ADDR OverFlowResta, MB_OK \n");
+        instrucciones.append("invoke ExitProcess, 0" + "\n");
+        instrucciones.append("ContinuarSinOverFlowResta: \n");
+    }
+
+    public void controlar_OverFlowSum() {
+
+    }
+
     public void generarInstrucciones() {
         for (HashMap.Entry<Integer, Terceto> i : CodIntermedio.entrySet()) {
             if (seguir) {
@@ -108,10 +136,6 @@ public class Assembler {
                     instrucciones.append(operador + ":" + "\n");
                 }
                 if (instruccion != "ERROR") {
-                    // if (t.get_Tipo() == "DOUBLE") {
-                    // registro = "ST(0)";
-                    // } else {
-                    // }
                     String op1 = t.get_Op1();
                     String op2 = t.get_Op2();
 
@@ -144,7 +168,8 @@ public class Assembler {
                     }
                     if ((operador == "+") || (operador == "-") || (operador == "*") || (operador == "/")) {
                         registro = getRegistroDisponible();
-                        if (t.get_Tipo() == "DOUBLE") {
+                        String tipo = t.get_Tipo();
+                        if (tipo == "DOUBLE") {
                             instrucciones.append("FLD " + op1 + "\n");
                             instrucciones.append("FLD " + op2 + "\n");
                             instrucciones.append(instruccion + "\n");
@@ -158,9 +183,18 @@ public class Assembler {
                             String vAux = t.set_VA();
                             Simbolo sim = new Simbolo(280, vAux);
                             TablaSimbolos.agregar_sin_chequear(sim);
-                            instrucciones.append("MOV " + vAux + ", " + registro + "\n");
+                            if (operador == "-" && tipo == "USHORT")
+                                controlar_OverFlowResta();
+                            else
+                                instrucciones.append("MOV " + vAux + ", " + registro + "\n");
                         }
-                        setRegistroDisponible(registro);
+                        if (operador == "*" && (tipo == "USHORT" || tipo == "LONG")) {
+                            controlar_OverFlowMul(tipo);
+                            setRegistroDisponible(registro);
+                        } else if (operador == "+" && tipo == "DOUBLE") {
+                            controlar_OverFlowSum();
+                            setRegistroDisponible(registro);
+                        }
                     } else if (operador == "=") {
                         registro = getRegistroDisponible();
                         if (t.get_Tipo() == "DOUBLE") {
@@ -243,76 +277,21 @@ public class Assembler {
             uso2 = "-";
         switch (operador) {
             case "+":
-                if (tipo == "DOUBLE") {
-                    /*
-                     * if (uso1 == "Constante" && uso2 == "Constante") {
-                     * if ((Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op1)).get_Lex()) +
-                     * Integer
-                     * .parseInt(datos.get_Simbolo(Integer.parseInt(op2)).get_Lex())) <
-                     * 2.2250738585072014e-308
-                     * || (Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op1)).get_Lex())
-                     * + Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op2))
-                     * .get_Lex())) > 1.7976931348623157e+308) {
-                     * System.out.println("ERROR: linea " + Linea.getLinea()
-                     * + " El resultado de la suma esta fuera del rango permitido");
-                     * return "ERROR";
-                     * }
-                     * }
-                     */
+                if (tipo == "DOUBLE")
                     return "FADD";
-                } else
+                else
                     return "ADD";
             case "-":
                 if (tipo == "DOUBLE")
                     return "FSUB";
-                else if (tipo == "USHORT") {
-                    /*
-                     * if (uso1 == "Constante" && uso2 == "Constante") {
-                     * if ((Integer.parseInt(op1) - Integer.parseInt(op2)) < 0) {
-                     * System.out.println("ERROR: linea " + Linea.getLinea()
-                     * +
-                     * " El resultado de la resta en enteros sin signos no puede dar un resultado negativo"
-                     * );
-                     * return "ERROR";
-                     * }
-                     * }
-                     */
-                }
                 return "SUB";
             case "*":
                 if (tipo == "DOUBLE")
                     return "FMUL";
-                else if (tipo == "LONG") {
-                    /*
-                     * if (uso1 == "Constante" && uso2 == "Constante") {
-                     * if (((Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op1)).get_Lex())
-                     * + Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op2)).get_Lex())) <
-                     * -2147483648)
-                     * || ((Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op1)).get_Lex()) +
-                     * Integer
-                     * .parseInt(datos.get_Simbolo(Integer.parseInt(op2)).get_Lex())) > 2147483647))
-                     * {
-                     * System.out.println("ERROR: linea " + Linea.getLinea()
-                     * + " El resultado del producto esta fuera del rango permitido");
-                     * return "ERROR";
-                     * }
-                     * }
-                     */
+                else if (tipo == "LONG")
                     return "IMUL";
-                } else if (tipo == "USHORT") {
-                    /*
-                     * if (uso1 == "Constante" && uso2 == "Constante") {
-                     * if ((Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op1)).get_Lex())
-                     * + Integer.parseInt(datos.get_Simbolo(Integer.parseInt(op2)).get_Lex())) >
-                     * 255) {
-                     * System.out.println("ERROR: linea " + Linea.getLinea()
-                     * + " El resultado del producto esta fuera del rango permitido");
-                     * return "ERROR";
-                     * }
-                     * }
-                     */
+                else if (tipo == "USHORT")
                     return "MUL";
-                }
             case "/":
                 if (tipo == "DOUBLE")
                     return "FDIV";
