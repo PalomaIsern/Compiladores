@@ -255,34 +255,45 @@ atributo_objeto : ID '.' ID {   int refObjeto = verObjetoDeclarado($1.sval);
                             }
 ;
 
-declaracionFuncion: funcion_VOID    {dentroFuncion = false;}
-                  | funcion_VOID_vacia { dentroFuncion = false;}
+declaracionFuncion: funcion_VOID    {dentroFuncion = false;
+                                    if ($1.sval != " ") {
+                                        int aux = crear_terceto($1.sval, "-","-");}}
+                  | funcion_VOID_vacia { dentroFuncion = false;
+                                    if ($1.sval != " ") {
+                                        int aux = crear_terceto($1.sval, "-","-");}}
 ;
 
 funcion_VOID: inicio_Void parametro_formal '{' cuerpo_funcion '}' {//System.out.println("Se reconocio una declaracion de una funcion VOID en linea "+ Linea.getLinea());
-                                                                String idFuncion = obtenerAmbito($1.sval+ambito);
-                                                                int clave = TS.buscar_por_ambito(idFuncion);
-                                                                metodosTemp.add(clave);
-                                                                TS.get_Simbolo(clave).set_Parametro($2.sval);
-                                                                funciones.put(clave, Linea.getLinea());
+                                                                int clave = TS.buscar_por_ambito($1.sval);
+                                                                if ($1.sval != " ") {
+                                                                    metodosTemp.add(clave);
+                                                                    TS.get_Simbolo(clave).set_Parametro($2.sval);
+                                                                    funciones.put(clave, Linea.getLinea());
+                                                                }
+                                                                $$.sval = $1.sval;
                                                                 volver_Ambito();
                                                                 }
 ;
 
 funcion_VOID_vacia: inicio_Void parametro_formal {//System.out.println("Se reconocio una declaracion de una funcion VOID vacia en linea "+ Linea.getLinea());
-                                            String idFuncion = obtenerAmbito($1.sval+ambito);
-                                            int clave = TS.buscar_por_ambito(idFuncion);
-                                            metodosTempNoImp.add(clave);
-                                            TS.get_Simbolo(clave).set_Parametro($2.sval); //DUDAAA
-                                            funciones.put(clave, Linea.getLinea());
+                                            int clave = TS.buscar_por_ambito($1.sval);
+                                            if ($1.sval != " ") {
+                                                metodosTempNoImp.add(clave);
+                                                TS.get_Simbolo(clave).set_Parametro($2.sval);
+                                                funciones.put(clave, Linea.getLinea());
+                                            }
+                                            $$.sval = $1.sval;                                                    
                                             volver_Ambito();
                                             }
 ;
 
-inicio_Void: VOID ID {$$.sval = $2.sval;
-                    setear_Ambito($2.sval+ambito, $2.sval);
-                    setear_Uso("Metodo", $2.sval+ambito);
-                    setear_Tipo($2.sval+ambito, "VOID");
+inicio_Void: VOID ID {
+                    if (setear_Ambito($2.sval+ambito, $2.sval)) {
+                        $$.sval = $2.sval+ambito;
+                        setear_Uso("Metodo", $2.sval+ambito);
+                        setear_Tipo($2.sval+ambito, "VOID");
+                        int aux = crear_terceto($2.sval+ambito, "-","-");
+                    } else $$.sval = " ";
                     ambito += ":" + $2.sval;
                     dentroFuncion = true;
 }
@@ -436,8 +447,6 @@ invocacionFuncion : ID parametro_real  {
                                         if (!ver_ElementoDeclarado($1.sval))
                                             System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + $1.sval + " no fue declarado");
                                         int ref = obtenerReferenciaFuncion($1.sval, ambito);
-                                        if (ref != -1)
-                                            System.out.println("Linea "+Linea.getLinea()+" "+$1.sval+" ref "+ref+" "+TS.get_Simbolo(ref).get_Ambito());
                                         int aux = buscar_Parametro($1.sval, ambito);
                                         String tipo_real;
                                         if (ref != -1) {
@@ -592,15 +601,6 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
         return clave;        
     }
     
-    public String obtenerAmbito(String ambito) 
-    {   //saca la ultima parte del ambito 
-        if (ambito.contains(":")) {
-            String[] partes = ambito.split(":");
-            return String.join(":", Arrays.copyOf(partes, partes.length - 1));
-        }
-        return " ";
-    }
-
     public int obtenerClase(String id) {
         //Dado el ID de un objeto, obtenemos la referencia a la TS de la clase a la cual pertenece
         int clave = TS.buscar_por_ambito(id);
@@ -714,7 +714,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
         }
         return true;
     }*/
-
+  
     public void agregarClase(String ID, ArrayList<Integer> mets, ArrayList<Integer> metsNoImp, ArrayList<Integer> atrs) {
         int clave = TS.buscar_por_ambito(ID);
         //chequeamos que no se sobreescriban los metodos del padre, si es que tiene

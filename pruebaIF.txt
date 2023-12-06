@@ -91,6 +91,7 @@ CLASS clase2 {
     DOUBLE atributo,
     VOID funcionclase(LONG w) {
         LONG entero_largo,
+        w = 5.0 + 10000_l,
     },
     VOID metodo_dos(),
     VOID funcion_uno(),

@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.HashMap;
+import java.util.Stack;
 
 public class Assembler {
 
@@ -14,6 +15,7 @@ public class Assembler {
     private HashMap<String, Boolean> registros = new HashMap<String, Boolean>();
     private boolean seguir = true;
     private static String ultimoComparador;
+    private Stack<String> funciones = new Stack<String>();
 
     public Assembler(HashMap<Integer, Terceto> ci, TablaSimbolos d) {
         CodIntermedio = new HashMap<Integer, Terceto>(ci);
