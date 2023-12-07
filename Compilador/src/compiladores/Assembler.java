@@ -3,6 +3,7 @@ package compiladores;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
 
@@ -67,7 +68,8 @@ public class Assembler {
 
         codigo.append(datos.getDatosAssembler());
         codigo.append(".code\n");
-        codigo.append(datos.getFuncionesAssembler());
+        HashMap<String, Integer> func = new HashMap<>(datos.getFuncionesAssembler());
+        generarCodigoFunciones(func);
         // codigo
         codigo.append("START:\n");
         codigo.append(instrucciones);
@@ -84,6 +86,21 @@ public class Assembler {
         codigo.append("END START");
         generarArchivo();
         imprimirCodigoIntermedio();
+    }
+
+    public void agregarFunciones(String op, int ref1, int ref2) {
+
+    }
+
+    public void generarCodigoFunciones(HashMap<String, Integer> funciones) {
+        String operador;
+        for (HashMap.Entry<Integer, Terceto> i : CodIntermedio.entrySet()) {
+            operador = i.getValue().get_Operador();
+            if (funciones.get(operador) != null && funciones.get(operador) == -1)
+                funciones.put(operador, i.getKey());
+            else if (funciones.get(operador) != null && funciones.get(operador) != -1)
+                agregarFunciones(operador, funciones.get(operador), i.getKey());
+        }
     }
 
     private void imprimirCodigoIntermedio() {
@@ -131,6 +148,22 @@ public class Assembler {
         setRegistroDisponible(registro);
     }
 
+    private String obtenerOperando(String op, String instruccion) {
+        if (op.startsWith("[")) {
+            if (instruccion != "JMP")
+                return CodIntermedio.get(Integer.parseInt(borrarCorchetes(op))).get_VA();
+        } else if (op != "-") {
+            Simbolo s = datos.get_Simbolo(Integer.parseInt(op));
+            if (op != "-" && s.get_Uso() != "Constante" && s.get_Uso() != "ConstantePositiva"
+                    && s.get_Uso() != "Constante negativa")
+                return "_" + datos.reemplazarPuntos(s.get_Ambito());
+            else if (op != "-" && s.get_Uso() == "Constante" || op != "-" && s.get_Uso() == "ConstantePositiva"
+                    || op != "-" && s.get_Uso() == "Constante negativa")
+                return s.get_Lex();
+        }
+        return op;
+    }
+
     public void generarInstrucciones() {
         for (HashMap.Entry<Integer, Terceto> i : CodIntermedio.entrySet()) {
             if (seguir) {
@@ -142,36 +175,9 @@ public class Assembler {
                     instrucciones.append(operador + ":" + "\n");
                 }
                 if (instruccion != "ERROR") {
-                    String op1 = t.get_Op1();
-                    String op2 = t.get_Op2();
+                    String op1 = obtenerOperando(t.get_Op1(), instruccion);
+                    String op2 = obtenerOperando(t.get_Op2(), instruccion);
 
-                    if (op1.startsWith("[")) {
-                        if (instruccion != "JMP")
-                            op1 = CodIntermedio.get(Integer.parseInt(borrarCorchetes(op1))).get_VA();
-                    } else if (op1 != "-") {
-                        Simbolo s1 = datos.get_Simbolo(Integer.parseInt(t.get_Op1()));
-                        if (op1 != "-" && s1.get_Uso() != "Constante" && s1.get_Uso() != "ConstantePositiva"
-                                && s1.get_Uso() != "Constante negativa")
-                            op1 = "_" + datos.reemplazarPuntos(s1.get_Ambito());
-                        else if (op1 != "-" && s1.get_Uso() == "Constante"
-                                || op1 != "-" && s1.get_Uso() == "ConstantePositiva"
-                                || op1 != "-" && s1.get_Uso() == "Constante negativa")
-                            op1 = s1.get_Lex();
-                    }
-
-                    if (op2.startsWith("[")) {
-                        if (instruccion != "JMP")
-                            op2 = CodIntermedio.get(Integer.parseInt(borrarCorchetes(op2))).get_VA();
-                    } else if (op2 != "-") {
-                        Simbolo s2 = datos.get_Simbolo(Integer.parseInt(t.get_Op2()));
-                        if (op2 != "-" && s2.get_Uso() != "Constante" && s2.get_Uso() != "ConstantePositiva"
-                                && s2.get_Uso() != "Constante negativa")
-                            op2 = "_" + datos.reemplazarPuntos(s2.get_Ambito());
-                        else if (op2 != "-" && s2.get_Uso() == "Constante"
-                                || op2 != "-" && s2.get_Uso() == "ConstantePositiva"
-                                || op1 != "-" && s2.get_Uso() == "Constante negativa")
-                            op2 = s2.get_Lex();
-                    }
                     if ((operador == "+") || (operador == "-") || (operador == "*") || (operador == "/")) {
                         registro = getRegistroDisponible();
                         String tipo = t.get_Tipo();
@@ -185,6 +191,7 @@ public class Assembler {
                             instrucciones.append("FSTP " + vAux + "\n");
                             if (operador == "+")
                                 controlar_OverFlowSum();
+                            setRegistroDisponible(registro);
                         } else {
                             instrucciones.append("MOV " + registro + ", " + op1 + "\n");
                             instrucciones.append(instruccion + " " + registro + ", " + op2 + "\n");
@@ -335,7 +342,6 @@ public class Assembler {
                 return " ";
             case "UStoL":
                 String registro = getRegistroDisponible();
-                System.out.println("Registro: " + registro);
                 char segundo = registro.charAt(1);
                 if (registro != " ") {
                     instrucciones.append(
@@ -347,7 +353,6 @@ public class Assembler {
                 return " ";
             case "UStoD":
                 String registro_aux = getRegistroDisponible();
-                System.out.println("Registro: " + registro_aux);
                 char segundo_aux = registro_aux.charAt(1);
                 if (op1.startsWith("["))
                     op1 = CodIntermedio.get(Integer.parseInt(borrarCorchetes(op1))).get_VA();

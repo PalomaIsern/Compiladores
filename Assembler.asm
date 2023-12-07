@@ -36,26 +36,26 @@ JG Label7
 MOV EDX, _x$main$funcion_main
 ADD EDX, 255
 MOV @aux1, EDX
-MOV EBX, @aux1
-MOV _x$main$funcion_main, EBX
+MOV EDX, @aux1
+MOV _x$main$funcion_main, EDX
 invoke MessageBox, NULL, addr @cadena6, addr @cadena6, MB_OK
 JMP Label11
 Label7:
 invoke MessageBox, NULL, addr @cadena7, addr @cadena7, MB_OK
-MOV BL, _-
-MOVSX EBX, BL
+MOV DL, _-
+MOVSX EDX, DL
 FLD _-
 FST _-
-MOV EBX, @aux2
-MOV _-, EBX
+MOV EDX, @aux2
+MOV _-, EDX
 Label11:
 Label14:
-MOV EBX, _y$main
-ADD EBX, 1.0
-MOV @aux3, EBX
+MOV EDX, _y$main
+ADD EDX, 1.0
+MOV @aux3, EDX
 FLD @aux3
 FSTP _y$main
-MOV ECX, _y$main
-CMP ECX, 133.0
+MOV EDX, _y$main
+CMP EDX, 133.0
 JL Label14
 END START

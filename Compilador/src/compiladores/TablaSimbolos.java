@@ -1,5 +1,6 @@
 package compiladores;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class TablaSimbolos {
@@ -147,14 +148,13 @@ public class TablaSimbolos {
         return sb;
     }
 
-    public StringBuilder getFuncionesAssembler() {
-        StringBuilder sb = new StringBuilder();
+    public HashMap<String, Integer> getFuncionesAssembler() {
+        HashMap<String, Integer> sb = new HashMap<>();
         for (HashMap.Entry<Integer, Simbolo> entry : TS.entrySet()) {
             Simbolo s = get_Simbolo(entry.getKey());
             String uso = s.get_Uso();
             if (uso == "Metodo") {
-                sb.append(reemplazarPuntos(s.get_Ambito()) + ":" + "\n");
-                sb.append("ret" + "\n");
+                sb.put(reemplazarPuntos(s.get_Ambito()) + ":" + "\n", -1);
             }
         }
         return sb;

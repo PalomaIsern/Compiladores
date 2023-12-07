@@ -97,10 +97,14 @@ simboloTermino : '*' { $$.sval = "*";}
                | '/' { $$.sval = "/";}
 ;
 
-factor : ID     {$$.sval = Integer.toString(TS.buscar_por_ambito($1.sval+ambito));
-                setear_Uso("identificador", $1.sval+ambito);
+factor : ID     {
                 if (!ver_ElementoDeclarado($1.sval))
                     System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + $1.sval + " no fue declarado");
+                else {  
+                        System.out.println("var+ambito: "+$1.sval+ambito);
+                        $$.sval = Integer.toString(obtenerReferenciaId($1.sval+ambito));
+                        System.out.println("valor de factor:" +$$.sval);
+                        setear_Uso("identificador", $1.sval+ambito); }
                 }
        | CTE    {//System.out.println("Se reconocio una constante en linea "+Linea.getLinea());
                 chequearRangoPositivo($1.sval, $$);
@@ -349,7 +353,11 @@ comparador : '>' {$$.sval = ">";}
 
 condicion : '(' expresion comparador expresion ')' {//System.out.println("Se reconoció una condicion  en linea "+ Linea.getLinea());
                                                     realizar_Conversion($2.sval, $4.sval, $3.sval, $$);
-                                                    int aux = crear_terceto("BF", $$.sval, "-");
+                                                    int aux;
+                                                    if ($$.sval == "")
+                                                        aux = crear_terceto("BF", "-", "-");
+                                                    else
+                                                        aux = crear_terceto("BF", $$.sval, "-");
                                                     pila.push(aux);}
           | '(' expresion comparador expresion error  {System.out.println("ERROR: linea" + Linea.getLinea() + " Falta el parentesis que cierra");
                                                         $$.sval = '[' + Integer.toString(crear_terceto($3.sval, $2.sval, $4.sval)) + ']';
@@ -689,30 +697,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
         }
     }
 
-    /*public boolean setear_Ambito(String a, String lex){
-        int clave = TS.pertence(lex);
-        if (clave!=-1){
-            Simbolo s = TS.get_Simbolo(clave);
-            String amb= a.substring(a.indexOf(":")+1);
-            if (s.get_Ambito().equals(a)) {
-                if (claseVacia(clave)) {
-                        System.out.println("se completo la FORWARD DECLARATION de "+s.get_Ambito());
-                        return true;
-                    } else {
-                        System.out.println("ERROR: linea " + Linea.getLinea() + " - Redeclaracion de " + s.get_Lex()+ " en el ambito "+ amb);
-                        return false;
-                    }
-            }
-            else
-                if (s.get_Ambito()=="-")
-                    s.set_Ambito(a);
-                else
-                    {Simbolo nuevo = new Simbolo(s.get_Token(), s.get_Lex());
-                    nuevo.set_Ambito(a);
-                    TS.agregar_sin_chequear(nuevo);}
-        }
-        return true;
-    }*/
+    
   
     public void agregarClase(String ID, ArrayList<Integer> mets, ArrayList<Integer> metsNoImp, ArrayList<Integer> atrs) {
         int clave = TS.buscar_por_ambito(ID);
@@ -919,6 +904,27 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
             }
         } 
         return -1;
+    }
+
+    private int obtenerReferenciaId(String variable){
+        int clave = TS.buscar_por_ambito(variable);
+        String var_Original = variable;
+        if (clave == -1) {
+            int index = variable.lastIndexOf(":");
+            while (index != -1) {
+                variable = variable.substring(0, index);
+                clave = TS.pertenece(variable);
+                if (clave != -1)
+                    return clave;
+                else if (variable != var_Original)    
+                    index = variable.lastIndexOf(":");
+                else {
+                    System.out.println("ERROR: linea " + Linea.getLinea() + " La variable no fue declarada o no está al alcance");
+                    return -1;
+                }
+            }
+        }
+        return clave;            
     }
 
     public int buscar_Parametro(String id, String amb){
@@ -1208,30 +1214,42 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
         if (elemento1.contains("[")){
             String ref1 = borrarCorchetes(elemento1);
             tipo1 = CodigoIntermedio.get(Integer.parseInt(ref1)).get_Tipo();}
-        else 
-            tipo1 = TS.get_Simbolo(Integer.parseInt(elemento1)).get_Tipo();
+        else{
+            if (elemento1.matches("\\d+"))
+                tipo1 = TS.get_Simbolo(Integer.parseInt(elemento1)).get_Tipo();
+            else{
+                System.out.println("ERROR: linea " + Linea.getLinea() + " No se puede realizar la conversión porque el tipo no fue declarado");
+                elemento1 = "-1";}
+        }
         if (elemento2.contains("[")){
             String ref2 = borrarCorchetes(elemento2); 
             tipo2 = CodigoIntermedio.get(Integer.parseInt(ref2)).get_Tipo();}
-        else
-            tipo2 = TS.get_Simbolo(Integer.parseInt(elemento2)).get_Tipo();
-        System.out.println("Tipo1: "+tipo1+ " Tipo2: " +tipo2);
-        String OperacionTipo = convertible.Convertir(tipo1, tipo2);
-        if (OperacionTipo!="-"){
-            String elemento = convertible.devolverElementoAConvertir(elemento1, tipo1, elemento2, tipo2);
-            if (elemento == elemento1){
-                String aux = '[' + Integer.toString(crear_terceto(OperacionTipo, elemento1, "-")) + ']';
-                CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(OperacionTipo));
-                valorfinal.sval = '['+ Integer.toString(crear_terceto(operador, aux, elemento2))+ ']';
-            }
+        else{
+            if (elemento2.matches("\\d+"))
+                tipo2 = TS.get_Simbolo(Integer.parseInt(elemento2)).get_Tipo();
             else{
-            String aux = '[' + Integer.toString(crear_terceto(OperacionTipo, elemento2, "-")) + ']';
+                System.out.println("ERROR: linea " + Linea.getLinea() + " No se puede realizar la conversión porque el tipo no fue declarado");
+                elemento2 = "-1";}
+        }
+        System.out.println("Tipo1: "+tipo1+ " Tipo2: " +tipo2);
+        if (elemento1 != "-1" && elemento2 != "-1"){
+            String OperacionTipo = convertible.Convertir(tipo1, tipo2);
+            if (OperacionTipo!="-"){
+                String elemento = convertible.devolverElementoAConvertir(elemento1, tipo1, elemento2, tipo2);
+                if (elemento == elemento1){
+                    String aux = '[' + Integer.toString(crear_terceto(OperacionTipo, elemento1, "-")) + ']';
+                    CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(OperacionTipo));
+                    valorfinal.sval = '['+ Integer.toString(crear_terceto(operador, aux, elemento2))+ ']';
+                }
+                else{
+                String aux = '[' + Integer.toString(crear_terceto(OperacionTipo, elemento2, "-")) + ']';
+                CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(OperacionTipo));
+                valorfinal.sval = '['+ Integer.toString(crear_terceto(operador, elemento1, aux))+ ']';}}
+            else
+                {valorfinal.sval = '['+ Integer.toString(crear_terceto(operador, elemento1, elemento2))+ ']';
+                OperacionTipo = tipo2;}
             CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(OperacionTipo));
-            valorfinal.sval = '['+ Integer.toString(crear_terceto(operador, elemento1, aux))+ ']';}}
-        else
-            {valorfinal.sval = '['+ Integer.toString(crear_terceto(operador, elemento1, elemento2))+ ']';
-            OperacionTipo = tipo2;}
-        CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(OperacionTipo));
+        }
     }
 
     public String convertirTipoAsignacion(String id, String expresion){

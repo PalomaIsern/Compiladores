@@ -15,7 +15,7 @@
 		f1(),
 		CLASS clase2,
 		clase2 c,
-	}
+	},
 	VOID m()
 	{
 		VOID n(){
@@ -23,9 +23,8 @@
 			LONG y,
 			ww = zz + xx + a,
 		},
-	RETURN,
-	DO y=-5000000000_l UNTIL (y!!z),
+	DO y=-5000000000_l, UNTIL (y!!z),
 	** comentario
 	PRINT #cadena1#
-	}
+	},
 }
