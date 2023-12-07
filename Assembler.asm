@@ -16,75 +16,46 @@ MinNumDouble dq 2.2250738585072014e-308
 MaxNumDouble dq 1.7976931348623157e+308
 OverflowMultiplicacion db "Overflow en multiplicacion de enteros"
 OverflowResta db "Resultado negativo en resta de enteros sin signo"
-_x$main dq  ?
-_y$main dd  ?
-_z$main db  ?
-@cadenaInteriorIF db "InteriorIF"
+OverflowSuma db "Overflow en suma de punto flotante"
+_variablecuyonombre__$main db  ?
+_nombrecorto2$main db  ?
+_x$main$funcion_main db  ?
+@cadenaNo es una suma valida db "No es una suma valida"
+@cadenaNO es un cadena valida, db "NO es un cadena valida,"
+hola db  ?
+_y$main dq  ?
 @aux1 db  ?
-@aux2 db  ?
 @aux3 db  ?
-@aux5 db  ?
-@aux7 db  ?
-@aux9 db  ?
 .code
+funcion_main$main:
+ret
 START:
-FLD 2.0
-FLD 1.0
-FADD
-FSTP @aux1
-FLD @aux1
-FSTP _x$main
-FLD _x$main
-FLD 3.0
-FDIV
-FSTP @aux2
-FLD @aux2
-FSTP _x$main
-FLD _x$main
-FLD _x$main
-FMUL
-FSTP @aux3
+MOV EDX, _x$main$funcion_main
+CMP EDX, 5
+JG Label7
+MOV EDX, _x$main$funcion_main
+ADD EDX, 255
+MOV @aux1, EDX
+MOV EBX, @aux1
+MOV _x$main$funcion_main, EBX
+invoke MessageBox, NULL, addr @cadena6, addr @cadena6, MB_OK
+JMP Label11
+Label7:
+invoke MessageBox, NULL, addr @cadena7, addr @cadena7, MB_OK
+MOV BL, _-
+MOVSX EBX, BL
+FLD _-
+FST _-
+MOV EBX, @aux2
+MOV _-, EBX
+Label11:
+Label14:
+MOV EBX, _y$main
+ADD EBX, 1.0
+MOV @aux3, EBX
 FLD @aux3
-FSTP _x$main
-FLD -5.0
-FSTP _x$main
-MOV ECX, 6
-MOV _y$main, ECX
-MOV CL, _z$main
-MOVSX ECX, CL
-FLD _z$main
-FST _z$main
-FLD _x$main
-FLD @aux4
-FADD
-FSTP @aux5
-FLD @aux5
-FSTP _x$main
-MOV ECX, 4.0
-CMP ECX, 5.0
-JGE Label15
-invoke MessageBox, NULL, addr @cadena11, addr @cadena11, MB_OK
-JMP Label16
-Label15:
-Label16:
-FLD _y$main
-FLD _x$main
-FLD @aux6
-FSUB
-FSTP @aux7
-MOV EAX, @aux7
-MOV _y$main, EAX
-MOV AL, 3
-MOVSX EAX, AL
-MOV EAX, @aux8
-IMUL EAX, _y$main
-MOV @aux9, EAX
-JO OverFlowMul 
-JMP ContinuarSinOverFlowMul 
-OverFlowMul: 
-invoke  MessageBox, NULL, ADDR OverFlowMultiplicacion, ADDR OverFlowMultiplicacion, MB_OK 
-invoke ExitProcess, 0
-ContinuarSinOverFlowMul: 
-MOV EAX, @aux9
-MOV _z$main, EAX
-END START 
+FSTP _y$main
+MOV ECX, _y$main
+CMP ECX, 133.0
+JL Label14
+END START

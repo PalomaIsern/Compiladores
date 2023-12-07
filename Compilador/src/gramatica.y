@@ -101,7 +101,6 @@ factor : ID     {$$.sval = Integer.toString(TS.buscar_por_ambito($1.sval+ambito)
                 setear_Uso("identificador", $1.sval+ambito);
                 if (!ver_ElementoDeclarado($1.sval))
                     System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + $1.sval + " no fue declarado");
-                //TS.get_Simbolo(Integer.parseInt($1.sval)).set_Usada("Lado derecho");
                 }
        | CTE    {//System.out.println("Se reconocio una constante en linea "+Linea.getLinea());
                 chequearRangoPositivo($1.sval, $$);
@@ -431,7 +430,7 @@ lista_Variables : lista_Variables ';' ID {  boolean declarado = setear_Ambito($3
                                                 guardar_Var($3.sval+ambito);
                                                 if (! dentroFuncion) 
                                                     atributosTemp.add(TS.buscar_por_ambito($3.sval+ambito));
-                                            }                                                
+                                            }
                                         }
                 | ID {  boolean declarado = setear_Ambito($1.sval+ambito, $1.sval); 
                         if (declarado) {
@@ -1204,6 +1203,8 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
 
     public void realizar_Conversion(String elemento1, String elemento2, String operador, ParserVal valorfinal){
         String tipo1 = "-", tipo2 = "-";
+        System.out.println("elemento1: " + elemento1);
+        System.out.println("elemento2: " + elemento2);
         if (elemento1.contains("[")){
             String ref1 = borrarCorchetes(elemento1);
             tipo1 = CodigoIntermedio.get(Integer.parseInt(ref1)).get_Tipo();}

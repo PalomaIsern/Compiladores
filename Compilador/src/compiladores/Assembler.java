@@ -61,6 +61,7 @@ public class Assembler {
         codigo.append("MaxNumDouble dq 1.7976931348623157e+308\n");
         codigo.append("OverflowMultiplicacion db \"Overflow en multiplicacion de enteros\"" + "\n");
         codigo.append("OverflowResta db \"Resultado negativo en resta de enteros sin signo\"" + "\n");
+        codigo.append("OverflowSuma db \"Overflow en suma de punto flotante\"" + "\n");
 
         generarInstrucciones();
 
@@ -70,6 +71,16 @@ public class Assembler {
         // codigo
         codigo.append("START:\n");
         codigo.append(instrucciones);
+        instrucciones.append("OverFlowMul: \n");
+        instrucciones
+                .append("invoke  MessageBox, NULL, ADDR OverFlowMultiplicacion, ADDR OverFlowMultiplicacion, MB_OK \n");
+        instrucciones.append("invoke ExitProcess, 0" + "\n");
+        instrucciones.append("OverFlowResta: \n");
+        instrucciones.append("invoke  MessageBox, NULL, ADDR OverFlowResta, ADDR OverFlowResta, MB_OK \n");
+        instrucciones.append("invoke ExitProcess, 0" + "\n");
+        instrucciones.append("OverFlowSuma: \n");
+        instrucciones.append("invoke  MessageBox, NULL, ADDR OverFlowSuma, ADDR OverFlowSuma, MB_OK \n");
+        instrucciones.append("invoke ExitProcess, 0" + "\n");
         codigo.append("END START");
         generarArchivo();
         imprimirCodigoIntermedio();
@@ -104,25 +115,20 @@ public class Assembler {
             instrucciones.append("JO OverFlowMul \n");
         else
             instrucciones.append("JC OverFlowMul \n");
-        instrucciones.append("JMP ContinuarSinOverFlowMul \n");
-        instrucciones.append("OverFlowMul: \n");
-        instrucciones
-                .append("invoke  MessageBox, NULL, ADDR OverFlowMultiplicacion, ADDR OverFlowMultiplicacion, MB_OK \n");
-        instrucciones.append("invoke ExitProcess, 0" + "\n");
-        instrucciones.append("ContinuarSinOverFlowMul: \n");
     }
 
     public void controlar_OverFlowResta() {
         instrucciones.append("JC OverFlowResta \n");
-        instrucciones.append("JMP ContinuarSinOverFlowResta \n");
-        instrucciones.append("OverFlowResta: \n");
-        instrucciones.append("invoke  MessageBox, NULL, ADDR OverFlowResta, ADDR OverFlowResta, MB_OK \n");
-        instrucciones.append("invoke ExitProcess, 0" + "\n");
-        instrucciones.append("ContinuarSinOverFlowResta: \n");
     }
 
     public void controlar_OverFlowSum() {
-
+        String registro = getRegistroDisponible();
+        char segundo = registro.charAt(1);
+        instrucciones.append("FSTSW aux_sumaDouble \n");
+        instrucciones.append("MOV " + segundo + " X, aux_sumaDouble" + "\n");
+        instrucciones.append("SAHF " + "\n");
+        instrucciones.append("JO OverFlowSuma \n");
+        setRegistroDisponible(registro);
     }
 
     public void generarInstrucciones() {
@@ -177,6 +183,8 @@ public class Assembler {
                             Simbolo sim = new Simbolo(280, vAux);
                             TablaSimbolos.agregar_sin_chequear(sim);
                             instrucciones.append("FSTP " + vAux + "\n");
+                            if (operador == "+")
+                                controlar_OverFlowSum();
                         } else {
                             instrucciones.append("MOV " + registro + ", " + op1 + "\n");
                             instrucciones.append(instruccion + " " + registro + ", " + op2 + "\n");
@@ -185,14 +193,9 @@ public class Assembler {
                             TablaSimbolos.agregar_sin_chequear(sim);
                             if (operador == "-" && tipo == "USHORT")
                                 controlar_OverFlowResta();
-                            else
-                                instrucciones.append("MOV " + vAux + ", " + registro + "\n");
-                        }
-                        if (operador == "*" && (tipo == "USHORT" || tipo == "LONG")) {
-                            controlar_OverFlowMul(tipo);
-                            setRegistroDisponible(registro);
-                        } else if (operador == "+" && tipo == "DOUBLE") {
-                            controlar_OverFlowSum();
+                            else if (operador == "*")
+                                controlar_OverFlowMul(tipo);
+                            instrucciones.append("MOV " + vAux + ", " + registro + "\n");
                             setRegistroDisponible(registro);
                         }
                     } else if (operador == "=") {
