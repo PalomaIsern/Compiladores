@@ -305,15 +305,18 @@ inicio_Void: VOID ID {
 clausula_IMPL : IMPL FOR ID ':' '{' funcion_VOID fin_sentencia '}'  {   int idClase = TS.buscar_por_ambito($3.sval+ambito);
                                                                         if (!ver_ElementoDeclarado($3.sval)) //verificar que la clase exista
                                                                             System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + $3.sval + " no fue declarado");
-                                                                        if (verificarExistencia(idClase, $6.sval, "metodoNoImpl") != -1) 
-                                                                            agregarMetodoImplementado($3.sval+ambito, $6.sval+ambito+":"+$3.sval);
-                                                                        int clave = TS.buscar_por_ambito($6.sval+ambito);
+                                                                        String metodo = $6.sval.split(":")[0];
+                                                                        if (verificarExistencia(idClase, metodo, "metodoNoImpl") != -1) {
+                                                                            agregarMetodoImplementado($3.sval+ambito, metodo+ambito+":"+$3.sval);
+                                                                        }
+                                                                        int clave = TS.buscar_por_ambito(metodo+ambito);
                                                                         if (clave != -1) { 
                                                                             if (metodosClases.get(idClase)!=null) 
                                                                                 metodosClases.get(idClase).remove(Integer.valueOf(clave));
                                                                             funciones.remove(clave);            
                                                                             TS.remove_Simbolo(clave);
                                                                         }
+                                                                        int aux = crear_terceto($6.sval, "-", "-");
                                                                     }
 ;
 
@@ -840,7 +843,8 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
     }
     
     public int verificarExistencia(int clase, String nombre, String objeto) 
-    {   ArrayList<Integer> o = new ArrayList<Integer>();
+    {   System.out.println("verficiar existencia "+clase+" "+nombre+" "+objeto);
+        ArrayList<Integer> o = new ArrayList<Integer>();
         if (objeto.equals("atributo")) 
             o = atributosClases.get(clase);
         else if (objeto.equals("metodo"))
@@ -849,7 +853,9 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
             o = metodosNoImplementados.get(clase);
         if (o != null) {
             for (Integer elemento : o) {
+                System.out.println(TS.get_Simbolo(elemento).get_Lex()+" "+nombre);
                 if (TS.get_Simbolo(elemento).get_Lex().equals(nombre)) {
+                    System.out.println(" elemento "+TS.get_Simbolo(elemento));
                     return elemento;
                 }
             }

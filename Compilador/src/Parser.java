@@ -530,7 +530,7 @@ final static String yyrule[] = {
 "print : PRINT CADENA",
 };
 
-//#line 527 "gramatica.y"
+//#line 530 "gramatica.y"
 
     Lexico lex;
     TablaSimbolos TS = new TablaSimbolos();
@@ -847,7 +847,8 @@ final static String yyrule[] = {
     }
     
     public int verificarExistencia(int clase, String nombre, String objeto) 
-    {   ArrayList<Integer> o = new ArrayList<Integer>();
+    {   System.out.println("verficiar existencia "+clase+" "+nombre+" "+objeto);
+        ArrayList<Integer> o = new ArrayList<Integer>();
         if (objeto.equals("atributo")) 
             o = atributosClases.get(clase);
         else if (objeto.equals("metodo"))
@@ -856,7 +857,9 @@ final static String yyrule[] = {
             o = metodosNoImplementados.get(clase);
         if (o != null) {
             for (Integer elemento : o) {
+                System.out.println(TS.get_Simbolo(elemento).get_Lex()+" "+nombre);
                 if (TS.get_Simbolo(elemento).get_Lex().equals(nombre)) {
+                    System.out.println(" elemento "+TS.get_Simbolo(elemento));
                     return elemento;
                 }
             }
@@ -1350,7 +1353,7 @@ public void verificarUso(String elemento){
         CodigoAssembler.GenerarAssembler();
     }
         
-//#line 1282 "Parser.java"
+//#line 1285 "Parser.java"
 //###############################################################
 // method: yylexdebug : check lexer state
 //###############################################################
@@ -1826,92 +1829,95 @@ case 43:
 {   int idClase = TS.buscar_por_ambito(val_peek(5).sval+ambito);
                                                                         if (!ver_ElementoDeclarado(val_peek(5).sval)) /*verificar que la clase exista*/
                                                                             System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + val_peek(5).sval + " no fue declarado");
-                                                                        if (verificarExistencia(idClase, val_peek(2).sval, "metodoNoImpl") != -1) 
-                                                                            agregarMetodoImplementado(val_peek(5).sval+ambito, val_peek(2).sval+ambito+":"+val_peek(5).sval);
-                                                                        int clave = TS.buscar_por_ambito(val_peek(2).sval+ambito);
+                                                                        String metodo = val_peek(2).sval.split(":")[0];
+                                                                        if (verificarExistencia(idClase, metodo, "metodoNoImpl") != -1) {
+                                                                            agregarMetodoImplementado(val_peek(5).sval+ambito, metodo+ambito+":"+val_peek(5).sval);
+                                                                        }
+                                                                        int clave = TS.buscar_por_ambito(metodo+ambito);
                                                                         if (clave != -1) { 
                                                                             if (metodosClases.get(idClase)!=null) 
                                                                                 metodosClases.get(idClase).remove(Integer.valueOf(clave));
                                                                             funciones.remove(clave);            
                                                                             TS.remove_Simbolo(clave);
                                                                         }
+                                                                        int aux = crear_terceto(val_peek(2).sval, "-", "-");
                                                                     }
 break;
 case 46:
-//#line 322 "gramatica.y"
+//#line 325 "gramatica.y"
 {/*System.out.println("Se reconocio una clausula de seleccion IF en linea "+ Linea.getLinea());*/
                     }
 break;
 case 47:
-//#line 324 "gramatica.y"
+//#line 327 "gramatica.y"
 {/*System.out.println("Se reconocio una impresion por pantalla en linea "+ Linea.getLinea());*/
                     }
 break;
 case 48:
-//#line 326 "gramatica.y"
+//#line 329 "gramatica.y"
 {/*System.out.println("Se reconocio la invocacion de un metodo de un objeto en linea " + Linea.getLinea());*/
                     }
 break;
 case 49:
-//#line 328 "gramatica.y"
+//#line 331 "gramatica.y"
 {/*System.out.println("Se reconocio sentencia IMPL FOR en linea "+ Linea.getLinea());*/
                     }
 break;
 case 50:
-//#line 330 "gramatica.y"
+//#line 333 "gramatica.y"
 {/*System.out.println("Se reconocio sentencia de control DO UNTIL en linea "+ Linea.getLinea());*/
                     }
 break;
 case 51:
-//#line 332 "gramatica.y"
+//#line 335 "gramatica.y"
 {/*System.out.println("Se reconocio sentencia de retorno RETURN en linea "+ Linea.getLinea());*/
                             int aux = crear_terceto("RETURN", "-", "-");}
 break;
 case 52:
-//#line 336 "gramatica.y"
+//#line 339 "gramatica.y"
 {/*System.out.println("Se reconocio una declaracion simple en linea "+ Linea.getLinea());*/
 }
 break;
 case 54:
-//#line 339 "gramatica.y"
+//#line 342 "gramatica.y"
 {/*System.out.println("Se reconocio una declaracion de un objeto de una clase en linea "+ Linea.getLinea());*/
                     }
 break;
 case 55:
-//#line 341 "gramatica.y"
+//#line 344 "gramatica.y"
 {/*System.out.println("Se reconocio una clase en linea "+ Linea.getLinea());*/
                     }
 break;
 case 56:
-//#line 345 "gramatica.y"
+//#line 348 "gramatica.y"
 {yyval.sval = ">";}
 break;
 case 57:
-//#line 346 "gramatica.y"
+//#line 349 "gramatica.y"
 {yyval.sval = "<";}
 break;
 case 58:
-//#line 347 "gramatica.y"
+//#line 350 "gramatica.y"
 {yyval.sval = ">=";}
 break;
 case 59:
-//#line 348 "gramatica.y"
+//#line 351 "gramatica.y"
 {yyval.sval = "<=";}
 break;
 case 60:
-//#line 349 "gramatica.y"
+//#line 352 "gramatica.y"
 {yyval.sval = "!!";}
 break;
 case 61:
-//#line 350 "gramatica.y"
+//#line 353 "gramatica.y"
 {yyval.sval = "==";}
 break;
 case 62:
-//#line 351 "gramatica.y"
+//#line 354 "gramatica.y"
 {System.out.println("ERROR: linea " + Linea.getLinea() +" Comparador no valido");}
 break;
 case 63:
-//#line 354 "gramatica.y"
+//#line 357 "gramatica.y"
 {/*System.out.println("Se reconoció una condicion  en linea "+ Linea.getLinea());*/
                                                     realizar_Conversion(val_peek(3).sval, val_peek(1).sval, val_peek(2).sval, yyval);
                                                     int aux;
@@ -1922,77 +1928,77 @@ case 63:
                                                     pila.push(aux);}
 break;
 case 64:
-//#line 362 "gramatica.y"
+//#line 365 "gramatica.y"
 {System.out.println("ERROR: linea" + Linea.getLinea() + " Falta el parentesis que cierra");
                                                         yyval.sval = '[' + Integer.toString(crear_terceto(val_peek(2).sval, val_peek(3).sval, val_peek(1).sval)) + ']';
                                                         int aux = crear_terceto("BF", yyval.sval, "-");
                                                         pila.push(aux); }
 break;
 case 65:
-//#line 366 "gramatica.y"
+//#line 369 "gramatica.y"
 {System.out.println("ERROR: linea "+ Linea.getLinea() + " Falta el parentesis que abre");
                                                       yyval.sval = '[' + Integer.toString(crear_terceto(val_peek(3).sval, val_peek(4).sval, val_peek(2).sval)) + ']';
                                                       int aux = crear_terceto("BF", yyval.sval, "-");
                                                       pila.push(aux);}
 break;
 case 66:
-//#line 372 "gramatica.y"
-{int primero = pila.pop();
-                                                                    completarTerceto(primero, puntero_Terceto);
-                                                                    int aux = crear_terceto("Label"+puntero_Terceto, "-","-");}
-break;
-case 67:
 //#line 375 "gramatica.y"
 {int primero = pila.pop();
                                                                     completarTerceto(primero, puntero_Terceto);
                                                                     int aux = crear_terceto("Label"+puntero_Terceto, "-","-");}
 break;
-case 68:
+case 67:
 //#line 378 "gramatica.y"
 {int primero = pila.pop();
-                                                    completarTerceto(primero, puntero_Terceto);
-                                                    int aux = crear_terceto("Label"+puntero_Terceto, "-","-");}
+                                                                    completarTerceto(primero, puntero_Terceto);
+                                                                    int aux = crear_terceto("Label"+puntero_Terceto, "-","-");}
 break;
-case 69:
+case 68:
 //#line 381 "gramatica.y"
 {int primero = pila.pop();
                                                     completarTerceto(primero, puntero_Terceto);
                                                     int aux = crear_terceto("Label"+puntero_Terceto, "-","-");}
 break;
-case 70:
+case 69:
 //#line 384 "gramatica.y"
+{int primero = pila.pop();
+                                                    completarTerceto(primero, puntero_Terceto);
+                                                    int aux = crear_terceto("Label"+puntero_Terceto, "-","-");}
+break;
+case 70:
+//#line 387 "gramatica.y"
 {System.out.println("Falta el END_IF");
                                                     int primero = pila.pop();
                                                     completarTerceto(primero, puntero_Terceto);
                                                     int aux = crear_terceto("Label"+puntero_Terceto, "-","-");}
 break;
 case 71:
-//#line 388 "gramatica.y"
+//#line 391 "gramatica.y"
 {System.out.println("Falta el END_IF");
                                                     int primero = pila.pop();
                                                     completarTerceto(primero, puntero_Terceto);
                                                     int aux = crear_terceto("Label"+puntero_Terceto, "-","-");}
 break;
 case 72:
-//#line 392 "gramatica.y"
+//#line 395 "gramatica.y"
 {System.out.println("Falta el END_IF");
                                                                     int primero = pila.pop();
                                                                     completarTerceto(primero, puntero_Terceto);
                                                                     int aux = crear_terceto("Label"+puntero_Terceto, "-","-");}
 break;
 case 73:
-//#line 396 "gramatica.y"
+//#line 399 "gramatica.y"
 {System.out.println("Falta el END_IF");
                                                                     int primero = pila.pop();
                                                                     completarTerceto(primero, puntero_Terceto);
                                                                     int aux = crear_terceto("Label"+puntero_Terceto, "-","-");}
 break;
 case 74:
-//#line 400 "gramatica.y"
+//#line 403 "gramatica.y"
 {System.out.println("ERROR: linea " + Linea.getLinea() + " Falto la condicion del IF");}
 break;
 case 75:
-//#line 403 "gramatica.y"
+//#line 406 "gramatica.y"
 {int primero = pila.pop();
                                 int aux = crear_terceto("BI", "-", "-");
                                 completarTerceto(primero, aux+1);
@@ -2000,7 +2006,7 @@ case 75:
                                 pila.push(aux);}
 break;
 case 76:
-//#line 410 "gramatica.y"
+//#line 413 "gramatica.y"
 {      int primero = pila.pop();
                                 int aux = crear_terceto("BI", "-", "-");
                                 completarTerceto(primero, aux+1);
@@ -2008,30 +2014,30 @@ case 76:
                                 pila.push(aux);}
 break;
 case 79:
-//#line 421 "gramatica.y"
+//#line 424 "gramatica.y"
 {int primero = pila.pop();
                                                                                 completarTerceto(primero, val_peek(3).ival);}
 break;
 case 80:
-//#line 423 "gramatica.y"
+//#line 426 "gramatica.y"
 {int primero = pila.pop();
                                                                 completarTerceto(primero, val_peek(4).ival);}
 break;
 case 81:
-//#line 425 "gramatica.y"
+//#line 428 "gramatica.y"
 {System.out.println("ERROR: linea " + Linea.getLinea() + " Falta la condicion de la sentencia de control");}
 break;
 case 82:
-//#line 428 "gramatica.y"
+//#line 431 "gramatica.y"
 {yyval.ival = puntero_Terceto;
                 crear_terceto("Label"+puntero_Terceto, "-","-");}
 break;
 case 83:
-//#line 432 "gramatica.y"
+//#line 435 "gramatica.y"
 {setear_Tipo();}
 break;
 case 84:
-//#line 435 "gramatica.y"
+//#line 438 "gramatica.y"
 {  boolean declarado = setear_Ambito(val_peek(0).sval+ambito, val_peek(0).sval); 
                                             if (declarado) {
                                                 setear_Uso("Variable", val_peek(0).sval+ambito); 
@@ -2042,7 +2048,7 @@ case 84:
                                         }
 break;
 case 85:
-//#line 443 "gramatica.y"
+//#line 446 "gramatica.y"
 {  boolean declarado = setear_Ambito(val_peek(0).sval+ambito, val_peek(0).sval); 
                         if (declarado) {
                             setear_Uso("Variable", val_peek(0).sval+ambito); 
@@ -2053,7 +2059,7 @@ case 85:
                 }
 break;
 case 86:
-//#line 453 "gramatica.y"
+//#line 456 "gramatica.y"
 {
                                         if (!ver_ElementoDeclarado(val_peek(1).sval))
                                             System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + val_peek(1).sval + " no fue declarado");
@@ -2097,79 +2103,79 @@ case 86:
                                         }
 break;
 case 87:
-//#line 496 "gramatica.y"
+//#line 499 "gramatica.y"
 {yyval.sval = val_peek(1).sval;}
 break;
 case 88:
-//#line 497 "gramatica.y"
+//#line 500 "gramatica.y"
 {yyval.sval = "-";}
 break;
 case 89:
-//#line 498 "gramatica.y"
+//#line 501 "gramatica.y"
 {System.out.println("ERROR: linea "+ Linea.getLinea()+ " Falta el parentesis que cierra");}
 break;
 case 90:
-//#line 499 "gramatica.y"
+//#line 502 "gramatica.y"
 {System.out.println("ERROR: linea "+ Linea.getLinea() + " Falta el parentesis que abre");}
 break;
 case 91:
-//#line 500 "gramatica.y"
+//#line 503 "gramatica.y"
 {System.out.println("ERROR: linea "+ Linea.getLinea()+ " Falta el parentesis que cierra");}
 break;
 case 92:
-//#line 501 "gramatica.y"
+//#line 504 "gramatica.y"
 {System.out.println("ERROR: linea "+ Linea.getLinea() + " Falta el parentesis que abre");}
 break;
 case 93:
-//#line 504 "gramatica.y"
+//#line 507 "gramatica.y"
 { agregar_ParametroTS(val_peek(1).sval, val_peek(2).sval, val_peek(1).sval+ambito);
                                     yyval.sval = Integer.toString(TS.buscar_por_ambito(val_peek(1).sval+ambito));}
 break;
 case 94:
-//#line 506 "gramatica.y"
+//#line 509 "gramatica.y"
 {yyval.sval = "-";}
 break;
 case 95:
-//#line 507 "gramatica.y"
+//#line 510 "gramatica.y"
 {System.out.println("ERROR: linea "+ Linea.getLinea()+ " Falta el parentesis que cierra"); setear_Uso("Parametro formal", val_peek(1).sval);}
 break;
 case 96:
-//#line 508 "gramatica.y"
+//#line 511 "gramatica.y"
 {System.out.println("ERROR: linea "+ Linea.getLinea()+ " Falta el parentesis que abre"); setear_Uso("Parametro formal", val_peek(2).sval);}
 break;
 case 97:
-//#line 509 "gramatica.y"
+//#line 512 "gramatica.y"
 {System.out.println("ERROR: linea "+ Linea.getLinea() + " Falta el parentesis que cierra.");}
 break;
 case 98:
-//#line 510 "gramatica.y"
+//#line 513 "gramatica.y"
 {System.out.println("ERROR: linea "+ Linea.getLinea() + " Falta el parentesis que abre");}
 break;
 case 99:
-//#line 513 "gramatica.y"
+//#line 516 "gramatica.y"
 {guardar_Tipo("DOUBLE");
                 yyval.sval = "DOUBLE";}
 break;
 case 100:
-//#line 515 "gramatica.y"
+//#line 518 "gramatica.y"
 {guardar_Tipo("USHORT");
                 yyval.sval = "USHORT";}
 break;
 case 101:
-//#line 517 "gramatica.y"
+//#line 520 "gramatica.y"
 {guardar_Tipo("LONG");
                 yyval.sval = "LONG";}
 break;
 case 102:
-//#line 519 "gramatica.y"
+//#line 522 "gramatica.y"
 {System.out.println("Error: linea " + Linea.getLinea() +  " No es un tipo definido");}
 break;
 case 103:
-//#line 522 "gramatica.y"
+//#line 525 "gramatica.y"
 {setear_Uso("Cadena", val_peek(0).sval);
                     int aux = crear_terceto("PRINT", Integer.toString(TS.pertenece(val_peek(0).sval)), "-");}
 break;
-//#line 2096 "Parser.java"
+//#line 2102 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####

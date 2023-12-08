@@ -103,12 +103,6 @@ public class Assembler {
         }
     }
 
-    private void resetearHashmap(HashMap<String, Integer> funciones) {
-        for (HashMap.Entry<String, Integer> e : funciones.entrySet()) {
-            funciones.put(e.getKey(), -1);
-        }
-    }
-
     private String reemplazarPuntos(String palabra) {
         return palabra.replace(":", "$");
     }
@@ -133,7 +127,6 @@ public class Assembler {
                 }
             }
         }
-        System.out.println(" ");
     }
 
     private void imprimirCodigoIntermedio() {
