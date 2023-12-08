@@ -199,11 +199,9 @@ metodo_objeto : ID '.' ID parametro_real {  int refObjeto = verObjetoDeclarado($
                                                                         tipo_real = CodigoIntermedio.get(Integer.parseInt(borrarCorchetes($4.sval))).get_Tipo();
                                                                     else
                                                                         tipo_real = TS.get_Simbolo(Integer.parseInt($4.sval)).get_Tipo();
-                                                                    System.out.println("Tipo parametro real: " + tipo_real+", Tipo formal: " + TS.get_Simbolo(Integer.parseInt(param)).get_Tipo());
                                                                     tipo_formal = TS.get_Simbolo(Integer.parseInt(param)).get_Tipo();
                                                                     if (tipo_formal.equals(tipo_real)){
                                                                         String auxiliar = Integer.toString(crear_terceto("=", param, $4.sval));
-                                                                        System.out.println("No fue necesario hacer conversiones de tipos en los parámetros");
                                                                         $$.sval = "[" + Integer.toString(crear_terceto ("CALLMetodoClase", Integer.toString(ref), $4.sval)) + "]";}
                                                                     else
                                                                     {
@@ -305,17 +303,10 @@ inicio_Void: VOID ID {
 }
 ;
 
-clausula_IMPL : inicio_IMPL '{' funcion_VOID fin_sentencia '}'  {   int idClase = TS.buscar_por_ambito($3.sval+ambito);
+clausula_IMPL : inicio_IMPL '{' funcion_VOID fin_sentencia '}'  {   int idClase =  $1.ival;
                                                                         String metodo = $3.sval.split(":")[0];
                                                                         if (verificarExistencia(idClase, metodo, "metodoNoImpl") != -1) {
-                                                                            agregarMetodoImplementado($1.sval+ambito, metodo+ambito+":"+$1.sval);
-                                                                        }
-                                                                        int clave = TS.buscar_por_ambito(metodo+ambito);
-                                                                        if (clave != -1) {
-                                                                           if (metodosClases.get(idClase)!=null)
-                                                                                metodosClases.get(idClase).remove(Integer.valueOf(clave));
-                                                                            funciones.remove(clave);
-                                                                            TS.remove_Simbolo(clave);
+                                                                            agregarMetodoImplementado(idClase, $3.sval);
                                                                         }
                                                                         int aux = crear_terceto($3.sval, "-", "-");
                                                                         dentroIMPL = false;
@@ -324,10 +315,12 @@ clausula_IMPL : inicio_IMPL '{' funcion_VOID fin_sentencia '}'  {   int idClase 
 ;
 
 inicio_IMPL : IMPL FOR ID ':'   {dentroIMPL = true;
-                                if (!verClaseDeclarada($3.sval)) //verificar que la clase exista
+                                int idClase = verClaseDeclarada($3.sval);
+                                if (idClase == -1) 
                                     {System.out.println("ERROR: linea "+ Linea.getLinea() + " - La clase " + $3.sval + " no fue declarada");
                                     error = true;}
                                 ambito += ":" + $3.sval;
+                                $$.ival = idClase;
                                 $$.sval = $3.sval;
                                 }
 ;
@@ -831,6 +824,8 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
                 }
             }
         }
+        System.out.println("ERROR: linea "+Linea.getLinea()+" - la clase no se encuentra declarada o al alcance");
+        error = true;
         return " ";
     }
 
@@ -848,13 +843,12 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
         return retorno;
     }
     
-    public void agregarMetodoImplementado(String clase, String metodo) 
+    public void agregarMetodoImplementado(int clase, String metodo) 
     {   // si se implementa un metodo con IMPL, lo pasa a "implementado" y lo saca de la lista de "No implementados" 
-        int clave = TS.buscar_por_ambito(clase);
         int clavemet = TS.buscar_por_ambito(metodo);
-        ArrayList<Integer> metodos = metodosClases.get(clave);
+        ArrayList<Integer> metodos = metodosClases.get(clase);
         metodos.add(clavemet);
-        metodos = metodosNoImplementados.get(clave);
+        metodos = metodosNoImplementados.get(clase);
         metodos.remove(Integer.valueOf(clavemet));
     }
 
@@ -1386,43 +1380,21 @@ public void verificarUso(String elemento){
         return false;
     }
         
-    public boolean verClaseDeclarada(String elemento) {
-        int clave = TS.buscar_por_ambito(elemento+ambito);
-        if (clave==-1)
-            clave = TS.pertenece(elemento);
-        else {Simbolo s = TS.get_Simbolo(clave);
-            if (s.get_Uso().equals("Clase"))
-                return true;
+    public int verClaseDeclarada(String nombre) {
+        // en el caso de que una clase herede de otra, se verifica que la clase padre de la cual se va a heredar haya sido declarada
+        ArrayList<Integer> clases = obtenerClasesDeclaradas();
+        for (Integer i : clases) {
+            Simbolo s = TS.get_Simbolo(i);
+            if (s.get_Lex().equals(nombre)) {
+                String aux = s.get_Ambito();
+                aux = aux.substring(aux.indexOf(":"));
+                if (alAlcance(aux)) {
+                    return i;
+                } 
+            } 
         }
-        String aux = ambito;
-        if (clave != -1 && TS.get_Simbolo(clave).get_Ambito()!="-" && TS.get_Simbolo(clave).get_Uso().equals("Clase")){
-            //Si está en la tabla de simbolos me fijo si es alcanzable
-            Simbolo s = TS.get_Simbolo(clave);
-            ambitos_Programa = aux.split(":");
-            int cantidad = ambitos_Programa.length;
-            while (cantidad > 1){
-                if (!s.get_Ambito().equals(elemento+aux)){
-                    String nuevo="";
-                    int i = 1;
-                    while (i<cantidad-1) {
-                        nuevo += ":" + ambitos_Programa[i];
-                        i = i+1;
-                    }
-                    aux = nuevo;
-                }
-                cantidad = cantidad -1;
-            }
-            if (!s.get_Ambito().equals(elemento+aux)){
-                System.out.println("ERROR: linea "+ Linea.getLinea() + " - La clase " + elemento + " está fuera del alcance");
-                error = true;
-            }
-            else {
-                System.out.println("La clase " + elemento+ " está al alcance");
-            }
-            return true;
-        }
-        else
-            return false;
+        error = true;
+        return -1;
     }
 
     public void transformar(){

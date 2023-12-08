@@ -24,8 +24,14 @@
 
 	IMPL FOR clase2: {
 		VOID func2() {
-			PRINT #cadena de prueba,
+			PRINT #cadena de prueba# ,
 		}, 
 	},
 	** comentario de prueba 
+	DOUBLE variable_doble,
+
+	VOID prueba() {
+		LONG variable_doble,
+		variable_doble = 5000_l,
+	},
 }
