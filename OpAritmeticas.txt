@@ -12,6 +12,6 @@
       PRINT #InteriorIF#,
    }
    END_IF,
-   y = x - y,
-   z = 3_us * y,
+   ** y = x - y,
+   ** z = 3_us * y,
 }

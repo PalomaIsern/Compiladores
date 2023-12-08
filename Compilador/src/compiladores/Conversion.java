@@ -27,14 +27,12 @@ public class Conversion {
         String[] elemento = matrixConvertibilidad[index1][index2];
         String primero = elemento[0];
         String segundo = elemento[2];
-        if (primero == "-" && segundo == "-") {
-            System.out.println("No hay que hacer conversion entre dos " + type1);
+        if (primero == "-" && segundo == "-")
             return "-";
-        } else if (primero != "-") {
+        else if (primero != "-")
             return primero;
-        } else {
+        else
             return segundo;
-        }
     }
 
     public String devolverElementoAConvertir(String elemento1, String tipo1, String elemento2, String tipo2) {

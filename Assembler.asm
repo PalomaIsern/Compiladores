@@ -17,45 +17,71 @@ MaxNumDouble dq 1.7976931348623157e+308
 OverflowMultiplicacion db "Overflow en multiplicacion de enteros"
 OverflowResta db "Resultado negativo en resta de enteros sin signo"
 OverflowSuma db "Overflow en suma de punto flotante"
-_variablecuyonombre__$main db  ?
-_nombrecorto2$main db  ?
-_x$main$funcion_main db  ?
-@cadenaNo es una suma valida db "No es una suma valida"
-@cadenaNO es un cadena valida, db "NO es un cadena valida,"
-hola db  ?
-_y$main dq  ?
+_x$main dq  ?
+_y$main dd  ?
+_z$main db  ?
+@cadena11 db "InteriorIF"
 @aux1 db  ?
+@aux2 db  ?
 @aux3 db  ?
+@aux4 db  ?
+@aux5 db  ?
 .code
-funcion_main$main:
-ret
 START:
-MOV EDX, _x$main$funcion_main
-CMP EDX, 5
-JG Label7
-MOV EDX, _x$main$funcion_main
-ADD EDX, 255
-MOV @aux1, EDX
-MOV EDX, @aux1
-MOV _x$main$funcion_main, EDX
-invoke MessageBox, NULL, addr @cadena6, addr @cadena6, MB_OK
-JMP Label11
-Label7:
-invoke MessageBox, NULL, addr @cadena7, addr @cadena7, MB_OK
-MOV DL, _-
-MOVSX EDX, DL
-FLD _-
-FST _-
-MOV EDX, @aux2
-MOV _-, EDX
-Label11:
-Label14:
-MOV EDX, _y$main
-ADD EDX, 1.0
-MOV @aux3, EDX
+FLD 2.0
+FLD 1.0
+FADD
+FSTP @aux1
+FSTSW aux_sumaDouble 
+MOV B X, aux_sumaDouble
+SAHF 
+JO OverFlowSuma 
+FLD @aux1
+FSTP _x$main
+FLD _x$main
+FLD 3.0
+FDIV
+FSTP @aux2
+FLD @aux2
+FSTP _x$main
+FLD _x$main
+FLD _x$main
+FMUL
+FSTP @aux3
 FLD @aux3
-FSTP _y$main
-MOV EDX, _y$main
-CMP EDX, 133.0
-JL Label14
+FSTP _x$main
+FLD -5.0
+FSTP _x$main
+MOV EDX, 6
+MOV _y$main, EDX
+MOV DL, _z$main
+MOVSX EDX, DL
+FLD _z$main
+FST _z$main
+FLD _x$main
+FLD @aux4
+FADD
+FSTP @aux5
+FSTSW aux_sumaDouble 
+MOV B X, aux_sumaDouble
+SAHF 
+JO OverFlowSuma 
+FLD @aux5
+FSTP _x$main
+MOV EDX, 4.0
+CMP EDX, 5.0
+JGE Label15
+invoke MessageBox, NULL, addr @cadena11, addr @cadena11, MB_OK
+JMP Label16
+Label15:
+Label16:
+OverFlowMul: 
+invoke  MessageBox, NULL, ADDR OverFlowMultiplicacion, ADDR OverFlowMultiplicacion, MB_OK 
+invoke ExitProcess, 0
+OverFlowResta: 
+invoke  MessageBox, NULL, ADDR OverFlowResta, ADDR OverFlowResta, MB_OK 
+invoke ExitProcess, 0
+OverFlowSuma: 
+invoke  MessageBox, NULL, ADDR OverFlowSuma, ADDR OverFlowSuma, MB_OK 
+invoke ExitProcess, 0
 END START
