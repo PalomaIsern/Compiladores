@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Stack;
 
@@ -16,7 +17,9 @@ public class Assembler {
     private HashMap<String, Boolean> registros = new HashMap<String, Boolean>();
     private boolean seguir = true;
     private static String ultimoComparador;
-    private Stack<String> funciones = new Stack<String>();
+    private ArrayList<String> operadores = new ArrayList<>(Arrays.asList("+", "-", "*", "/", "=", "<", "<=", ">", ">=",
+            "==", "!!", "CALL", "CALLMetodoClase", "BI", "BF", "PRINT", "UStoL", "UStoD", "LtoD", "RETURN"));
+    private Stack<String> pilaFunc = new Stack<>();
 
     public Assembler(HashMap<Integer, Terceto> ci, TablaSimbolos d) {
         CodIntermedio = new HashMap<Integer, Terceto>(ci);
@@ -64,43 +67,73 @@ public class Assembler {
         codigo.append("OverflowResta db \"Resultado negativo en resta de enteros sin signo\"" + "\n");
         codigo.append("OverflowSuma db \"Overflow en suma de punto flotante\"" + "\n");
 
-        generarInstrucciones();
+        HashMap<String, Integer> func = new HashMap<>(datos.getFuncionesAssembler());
+        generarInstrucciones(instrucciones, func);
 
         codigo.append(datos.getDatosAssembler());
         codigo.append(".code\n");
-        HashMap<String, Integer> func = new HashMap<>(datos.getFuncionesAssembler());
-        generarCodigoFunciones(func);
+        generarCodigoFunciones(codigo, func);
         // codigo
         codigo.append("START:\n");
         codigo.append(instrucciones);
-        instrucciones.append("OverFlowMul: \n");
-        instrucciones
+        codigo.append("OverFlowMul: \n");
+        codigo
                 .append("invoke  MessageBox, NULL, ADDR OverFlowMultiplicacion, ADDR OverFlowMultiplicacion, MB_OK \n");
-        instrucciones.append("invoke ExitProcess, 0" + "\n");
-        instrucciones.append("OverFlowResta: \n");
-        instrucciones.append("invoke  MessageBox, NULL, ADDR OverFlowResta, ADDR OverFlowResta, MB_OK \n");
-        instrucciones.append("invoke ExitProcess, 0" + "\n");
-        instrucciones.append("OverFlowSuma: \n");
-        instrucciones.append("invoke  MessageBox, NULL, ADDR OverFlowSuma, ADDR OverFlowSuma, MB_OK \n");
-        instrucciones.append("invoke ExitProcess, 0" + "\n");
+        codigo.append("invoke ExitProcess, 0" + "\n");
+        codigo.append("OverFlowResta: \n");
+        codigo.append("invoke  MessageBox, NULL, ADDR OverFlowResta, ADDR OverFlowResta, MB_OK \n");
+        codigo.append("invoke ExitProcess, 0" + "\n");
+        codigo.append("OverFlowSuma: \n");
+        codigo.append("invoke  MessageBox, NULL, ADDR OverFlowSuma, ADDR OverFlowSuma, MB_OK \n");
+        codigo.append("invoke ExitProcess, 0" + "\n");
         codigo.append("END START");
         generarArchivo();
         imprimirCodigoIntermedio();
     }
 
-    public void agregarFunciones(String op, int ref1, int ref2) {
-
+    public void agregarFuncion(StringBuilder codigo, String op, int ref1, int ref2) {
+        if ((ref2 - ref1) > 1) {
+            Terceto t = CodIntermedio.get(ref1);
+            codigo.append(reemplazarPuntos(t.get_Operador()) + ": \n");
+            for (int i = ref1 + 1; i < ref2; i++) {
+                t = CodIntermedio.get(i);
+                generarInstruccion(codigo, t);
+            }
+            codigo.append("ret \n");
+        }
     }
 
-    public void generarCodigoFunciones(HashMap<String, Integer> funciones) {
-        String operador;
-        for (HashMap.Entry<Integer, Terceto> i : CodIntermedio.entrySet()) {
-            operador = i.getValue().get_Operador();
-            if (funciones.get(operador) != null && funciones.get(operador) == -1)
-                funciones.put(operador, i.getKey());
-            else if (funciones.get(operador) != null && funciones.get(operador) != -1)
-                agregarFunciones(operador, funciones.get(operador), i.getKey());
+    private void resetearHashmap(HashMap<String, Integer> funciones) {
+        for (HashMap.Entry<String, Integer> e : funciones.entrySet()) {
+            funciones.put(e.getKey(), -1);
         }
+    }
+
+    private String reemplazarPuntos(String palabra) {
+        return palabra.replace(":", "$");
+    }
+
+    public void generarCodigoFunciones(StringBuilder codigo, HashMap<String, Integer> funciones) {
+        String operador, tope;
+        for (HashMap.Entry<Integer, Terceto> i : CodIntermedio.entrySet()) {
+            operador = reemplazarPuntos(i.getValue().get_Operador());
+            if (funciones.get(operador) != null) {
+                if (!pilaFunc.isEmpty()) {
+                    tope = pilaFunc.peek();
+                    if (tope.equals(operador)) {
+                        agregarFuncion(codigo, operador, funciones.get(operador), i.getKey());
+                        pilaFunc.pop();
+                    } else {
+                        funciones.put(operador, i.getKey());
+                        pilaFunc.push(operador);
+                    }
+                } else {
+                    funciones.put(operador, i.getKey());
+                    pilaFunc.push(operador);
+                }
+            }
+        }
+        System.out.println(" ");
     }
 
     private void imprimirCodigoIntermedio() {
@@ -127,24 +160,24 @@ public class Assembler {
         return p;
     }
 
-    public void controlar_OverFlowMul(String tipo) {
+    public void controlar_OverFlowMul(StringBuilder cod, String tipo) {
         if (tipo == "LONG")
-            instrucciones.append("JO OverFlowMul \n");
+            cod.append("JO OverFlowMul \n");
         else
-            instrucciones.append("JC OverFlowMul \n");
+            cod.append("JC OverFlowMul \n");
     }
 
-    public void controlar_OverFlowResta() {
-        instrucciones.append("JC OverFlowResta \n");
+    public void controlar_OverFlowResta(StringBuilder cod) {
+        cod.append("JC OverFlowResta \n");
     }
 
-    public void controlar_OverFlowSum() {
+    public void controlar_OverFlowSum(StringBuilder cod) {
         String registro = getRegistroDisponible();
         char segundo = registro.charAt(1);
-        instrucciones.append("FSTSW aux_sumaDouble \n");
-        instrucciones.append("MOV " + segundo + " X, aux_sumaDouble" + "\n");
-        instrucciones.append("SAHF " + "\n");
-        instrucciones.append("JO OverFlowSuma \n");
+        cod.append("FSTSW aux_sumaDouble \n");
+        cod.append("MOV " + segundo + " X, aux_sumaDouble" + "\n");
+        cod.append("SAHF " + "\n");
+        cod.append("JO OverFlowSuma \n");
         setRegistroDisponible(registro);
     }
 
@@ -156,7 +189,7 @@ public class Assembler {
             Simbolo s = datos.get_Simbolo(Integer.parseInt(op));
             if (op != "-" && s.get_Uso() != "Constante" && s.get_Uso() != "ConstantePositiva"
                     && s.get_Uso() != "Constante negativa")
-                return "_" + datos.reemplazarPuntos(s.get_Ambito());
+                return "_" + reemplazarPuntos(s.get_Ambito());
             else if (op != "-" && s.get_Uso() == "Constante" || op != "-" && s.get_Uso() == "ConstantePositiva"
                     || op != "-" && s.get_Uso() == "Constante negativa")
                 return s.get_Lex();
@@ -164,99 +197,125 @@ public class Assembler {
         return op;
     }
 
-    public void generarInstrucciones() {
-        for (HashMap.Entry<Integer, Terceto> i : CodIntermedio.entrySet()) {
-            if (seguir) {
-                Terceto t = i.getValue();
-                String registro = " ";
-                String instruccion = devolverOperacion(t);
-                String operador = t.get_Operador();
-                if (operador.startsWith("Label")) {
-                    instrucciones.append(operador + ":" + "\n");
-                }
-                if (instruccion != "ERROR") {
-                    String op1 = obtenerOperando(t.get_Op1(), instruccion);
-                    String op2 = obtenerOperando(t.get_Op2(), instruccion);
+    private boolean operadorValido(String op) {
+        return operadores.contains(op) || op.contains("Label");
+    }
 
-                    if ((operador == "+") || (operador == "-") || (operador == "*") || (operador == "/")) {
-                        registro = getRegistroDisponible();
-                        String tipo = t.get_Tipo();
-                        if (tipo == "DOUBLE") {
-                            instrucciones.append("FLD " + op1 + "\n");
-                            instrucciones.append("FLD " + op2 + "\n");
-                            instrucciones.append(instruccion + "\n");
-                            String vAux = t.set_VA();
-                            Simbolo sim = new Simbolo(280, vAux);
-                            TablaSimbolos.agregar_sin_chequear(sim);
-                            instrucciones.append("FSTP " + vAux + "\n");
-                            if (operador == "+")
-                                controlar_OverFlowSum();
-                            setRegistroDisponible(registro);
-                        } else {
-                            instrucciones.append("MOV " + registro + ", " + op1 + "\n");
-                            instrucciones.append(instruccion + " " + registro + ", " + op2 + "\n");
-                            String vAux = t.set_VA();
-                            Simbolo sim = new Simbolo(280, vAux);
-                            TablaSimbolos.agregar_sin_chequear(sim);
-                            if (operador == "-" && tipo == "USHORT")
-                                controlar_OverFlowResta();
-                            else if (operador == "*")
-                                controlar_OverFlowMul(tipo);
-                            instrucciones.append("MOV " + vAux + ", " + registro + "\n");
-                            setRegistroDisponible(registro);
-                        }
-                    } else if (operador == "=") {
-                        registro = getRegistroDisponible();
-                        if (t.get_Tipo() == "DOUBLE") {
-                            instrucciones.append("FLD " + op2 + "\n");
-                            instrucciones.append("FSTP " + op1 + "\n");
-                        } else {
-                            instrucciones.append("MOV " + registro + ", " + op2 + "\n");
-                            instrucciones.append("MOV " + op1 + ", " + registro + "\n");
-                        }
-                        setRegistroDisponible(registro);
-                    } else if (operador == ">" || operador == ">=" || operador == "<" || operador == "<=") {
-                        registro = getRegistroDisponible();
-                        instrucciones.append("MOV " + registro + ", " + op1 + "\n");
-                        instrucciones.append("CMP " + registro + ", " + op2 + "\n");
-                        setRegistroDisponible(registro);
-                    } else if (instruccion == "JMP") {
-                        String destino = borrarCorchetes(op2);
-                        instrucciones.append("JMP " + "Label" + destino + "\n");
-                    } else if (instruccion == "BF") {
-                        generarSaltoCondicional(t);
-                    } else if (instruccion == "CALL") {
-                        instrucciones.append("CALL " + op1.substring(1) + "\n");
-                    } else if (instruccion == "CALLMetodoClase") {
-                        String metodo = datos
-                                .reemplazarPuntos(datos.get_Simbolo(Integer.parseInt(t.get_Op1())).get_Ambito());
-                        instrucciones.append("CALL " + metodo + "\n");
-                    }
+    public void generarInstrucciones(StringBuilder instrucc, HashMap<String, Integer> funciones) {
+        Boolean dentroFuncion = false;
+        String tope;
+        for (HashMap.Entry<Integer, Terceto> i : CodIntermedio.entrySet()) {
+            Terceto t = i.getValue();
+            String op = t.get_Operador();
+            if (seguir) {
+                if (operadorValido(op) && !dentroFuncion) {
+                    generarInstruccion(instrucc, i.getValue());
                 } else {
-                    System.out.println("La ejecución ha sido interrumpida porque se ha detectado un error");
-                    seguir = false;
+                    op = reemplazarPuntos(op);
+                    if (funciones.get(op) != null) {
+                        if (!pilaFunc.isEmpty()) {
+                            tope = pilaFunc.peek();
+                            if (tope.equals(op)) {
+                                pilaFunc.pop();
+                                if (pilaFunc.isEmpty()) {
+                                    dentroFuncion = false;
+                                }
+                            } else {
+                                pilaFunc.push(op);
+                                dentroFuncion = true;
+                            }
+                        } else {
+                            pilaFunc.push(op);
+                            dentroFuncion = true;
+                        }
+                    }
                 }
             }
         }
     }
 
-    public void generarSaltoCondicional(Terceto t) {
+    public void generarInstruccion(StringBuilder cod, Terceto t) {
+        String registro = " ";
+        String instruccion = devolverOperacion(cod, t);
+        String operador = t.get_Operador();
+        if (operador.startsWith("Label")) {
+            cod.append(operador + ":" + "\n");
+        }
+        if (instruccion != "ERROR") {
+            String op1 = obtenerOperando(t.get_Op1(), instruccion);
+            String op2 = obtenerOperando(t.get_Op2(), instruccion);
+
+            if ((operador == "+") || (operador == "-") || (operador == "*") || (operador == "/")) {
+                registro = getRegistroDisponible();
+                String tipo = t.get_Tipo();
+                if (tipo == "DOUBLE") {
+                    cod.append("FLD " + op1 + "\n");
+                    cod.append("FLD " + op2 + "\n");
+                    cod.append(instruccion + "\n");
+                    String vAux = setear_VA(t);
+                    cod.append("FSTP " + vAux + "\n");
+                    if (operador == "+")
+                        controlar_OverFlowSum(cod);
+                    setRegistroDisponible(registro);
+                } else {
+                    cod.append("MOV " + registro + ", " + op1 + "\n");
+                    cod.append(instruccion + " " + registro + ", " + op2 + "\n");
+                    String vAux = setear_VA(t);
+                    if (operador == "-" && tipo == "USHORT")
+                        controlar_OverFlowResta(cod);
+                    else if (operador == "*")
+                        controlar_OverFlowMul(cod, tipo);
+                    cod.append("MOV " + vAux + ", " + registro + "\n");
+                    setRegistroDisponible(registro);
+                }
+            } else if (operador == "=") {
+                registro = getRegistroDisponible();
+                if (t.get_Tipo() == "DOUBLE") {
+                    cod.append("FLD " + op2 + "\n");
+                    cod.append("FSTP " + op1 + "\n");
+                } else {
+                    cod.append("MOV " + registro + ", " + op2 + "\n");
+                    cod.append("MOV " + op1 + ", " + registro + "\n");
+                }
+                setRegistroDisponible(registro);
+            } else if (operador == ">" || operador == ">=" || operador == "<" || operador == "<=") {
+                registro = getRegistroDisponible();
+                cod.append("MOV " + registro + ", " + op1 + "\n");
+                cod.append("CMP " + registro + ", " + op2 + "\n");
+                setRegistroDisponible(registro);
+            } else if (instruccion == "JMP") {
+                String destino = borrarCorchetes(op2);
+                cod.append("JMP " + "Label" + destino + "\n");
+            } else if (instruccion == "BF") {
+                generarSaltoCondicional(cod, t);
+            } else if (instruccion == "CALL") {
+                cod.append("CALL " + op1.substring(1) + "\n");
+            } else if (instruccion == "CALLMetodoClase") {
+                String metodo = datos.get_Simbolo(Integer.parseInt(t.get_Op1())).get_Ambito();
+                cod.append("CALL " + metodo + "\n");
+            }
+        } else {
+            System.out.println("La ejecución ha sido interrumpida porque se ha detectado un error");
+            seguir = false;
+        }
+    }
+
+    public void generarSaltoCondicional(StringBuilder cod, Terceto t) {
         String nro = borrarCorchetes(t.get_Op2());
         if (ultimoComparador == ">")
-            instrucciones.append("JLE Label" + nro + "\n");
+            cod.append("JLE Label" + nro + "\n");
         else if (ultimoComparador == ">=")
-            instrucciones.append("JL Label" + nro + "\n");
+            cod.append("JL Label" + nro + "\n");
         else if (ultimoComparador == "<")
-            instrucciones.append("JGE Label" + nro + "\n");
+            cod.append("JGE Label" + nro + "\n");
         else if (ultimoComparador == "<=")
-            instrucciones.append("JG Label" + nro + "\n");
+            cod.append("JG Label" + nro + "\n");
     }
 
     public String getRegistroDisponible() {
         for (HashMap.Entry<String, Boolean> e : registros.entrySet()) {
             if (!e.getValue()) {
                 registros.put(e.getKey(), true);
-                System.out.println(e.getKey());
                 return e.getKey();
             }
         }
@@ -267,7 +326,14 @@ public class Assembler {
         registros.put(reg, false);
     }
 
-    public String devolverOperacion(Terceto t) {
+    public String setear_VA(Terceto t) {
+        String vAux = t.set_VA();
+        Simbolo sim = new Simbolo(280, vAux);
+        TablaSimbolos.agregar_sin_chequear(sim);
+        return vAux;
+    }
+
+    public String devolverOperacion(StringBuilder cod, Terceto t) {
         String operador = t.get_Operador();
         String tipo = t.get_Tipo();
         String op1 = t.get_Op1();
@@ -336,7 +402,7 @@ public class Assembler {
             case "BF":
                 return "BF";
             case "PRINT":
-                instrucciones
+                cod
                         .append("invoke MessageBox, NULL, addr @cadena" + op1 + ", addr @cadena" + op1 + ", MB_OK"
                                 + "\n");
                 return " ";
@@ -344,11 +410,11 @@ public class Assembler {
                 String registro = getRegistroDisponible();
                 char segundo = registro.charAt(1);
                 if (registro != " ") {
-                    instrucciones.append(
+                    cod.append(
                             "MOV " + segundo + "L, " + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
-                    instrucciones.append("MOVSX " + registro + ", " + segundo + "L" + "\n");
+                    cod.append("MOVSX " + registro + ", " + segundo + "L" + "\n");
                 }
-                t.set_VA();
+                setear_VA(t);
                 setRegistroDisponible(registro);
                 return " ";
             case "UStoD":
@@ -357,24 +423,24 @@ public class Assembler {
                 if (op1.startsWith("["))
                     op1 = CodIntermedio.get(Integer.parseInt(borrarCorchetes(op1))).get_VA();
                 else
-                    op1 = "_" + datos.reemplazarPuntos(datos.get_Simbolo(Integer.parseInt(op1)).get_Ambito());
+                    op1 = "_" + reemplazarPuntos(datos.get_Simbolo(Integer.parseInt(op1)).get_Ambito());
                 if (registro_aux != " ") {
-                    instrucciones.append(
+                    cod.append(
                             "MOV " + segundo_aux + "L, " + op1 + "\n");
-                    instrucciones.append("MOVSX " + registro_aux + ", " + segundo_aux + "L" + "\n");
+                    cod.append("MOVSX " + registro_aux + ", " + segundo_aux + "L" + "\n");
                 }
-                instrucciones.append("FLD " + op1 + "\n");
-                instrucciones.append("FST " + op1 + "\n");
-                t.set_VA();
+                cod.append("FLD " + op1 + "\n");
+                cod.append("FST " + op1 + "\n");
+                setear_VA(t);
                 setRegistroDisponible(registro_aux);
                 return " ";
             case "LtoD":
                 if (op1.startsWith("["))
                     op1 = CodIntermedio.get(Integer.parseInt(borrarCorchetes(op1))).get_VA();
                 else
-                    op1 = "_" + datos.reemplazarPuntos(datos.get_Simbolo(Integer.parseInt(op1)).get_Ambito());
-                instrucciones.append("FLD " + op1 + "\n");
-                t.set_VA();
+                    op1 = "_" + reemplazarPuntos(datos.get_Simbolo(Integer.parseInt(op1)).get_Ambito());
+                cod.append("FLD " + op1 + "\n");
+                setear_VA(t);
                 return " ";
             default:
                 return " ";

@@ -138,7 +138,7 @@ public class TablaSimbolos {
                 // + " \n");
                 // funciones += 1;
             } else if (token == 273) {
-                sb.append("@cadena" + s.get_Lex() + " db " + "\"" + s.get_Lex() + "\"\n");
+                sb.append("@cadena" + entry.getKey() + " db " + "\"" + s.get_Lex() + "\"\n");
             } else if (s.get_Uso() == "Clase") {
                 sb.append("_" + reemplazarPuntos(s.get_Ambito()) + " db  ?\n");
             } else {
@@ -154,7 +154,7 @@ public class TablaSimbolos {
             Simbolo s = get_Simbolo(entry.getKey());
             String uso = s.get_Uso();
             if (uso == "Metodo") {
-                sb.put(reemplazarPuntos(s.get_Ambito()) + ":" + "\n", -1);
+                sb.put(reemplazarPuntos(s.get_Ambito()), -1);
             }
         }
         return sb;
