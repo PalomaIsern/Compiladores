@@ -98,8 +98,7 @@ factor : ID     {
                 if (!ver_ElementoDeclarado($1.sval)){
                     System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + $1.sval + " no fue declarado");
                     error = true;}
-                else {  
-                        $$.sval = Integer.toString(obtenerReferenciaId($1.sval+ambito));
+                else {  $$.sval = Integer.toString(obtenerReferenciaId($1.sval+ambito));
                         setear_Uso("identificador", $1.sval+ambito); }
                 }
        | CTE    {chequearRangoPositivo($1.sval, $$);}
@@ -475,14 +474,23 @@ invocacionFuncion : ID parametro_real  {
                                             System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + $1.sval + " no fue declarado");
                                         int ref = obtenerReferenciaFuncion($1.sval, ambito);
                                         int aux = buscar_Parametro($1.sval, ambito);
-                                        String tipo_real;
+                                        String tipo_real = " ";
                                         if (ref != -1) {
                                             if ((aux == -1 && $2.sval=="-") || (aux != -1 && $2.sval != "-")) //si la cantidad de parametros no coinciden avisa
                                                 {if (aux != -1){
                                                     if ($2.sval.contains("["))
                                                         tipo_real = CodigoIntermedio.get(Integer.parseInt(borrarCorchetes($2.sval))).get_Tipo();
-                                                    else
-                                                        tipo_real = TS.get_Simbolo(TS.buscar_por_ambito(TS.get_Simbolo(Integer.parseInt($2.sval)).get_Lex()+ambito)).get_Tipo();
+                                                    else{
+                                                        String parametro = TS.get_Simbolo(Integer.parseInt($2.sval)).get_Lex();
+                                                        String nuevo_ambito = AlcanceMayor(parametro);
+                                                        if (nuevo_ambito != "-")
+                                                            tipo_real = TS.get_Simbolo(TS.buscar_por_ambito(nuevo_ambito)).get_Tipo();
+                                                        else
+                                                            {
+                                                                System.out.println("ERROR: linea " + Linea.getLinea() + " El parámetro real que se quiere pasar no está al alcance");
+                                                                error = true;
+                                                            }
+                                                    }
                                                     String tipo_formal = TS.get_Simbolo(aux).get_Tipo();
                                                     if (tipo_formal.equals(tipo_real)){
                                                         String auxiliar = Integer.toString(crear_terceto("=", Integer.toString(aux), $2.sval));
@@ -523,7 +531,11 @@ parametro_real  : '(' expresion ')' {$$.sval = $2.sval;}
                 | ')' error {System.out.println("ERROR: linea "+ Linea.getLinea() + " Falta el parentesis que abre");}
 ;
 
-parametro_formal: '(' tipo ID ')' { agregar_ParametroTS($3.sval, $2.sval, $3.sval+ambito);
+parametro_formal: '(' tipo ID ')' { /*Simbolo s = new Simbolo(257, $3.sval, $2.sval);
+                                    s.set_Ambito($3.sval+ambito);
+                                    s.set_Uso("Parametro formal");
+                                    TS.agregar_sin_chequear(s);*/
+                                    agregar_ParametroTS($3.sval, $2.sval, $3.sval+ambito);
                                     $$.sval = Integer.toString(TS.buscar_por_ambito($3.sval+ambito));}
                 | '(' ')' {$$.sval = "-";}
                 | '(' tipo ID error {System.out.println("ERROR: linea "+ Linea.getLinea()+ " Falta el parentesis que cierra"); setear_Uso("Parametro formal", $3.sval);}
@@ -601,9 +613,6 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
             if (!s.get_Ambito().equals(elemento+aux)){
                 System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + elemento + " está fuera del alcance");
                 error = true;
-            }
-            else {
-                System.out.println("El elemento " + elemento+ " está al alcance");
             }
             return true;
         }
@@ -793,6 +802,22 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
                 }
         }
         return false;
+    }
+
+    private String AlcanceMayor(String lexema) {
+        String actual = lexema + ambito;
+        if (TS.buscar_por_ambito(actual) != -1)
+            return actual;
+        else { int index = actual.lastIndexOf(":");
+                while (actual != lexema) {
+                    actual = actual.substring(0, index);
+                    if (TS.buscar_por_ambito(actual) != -1)
+                        return actual;
+                    else
+                        index = actual.lastIndexOf(":");
+                }
+        }
+        return "-";
     }
 
     public String obtenerTipo(String idClase) {

@@ -17,71 +17,128 @@ MaxNumDouble dq 1.7976931348623157e+308
 OverflowMultiplicacion db "Overflow en multiplicacion de enteros"
 OverflowResta db "Resultado negativo en resta de enteros sin signo"
 OverflowSuma db "Overflow en suma de punto flotante"
-_x$main dq  ?
-_y$main dd  ?
-_z$main db  ?
-@cadena11 db "InteriorIF"
+_clase1$main db  ?
+_x$main$clase1 db  ?
+_y$main$clase1 dq  ?
+_d$main$clase1$f1$f2 db  ?
+@cadena7 db "Hola"
+_t$main$clase1 dd  ?
+_clase2$main$clase1 db  ?
+_y$main$m dq  ?
+_z$main$m dq  ?
+_zz$main$m$n dq  ?
+_xx$main$m$n dq  ?
+_ww$main$m$n dq  ?
+_y$main$m$n dd  ?
+_a$main$m$n dd  ?
+@cadena22 db "cadena1"
 @aux1 db  ?
 @aux2 db  ?
-@aux3 db  ?
-@aux4 db  ?
-@aux5 db  ?
 .code
-START:
-FLD 2.0
-FLD 1.0
-FADD
-FSTP @aux1
-FSTSW aux_sumaDouble 
-MOV B X, aux_sumaDouble
-SAHF 
-JO OverFlowSuma 
-FLD @aux1
-FSTP _x$main
-FLD _x$main
-FLD 3.0
-FDIV
-FSTP @aux2
-FLD @aux2
-FSTP _x$main
-FLD _x$main
-FLD _x$main
-FMUL
-FSTP @aux3
+ 
+f2$main$clase1$f1: 
+MOV edx, 2
+ADD edx, _d$main$clase1$f1$f2
+MOV @aux3, edx
 FLD @aux3
-FSTP _x$main
-FLD -5.0
-FSTP _x$main
-MOV EDX, 6
-MOV _y$main, EDX
-MOV DL, _z$main
-MOVSX EDX, DL
-FLD _z$main
-FST _z$main
-FLD _x$main
+FSTP _y$main$clase1
+ret 
+ 
+f1$main$clase1: 
+MOV edx, 2
+ADD edx, _d$main$clase1$f1$f2
+MOV @aux4, edx
 FLD @aux4
+FSTP _y$main$clase1
+MOV dl, _x$main$clase1
+MOVSX edx, dl
+FLD _x$main$clase1
+FST _x$main$clase1
+MOV edx, @aux5
+CMP edx, _y$main$clase1
+JLE Label12
+MOV edx, _x$main$clase1
+MOV _d$main$clase1$f1$f2, edx
+CALL f2$main$clase1$f1
+JMP Label14
+Label12:
+invoke MessageBox, NULL, addr @cadena7, addr @cadena7, MB_OK
+Label14:
+ret 
+ 
+n$main$m: 
+FLD _zz$main$m$n
+FLD _xx$main$m$n
 FADD
-FSTP @aux5
+FSTP @aux6
 FSTSW aux_sumaDouble 
-MOV B X, aux_sumaDouble
+MOV b x, aux_sumaDouble
 SAHF 
 JO OverFlowSuma 
-FLD @aux5
-FSTP _x$main
-MOV EDX, 4.0
-CMP EDX, 5.0
-JGE Label15
-invoke MessageBox, NULL, addr @cadena11, addr @cadena11, MB_OK
-JMP Label16
-Label15:
-Label16:
+FLD _a$main$m$n
+FLD @aux6
+FLD @aux7
+FADD
+FSTP @aux8
+FSTSW aux_sumaDouble 
+MOV b x, aux_sumaDouble
+SAHF 
+JO OverFlowSuma 
+FLD @aux8
+FSTP _ww$main$m$n
+ret 
+ 
+m$main: 
+FLD _zz$main$m$n
+FLD _xx$main$m$n
+FADD
+FSTP @aux9
+FSTSW aux_sumaDouble 
+MOV b x, aux_sumaDouble
+SAHF 
+JO OverFlowSuma 
+FLD _a$main$m$n
+FLD @aux9
+FLD @aux10
+FADD
+FSTP @aux11
+FSTSW aux_sumaDouble 
+MOV b x, aux_sumaDouble
+SAHF 
+JO OverFlowSuma 
+FLD @aux11
+FSTP _ww$main$m$n
+Label28:
+FLD -500
+FSTP _y$main$clase1
+JLE Label28
+invoke MessageBox, NULL, addr @cadena22, addr @cadena22, MB_OK
+ret 
+ 
+START:
+
+MOV edx, _x$main$clase1
+SUB edx, 40
+JC OverFlowResta 
+MOV @aux1, edx
+MOV edx, _y$main$clase1
+ADD edx, @aux1
+MOV @aux2, edx
+FLD @aux2
+FSTP _y$main$clase1
+CALL f1$main$clase1
+CALL m$main
+
 OverFlowMul: 
 invoke  MessageBox, NULL, ADDR OverFlowMultiplicacion, ADDR OverFlowMultiplicacion, MB_OK 
 invoke ExitProcess, 0
+
 OverFlowResta: 
 invoke  MessageBox, NULL, ADDR OverFlowResta, ADDR OverFlowResta, MB_OK 
 invoke ExitProcess, 0
+
 OverFlowSuma: 
 invoke  MessageBox, NULL, ADDR OverFlowSuma, ADDR OverFlowSuma, MB_OK 
 invoke ExitProcess, 0
+
 END START

@@ -24,10 +24,10 @@ public class Assembler {
     public Assembler(HashMap<Integer, Terceto> ci, TablaSimbolos d) {
         CodIntermedio = new HashMap<Integer, Terceto>(ci);
         datos = d;
-        registros.put("EDX", false);
-        registros.put("EBX", false);
-        registros.put("ECX", false);
-        registros.put("EAX", false);
+        registros.put("edx", false);
+        registros.put("ebx", false);
+        registros.put("ecx", false);
+        registros.put("eax", false);
     }
 
     public static void generarArchivo() {
@@ -71,24 +71,24 @@ public class Assembler {
         generarInstrucciones(instrucciones, func);
 
         codigo.append(datos.getDatosAssembler());
-        codigo.append(".code\n");
+        codigo.append(".code\n \n");
         generarCodigoFunciones(codigo, func);
         // codigo
-        codigo.append("START:\n");
+        codigo.append("START:\n\n");
         codigo.append(instrucciones);
+        codigo.append("\n");
         codigo.append("OverFlowMul: \n");
         codigo
                 .append("invoke  MessageBox, NULL, ADDR OverFlowMultiplicacion, ADDR OverFlowMultiplicacion, MB_OK \n");
-        codigo.append("invoke ExitProcess, 0" + "\n");
+        codigo.append("invoke ExitProcess, 0" + "\n\n");
         codigo.append("OverFlowResta: \n");
         codigo.append("invoke  MessageBox, NULL, ADDR OverFlowResta, ADDR OverFlowResta, MB_OK \n");
-        codigo.append("invoke ExitProcess, 0" + "\n");
+        codigo.append("invoke ExitProcess, 0" + "\n\n");
         codigo.append("OverFlowSuma: \n");
         codigo.append("invoke  MessageBox, NULL, ADDR OverFlowSuma, ADDR OverFlowSuma, MB_OK \n");
-        codigo.append("invoke ExitProcess, 0" + "\n");
+        codigo.append("invoke ExitProcess, 0" + "\n\n");
         codigo.append("END START");
         generarArchivo();
-        imprimirCodigoIntermedio();
     }
 
     public void agregarFuncion(StringBuilder codigo, String op, int ref1, int ref2) {
@@ -99,7 +99,7 @@ public class Assembler {
                 t = CodIntermedio.get(i);
                 generarInstruccion(codigo, t);
             }
-            codigo.append("ret \n");
+            codigo.append("ret \n \n");
         }
     }
 
@@ -168,7 +168,7 @@ public class Assembler {
         String registro = getRegistroDisponible();
         char segundo = registro.charAt(1);
         cod.append("FSTSW aux_sumaDouble \n");
-        cod.append("MOV " + segundo + " X, aux_sumaDouble" + "\n");
+        cod.append("MOV " + segundo + "x, aux_sumaDouble" + "\n");
         cod.append("SAHF " + "\n");
         cod.append("JO OverFlowSuma \n");
         setRegistroDisponible(registro);
@@ -404,8 +404,8 @@ public class Assembler {
                 char segundo = registro.charAt(1);
                 if (registro != " ") {
                     cod.append(
-                            "MOV " + segundo + "L, " + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
-                    cod.append("MOVSX " + registro + ", " + segundo + "L" + "\n");
+                            "MOV " + segundo + "l, " + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
+                    cod.append("MOVSX " + registro + ", " + segundo + "l" + "\n");
                 }
                 setear_VA(t);
                 setRegistroDisponible(registro);
@@ -419,8 +419,8 @@ public class Assembler {
                     op1 = "_" + reemplazarPuntos(datos.get_Simbolo(Integer.parseInt(op1)).get_Ambito());
                 if (registro_aux != " ") {
                     cod.append(
-                            "MOV " + segundo_aux + "L, " + op1 + "\n");
-                    cod.append("MOVSX " + registro_aux + ", " + segundo_aux + "L" + "\n");
+                            "MOV " + segundo_aux + "l, " + op1 + "\n");
+                    cod.append("MOVSX " + registro_aux + ", " + segundo_aux + "l" + "\n");
                 }
                 cod.append("FLD " + op1 + "\n");
                 cod.append("FST " + op1 + "\n");

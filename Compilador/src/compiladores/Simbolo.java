@@ -8,7 +8,6 @@ public class Simbolo {
     private int cantRep;
     private String parametro;
     private String ambito;
-    private String usada;
 
     public Simbolo(int tk, String lex) {
         token = tk;
