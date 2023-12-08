@@ -268,6 +268,7 @@ declaracionFuncion: funcion_VOID    {dentroFuncion = false;
 
 funcion_VOID: inicio_Void parametro_formal '{' cuerpo_funcion '}' {//System.out.println("Se reconocio una declaracion de una funcion VOID en linea "+ Linea.getLinea());
                                                                 int clave = TS.buscar_por_ambito($1.sval);
+                                                                System.out.println("$1.sval "+$1.sval);
                                                                 if ($1.sval != " ") {
                                                                     metodosTemp.add(clave);
                                                                     TS.get_Simbolo(clave).set_Parametro($2.sval);
@@ -291,35 +292,48 @@ funcion_VOID_vacia: inicio_Void parametro_formal {//System.out.println("Se recon
 ;
 
 inicio_Void: VOID ID {
-                    if (setear_Ambito($2.sval+ambito, $2.sval)) {
-                        $$.sval = $2.sval+ambito;
-                        setear_Uso("Metodo", $2.sval+ambito);
-                        setear_Tipo($2.sval+ambito, "VOID");
-                        int aux = crear_terceto($2.sval+ambito, "-","-");
-                    } else $$.sval = " ";
+                    if (!dentroIMPL) {
+                        if (setear_Ambito($2.sval+ambito, $2.sval)) {
+                            $$.sval = $2.sval+ambito;
+                            setear_Uso("Metodo", $2.sval+ambito);
+                            setear_Tipo($2.sval+ambito, "VOID");
+                            int aux = crear_terceto($2.sval+ambito, "-","-");
+                        } else $$.sval = " ";
+                    } else {$$.sval = $2.sval+ambito;
+                            int aux = crear_terceto($2.sval+ambito, "-","-");
+                    }
                     ambito += ":" + $2.sval;
                     dentroFuncion = true;
 }
 ;
 
-clausula_IMPL : IMPL FOR ID ':' '{' funcion_VOID fin_sentencia '}'  {   int idClase = TS.buscar_por_ambito($3.sval+ambito);
-                                                                        if (!ver_ElementoDeclarado($3.sval)) //verificar que la clase exista
-                                                                            System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + $3.sval + " no fue declarado");
-                                                                        String metodo = $6.sval.split(":")[0];
+clausula_IMPL : inicio_IMPL '{' funcion_VOID fin_sentencia '}'  {   int idClase = TS.buscar_por_ambito($3.sval+ambito);
+                                                                        //if (!ver_ElementoDeclarado($3.sval)) //verificar que la clase exista
+                                                                           // System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + $3.sval + " no fue declarado");
+                                                                        String metodo = $3.sval.split(":")[0];
                                                                         if (verificarExistencia(idClase, metodo, "metodoNoImpl") != -1) {
-                                                                            agregarMetodoImplementado($3.sval+ambito, metodo+ambito+":"+$3.sval);
+                                                                            agregarMetodoImplementado($1.sval+ambito, metodo+ambito+":"+$1.sval);
                                                                         }
                                                                         int clave = TS.buscar_por_ambito(metodo+ambito);
-                                                                        if (clave != -1) { 
-                                                                            if (metodosClases.get(idClase)!=null) 
-                                                                                metodosClases.get(idClase).remove(Integer.valueOf(clave));
-                                                                            funciones.remove(clave);            
-                                                                            TS.remove_Simbolo(clave);
-                                                                        }
-                                                                        int aux = crear_terceto($6.sval, "-", "-");
+                                                                        //if (clave != -1) { 
+                                                                        //   if (metodosClases.get(idClase)!=null) 
+                                                                        //        metodosClases.get(idClase).remove(Integer.valueOf(clave));
+                                                                        //    funciones.remove(clave);            
+                                                                        //    TS.remove_Simbolo(clave);
+                                                                        //} 
+                                                                        int aux = crear_terceto($3.sval, "-", "-");
+                                                                        dentroIMPL = false;
+                                                                        volver_Ambito();
                                                                     }
 ;
 
+inicio_IMPL : IMPL FOR ID ':'   {dentroIMPL = true;
+                                if (!ver_ElementoDeclarado($3.sval)) //verificar que la clase exista
+                                    System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + $3.sval + " no fue declarado");
+                                ambito += ":" + $3.sval;
+                                $$.sval = $3.sval;
+                                }
+;
 sentenciaEjecutable : asignacion
                     | invocacionFuncion
                     | clausula_seleccion {//System.out.println("Se reconocio una clausula de seleccion IF en linea "+ Linea.getLinea());
@@ -549,6 +563,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
     ArrayList<Integer> atributosTemp = new ArrayList<Integer>();
     int clavePadre = -1;
     boolean dentroFuncion = false;
+    boolean dentroIMPL = false; 
     Conversion convertible = new Conversion();
     Assembler CodigoAssembler;
 
@@ -843,8 +858,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
     }
     
     public int verificarExistencia(int clase, String nombre, String objeto) 
-    {   System.out.println("verficiar existencia "+clase+" "+nombre+" "+objeto);
-        ArrayList<Integer> o = new ArrayList<Integer>();
+    {   ArrayList<Integer> o = new ArrayList<Integer>();
         if (objeto.equals("atributo")) 
             o = atributosClases.get(clase);
         else if (objeto.equals("metodo"))
@@ -853,9 +867,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
             o = metodosNoImplementados.get(clase);
         if (o != null) {
             for (Integer elemento : o) {
-                System.out.println(TS.get_Simbolo(elemento).get_Lex()+" "+nombre);
                 if (TS.get_Simbolo(elemento).get_Lex().equals(nombre)) {
-                    System.out.println(" elemento "+TS.get_Simbolo(elemento));
                     return elemento;
                 }
             }
