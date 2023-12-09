@@ -154,13 +154,13 @@ public class TablaSimbolos {
         return sb;
     }
 
-    public HashMap<String, Integer> getFuncionesAssembler() {
-        HashMap<String, Integer> sb = new HashMap<>();
+    public HashMap<String, ArrayList<Integer>> getFuncionesAssembler() {
+        HashMap<String, ArrayList<Integer>> sb = new HashMap<>();
         for (HashMap.Entry<Integer, Simbolo> entry : TS.entrySet()) {
             Simbolo s = get_Simbolo(entry.getKey());
             String uso = s.get_Uso();
             if (uso == "Metodo") {
-                sb.put(reemplazarPuntos(s.get_Ambito()), -1);
+                sb.put(reemplazarPuntos(s.get_Ambito()), new ArrayList<>());
             }
         }
         return sb;

@@ -6,7 +6,10 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
+
+import javax.management.ValueExp;
 
 public class Assembler {
 
@@ -69,9 +72,14 @@ public class Assembler {
         codigo.append("OverFlowResta db \"Resultado negativo en resta de enteros sin signo\"" + "\n");
         codigo.append("OverFlowSuma db \"Overflow en suma de punto flotante\"" + "\n");
 
-        HashMap<String, Integer> func = new HashMap<>(datos.getFuncionesAssembler());
+        HashMap<String, ArrayList<Integer>> func = new HashMap<>(datos.getFuncionesAssembler());
+        determinarLimites(func);
+
         generarInstrucciones(instrucciones, func);
+
         generarCodigoFunciones(sbFunciones, func);
+
+        // imprimirLimites(func);
 
         codigo.append(datos.getDatosAssembler());
         codigo.append("@aux_sumaDouble dq ? \n  \n");
@@ -93,15 +101,19 @@ public class Assembler {
         codigo.append("invoke ExitProcess, 0" + "\n\n");
         codigo.append("END START");
         generarArchivo();
+        imprimirCodigoIntermedio();
     }
 
     public void agregarFuncion(StringBuilder codigo, String op, int ref1, int ref2) {
         if ((ref2 - ref1) > 1) {
             Terceto t = CodIntermedio.get(ref1);
-            codigo.append(reemplazarPuntos(t.get_Operador()) + ": \n");
+            String nombreFunc = reemplazarPuntos(t.get_Operador());
+            codigo.append(nombreFunc + ": \n");
             for (int i = ref1 + 1; i < ref2; i++) {
                 t = CodIntermedio.get(i);
-                generarInstruccion(codigo, t);
+                String aux = reemplazarPuntos(t.get_Operador());
+                if (!aux.equals(nombreFunc))
+                    generarInstruccion(codigo, t);
             }
             codigo.append("ret \n \n");
         }
@@ -111,25 +123,81 @@ public class Assembler {
         return palabra.replace(":", "$");
     }
 
-    public void generarCodigoFunciones(StringBuilder codigo, HashMap<String, Integer> funciones) {
-        String operador, tope;
+    private void imprimirLimites(HashMap<String, ArrayList<Integer>> func) {
+        for (HashMap.Entry<String, ArrayList<Integer>> entry : func.entrySet()) {
+            String clave = entry.getKey();
+            ArrayList<Integer> lista = entry.getValue();
+
+            System.out.println("Clave: " + clave);
+            System.out.println("Lista de valores:");
+
+            for (Integer valor : lista) {
+                System.out.println("  " + valor);
+            }
+
+            System.out.println();
+        }
+    }
+
+    private void determinarLimites(HashMap<String, ArrayList<Integer>> func) {
+        String op, tope;
         for (HashMap.Entry<Integer, Terceto> i : CodIntermedio.entrySet()) {
-            operador = reemplazarPuntos(i.getValue().get_Operador());
-            if (funciones.get(operador) != null) {
+            op = i.getValue().get_Operador();
+            if (!operadorValido(op)) {
+                op = reemplazarPuntos(op);
                 if (!pilaFunc.isEmpty()) {
                     tope = pilaFunc.peek();
-                    if (tope.equals(operador)) {
-                        agregarFuncion(codigo, operador, funciones.get(operador), i.getKey());
+                    if (tope.equals(op)) {
+                        ArrayList<Integer> aux = func.get(op);
+                        aux.add(i.getKey());
+                        func.put(op, aux);
                         pilaFunc.pop();
                     } else {
-                        funciones.put(operador, i.getKey());
-                        pilaFunc.push(operador);
+                        ArrayList<Integer> aux = func.get(op);
+                        if (aux.size() > 0) {
+                            aux.remove(0);
+                            aux.remove(1);
+                            aux.add(i.getKey());
+                        } else {
+                            aux.add(i.getKey());
+                        }
+                        func.put(op, aux);
+                        pilaFunc.push(op);
                     }
                 } else {
-                    funciones.put(operador, i.getKey());
-                    pilaFunc.push(operador);
+                    ArrayList<Integer> aux = func.get(op);
+                    if (aux.size() > 0) {
+                        aux.remove(0);
+                        aux.remove(0);
+                        aux.add(i.getKey());
+                    } else {
+                        aux.add(i.getKey());
+                    }
+                    func.put(op, aux);
+                    pilaFunc.push(op);
                 }
             }
+        }
+    }
+
+    public void generarCodigoFunciones(StringBuilder codigo, HashMap<String, ArrayList<Integer>> funciones) {
+        for (HashMap.Entry<String, ArrayList<Integer>> i : funciones.entrySet()) {
+            String funcion = i.getKey();
+            codigo.append(funcion + ": \n");
+            ArrayList<Integer> tercetos = i.getValue();
+            int index = tercetos.get(0);
+            while (index < tercetos.get(1)) {
+                Terceto t = CodIntermedio.get(index);
+                String op = reemplazarPuntos(t.get_Operador());
+                if (!operadorValido(op) && !op.equals(funcion)) {
+                    index = funciones.get(op).get(1) + 1;
+                    codigo.append("CALL " + op + "\n");
+                } else {
+                    generarInstruccion(codigo, t);
+                    index++;
+                }
+            }
+            codigo.append("ret \n \n");
         }
     }
 
@@ -146,8 +214,12 @@ public class Assembler {
                 int l = Integer.parseInt(j);
                 j = datos.get_Simbolo(l).get_Lex();
             }
-            System.out.println("Referencia: " + i.getKey() + ", Terceto: (" + i.getValue().get_Operador() + " , " + j
+            System.out.print("Referencia: " + i.getKey() + ", Terceto: (" + i.getValue().get_Operador() + " , " + j
                     + " , " + s + ")" + " Tipo: " + i.getValue().get_Tipo() + " VA: " + i.getValue().get_VA());
+            if (i.getValue().get_VA() != " ")
+                System.out.println(" tipo VA " + datos.get_Simbolo(datos.pertenece(i.getValue().get_VA())).get_Tipo());
+            else
+                System.out.println("");
         }
     }
 
@@ -198,34 +270,19 @@ public class Assembler {
         return operadores.contains(op) || op.contains("Label");
     }
 
-    public void generarInstrucciones(StringBuilder instrucc, HashMap<String, Integer> funciones) {
-        Boolean dentroFuncion = false;
-        String tope;
-        for (HashMap.Entry<Integer, Terceto> i : CodIntermedio.entrySet()) {
-            Terceto t = i.getValue();
+    public void generarInstrucciones(StringBuilder instrucc, HashMap<String, ArrayList<Integer>> funciones) {
+        int i = 0;
+        while (i < CodIntermedio.size()) {
+            Terceto t = CodIntermedio.get(i);
             String op = t.get_Operador();
             if (seguir) {
-                if (operadorValido(op) && !dentroFuncion) {
-                    generarInstruccion(instrucc, i.getValue());
+                if (operadorValido(op)) {
+                    generarInstruccion(instrucc, t);
+                    i++;
                 } else {
                     op = reemplazarPuntos(op);
-                    if (funciones.get(op) != null) {
-                        if (!pilaFunc.isEmpty()) {
-                            tope = pilaFunc.peek();
-                            if (tope.equals(op)) {
-                                pilaFunc.pop();
-                                if (pilaFunc.isEmpty()) {
-                                    dentroFuncion = false;
-                                }
-                            } else {
-                                pilaFunc.push(op);
-                                dentroFuncion = true;
-                            }
-                        } else {
-                            pilaFunc.push(op);
-                            dentroFuncion = true;
-                        }
-                    }
+                    ArrayList<Integer> aux = funciones.get(op);
+                    i = aux.get(1) + 1;
                 }
             }
         }
@@ -236,6 +293,7 @@ public class Assembler {
         String instruccion = devolverOperacion(cod, t);
         String operador = t.get_Operador();
         String tipo = t.get_Tipo();
+        String tipoOp1;
         String reg;
         if (operador.startsWith("Label")) {
             cod.append(operador + ":" + "\n");
@@ -243,7 +301,10 @@ public class Assembler {
         if (instruccion != "ERROR") {
             String op1 = obtenerOperando(t.get_Op1(), instruccion);
             String op2 = obtenerOperando(t.get_Op2(), instruccion);
-
+            if (tipo == "-") {
+                if (op1.startsWith("_") || op1.startsWith("@"))
+                    tipo = datos.get_Simbolo(Integer.parseInt(t.get_Op1())).get_Tipo();
+            }
             if ((operador == "+") || (operador == "-") || (operador == "*") || (operador == "/")) {
                 registro = getRegistroDisponible();
                 char segundo = registro.charAt(1);
@@ -263,7 +324,8 @@ public class Assembler {
                         reg = registro;
                     cod.append("MOV " + reg + ", " + op1 + "\n");
                     cod.append(instruccion + " " + reg + ", " + op2 + "\n");
-                    String vAux = setear_VA(t, tipo);
+                    String vAux;
+                    vAux = setear_VA(t, tipo);
                     if (operador == "-" && tipo == "USHORT")
                         controlar_OverFlowResta(cod);
                     else if (operador == "*")
@@ -288,8 +350,15 @@ public class Assembler {
                 setRegistroDisponible(registro);
             } else if (operador == ">" || operador == ">=" || operador == "<" || operador == "<=") {
                 registro = getRegistroDisponible();
-                cod.append("MOV " + registro + ", " + op1 + "\n");
-                cod.append("CMP " + registro + ", " + op2 + "\n");
+                if (tipo == "DOUBLE") {
+                    System.out.println("op1 " + op1 + " op2 " + op2);
+                    cod.append("FILD " + op1 + "\n");
+                    cod.append("FILD " + op2 + "\n");
+                    cod.append("FCOM \n");
+                } else {
+                    cod.append("MOV " + registro + ", " + op1 + "\n");
+                    cod.append("CMP " + registro + ", " + op2 + "\n");
+                }
                 setRegistroDisponible(registro);
             } else if (instruccion == "JMP") {
                 String destino = borrarCorchetes(op2);
@@ -449,8 +518,14 @@ public class Assembler {
             case "LtoD":
                 if (op1.startsWith("["))
                     op1 = CodIntermedio.get(Integer.parseInt(borrarCorchetes(op1))).get_VA();
-                else
-                    op1 = "_" + reemplazarPuntos(datos.get_Simbolo(Integer.parseInt(op1)).get_Ambito());
+                else {
+                    String uso = datos.get_Simbolo(Integer.parseInt(op1)).get_Uso();
+                    if (uso != "Constante" && uso != "ConstantePositiva" && uso != "Constante negativa")
+                        op1 = "_" + reemplazarPuntos(datos.get_Simbolo(Integer.parseInt(op1)).get_Ambito());
+                    else
+                        op1 = datos.get_Simbolo(Integer.parseInt(op1)).get_Lex();
+                }
+
                 cod.append("FLD " + op1 + "\n");
                 setear_VA(t, "DOUBLE");
                 return " ";
