@@ -129,6 +129,8 @@ public class TablaSimbolos {
                     sb.append("_" + reemplazarPuntos(s.get_Ambito()) + " dd " + " ?\n");
                 else if (token == 280)
                     sb.append(s.get_Lex() + " dd " + " ?\n");
+                else if (token == 258 && s.get_Lex().contains("-"))
+                    sb.append("@cteneg" + entry.getKey() + " dd " + s.get_Lex() + "\n");
             } else if (tipo == "USHORT") {
                 if (token == 257)
                     sb.append("_" + reemplazarPuntos(s.get_Ambito()) + " db " + " ?\n");

@@ -6,10 +6,7 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Stack;
-
-import javax.management.ValueExp;
 
 public class Assembler {
 
@@ -82,7 +79,7 @@ public class Assembler {
         // imprimirLimites(func);
 
         codigo.append(datos.getDatosAssembler());
-        codigo.append("@aux_sumaDouble dq ? \n  \n");
+        codigo.append("@aux_sumaDouble dw ? \n  \n");
         codigo.append(".code\n \n");
         codigo.append(sbFunciones);
         // codigo
@@ -522,11 +519,12 @@ public class Assembler {
                     String uso = datos.get_Simbolo(Integer.parseInt(op1)).get_Uso();
                     if (uso != "Constante" && uso != "ConstantePositiva" && uso != "Constante negativa")
                         op1 = "_" + reemplazarPuntos(datos.get_Simbolo(Integer.parseInt(op1)).get_Ambito());
+                    else if (uso == "Constante negativa")
+                        op1 = "@cteneg" + Integer.parseInt(op1);
                     else
                         op1 = datos.get_Simbolo(Integer.parseInt(op1)).get_Lex();
                 }
-
-                cod.append("FLD " + op1 + "\n");
+                cod.append("FILD " + op1 + "\n");
                 setear_VA(t, "DOUBLE");
                 return " ";
             default:

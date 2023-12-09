@@ -31,6 +31,7 @@ _xx$main$m$n dq  ?
 _ww$main$m$n dq  ?
 _y$main$m$n dd  ?
 _a$main$m$n dd  ?
+@cteneg21 dd -500
 @cadena22 db "cadena1"
 @aux1 db  ?
 @aux2 dq  ?
@@ -42,7 +43,7 @@ _a$main$m$n dd  ?
 @aux8 dq  ?
 @aux9 dq  ?
 @aux10 dq  ?
-@aux_sumaDouble dq ? 
+@aux_sumaDouble dw ? 
   
 .code
  
@@ -55,7 +56,7 @@ FSTSW @aux_sumaDouble
 MOV bx, @aux_sumaDouble
 SAHF 
 JO OFS 
-FLD _a$main$m$n
+FILD _a$main$m$n
 FLD @aux4
 FLD @aux5
 FADD
@@ -102,7 +103,7 @@ ret
 m$main: 
 CALL n$main$m
 Label30:
-FLD -500
+FILD @cteneg21
 FLD @aux10
 FSTP _y$main$clase1
 JLE Label30
