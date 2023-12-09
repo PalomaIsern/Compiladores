@@ -259,7 +259,7 @@ public class Assembler {
                         reg = registro;
                     cod.append("MOV " + reg + ", " + op1 + "\n");
                     cod.append(instruccion + " " + reg + ", " + op2 + "\n");
-                    String vAux = setear_VA(t);
+                    String vAux = setear_VA(t, tipo);
                     if (operador == "-" && tipo == "USHORT")
                         controlar_OverFlowResta(cod);
                     else if (operador == "*")
