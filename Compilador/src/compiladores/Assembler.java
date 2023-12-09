@@ -279,7 +279,10 @@ public class Assembler {
                 } else {
                     op = reemplazarPuntos(op);
                     ArrayList<Integer> aux = funciones.get(op);
-                    i = aux.get(1) + 1;
+                    if (aux.get(0) == i)
+                        i = aux.get(1) + 1;
+                    else
+                        i = i + 2;
                 }
             }
         }
@@ -363,10 +366,10 @@ public class Assembler {
             } else if (instruccion == "BF") {
                 generarSaltoCondicional(cod, t);
             } else if (instruccion == "CALL") {
-                cod.append("CALL " + op1.substring(1) + "\n");
+                cod.append("CALL " + reemplazarPuntos(op1.substring(1)) + "\n");
             } else if (instruccion == "CALLMetodoClase") {
                 String metodo = datos.get_Simbolo(Integer.parseInt(t.get_Op1())).get_Ambito();
-                cod.append("CALL " + metodo + "\n");
+                cod.append("CALL " + reemplazarPuntos(metodo) + "\n");
             }
         } else {
             System.out.println("La ejecución ha sido interrumpida porque se ha detectado un error");
@@ -482,7 +485,7 @@ public class Assembler {
                                 + "\n");
                 return " ";
             case "atributo_objeto":
-                // completar
+                System.out.println("atributo obj");
                 return " ";
             case "UStoL":
                 String registro = getRegistroDisponible();
