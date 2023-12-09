@@ -63,9 +63,9 @@ public class Assembler {
         codigo.append("MaxNumLong dd 2147483647\n");
         codigo.append("MinNumDouble dq 2.2250738585072014e-308\n");
         codigo.append("MaxNumDouble dq 1.7976931348623157e+308\n");
-        codigo.append("OverflowMultiplicacion db \"Overflow en multiplicacion de enteros\"" + "\n");
-        codigo.append("OverflowResta db \"Resultado negativo en resta de enteros sin signo\"" + "\n");
-        codigo.append("OverflowSuma db \"Overflow en suma de punto flotante\"" + "\n");
+        codigo.append("OverFlowMultiplicacion db \"Overflow en multiplicacion de enteros\"" + "\n");
+        codigo.append("OverFlowResta db \"Resultado negativo en resta de enteros sin signo\"" + "\n");
+        codigo.append("OverFlowSuma db \"Overflow en suma de punto flotante\"" + "\n");
 
         HashMap<String, Integer> func = new HashMap<>(datos.getFuncionesAssembler());
         generarInstrucciones(instrucciones, func);
@@ -77,14 +77,14 @@ public class Assembler {
         codigo.append("START:\n\n");
         codigo.append(instrucciones);
         codigo.append("\n");
-        codigo.append("OverFlowMul: \n");
+        codigo.append("OFM: \n");
         codigo
                 .append("invoke  MessageBox, NULL, ADDR OverFlowMultiplicacion, ADDR OverFlowMultiplicacion, MB_OK \n");
         codigo.append("invoke ExitProcess, 0" + "\n\n");
-        codigo.append("OverFlowResta: \n");
+        codigo.append("OFR: \n");
         codigo.append("invoke  MessageBox, NULL, ADDR OverFlowResta, ADDR OverFlowResta, MB_OK \n");
         codigo.append("invoke ExitProcess, 0" + "\n\n");
-        codigo.append("OverFlowSuma: \n");
+        codigo.append("OFS: \n");
         codigo.append("invoke  MessageBox, NULL, ADDR OverFlowSuma, ADDR OverFlowSuma, MB_OK \n");
         codigo.append("invoke ExitProcess, 0" + "\n\n");
         codigo.append("END START");
@@ -155,13 +155,13 @@ public class Assembler {
 
     public void controlar_OverFlowMul(StringBuilder cod, String tipo) {
         if (tipo == "LONG")
-            cod.append("JO OverFlowMul \n");
+            cod.append("JO OFM \n");
         else
-            cod.append("JC OverFlowMul \n");
+            cod.append("JC OFM \n");
     }
 
     public void controlar_OverFlowResta(StringBuilder cod) {
-        cod.append("JC OverFlowResta \n");
+        cod.append("JC OFR \n");
     }
 
     public void controlar_OverFlowSum(StringBuilder cod) {
@@ -170,7 +170,7 @@ public class Assembler {
         cod.append("FSTSW aux_sumaDouble \n");
         cod.append("MOV " + segundo + "x, aux_sumaDouble" + "\n");
         cod.append("SAHF " + "\n");
-        cod.append("JO OverFlowSuma \n");
+        cod.append("JO OFS \n");
         setRegistroDisponible(registro);
     }
 

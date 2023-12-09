@@ -14,9 +14,9 @@ MinNumLong dd -2147483648
 MaxNumLong dd 2147483647
 MinNumDouble dq 2.2250738585072014e-308
 MaxNumDouble dq 1.7976931348623157e+308
-OverflowMultiplicacion db "Overflow en multiplicacion de enteros"
-OverflowResta db "Resultado negativo en resta de enteros sin signo"
-OverflowSuma db "Overflow en suma de punto flotante"
+OverFlowMultiplicacion db "Overflow en multiplicacion de enteros"
+OverFlowResta db "Resultado negativo en resta de enteros sin signo"
+OverFlowSuma db "Overflow en suma de punto flotante"
 _clase1$main db  ?
 _x$main$clase1 db  ?
 _y$main$clase1 dq  ?
@@ -83,7 +83,7 @@ FSTP @aux9
 FSTSW aux_sumaDouble 
 MOV bx, aux_sumaDouble
 SAHF 
-JO OverFlowSuma 
+JO OFS 
 FLD _a$main$m$n
 FLD @aux9
 FLD @aux10
@@ -92,7 +92,7 @@ FSTP @aux11
 FSTSW aux_sumaDouble 
 MOV bx, aux_sumaDouble
 SAHF 
-JO OverFlowSuma 
+JO OFS 
 FLD @aux11
 FSTP _ww$main$m$n
 ret 
@@ -105,7 +105,7 @@ FSTP @aux12
 FSTSW aux_sumaDouble 
 MOV bx, aux_sumaDouble
 SAHF 
-JO OverFlowSuma 
+JO OFS 
 FLD _a$main$m$n
 FLD @aux12
 FLD @aux13
@@ -114,7 +114,7 @@ FSTP @aux14
 FSTSW aux_sumaDouble 
 MOV bx, aux_sumaDouble
 SAHF 
-JO OverFlowSuma 
+JO OFS 
 FLD @aux14
 FSTP _ww$main$m$n
 Label30:
@@ -129,7 +129,7 @@ START:
 
 MOV dl, _x$main$clase1
 SUB dl, 40
-JC OverFlowResta 
+JC OFR 
 MOV @aux1, dl
 MOV dl, @aux1
 MOVSX edx, dl
@@ -143,15 +143,15 @@ FSTP _y$main$clase1
 CALL f1$main$clase1
 CALL m$main
 
-OverFlowMul: 
+OFM: 
 invoke  MessageBox, NULL, ADDR OverFlowMultiplicacion, ADDR OverFlowMultiplicacion, MB_OK 
 invoke ExitProcess, 0
 
-OverFlowResta: 
+OFR: 
 invoke  MessageBox, NULL, ADDR OverFlowResta, ADDR OverFlowResta, MB_OK 
 invoke ExitProcess, 0
 
-OverFlowSuma: 
+OFS: 
 invoke  MessageBox, NULL, ADDR OverFlowSuma, ADDR OverFlowSuma, MB_OK 
 invoke ExitProcess, 0
 
