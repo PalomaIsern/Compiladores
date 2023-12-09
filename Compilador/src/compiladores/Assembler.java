@@ -507,8 +507,8 @@ public class Assembler {
                             "MOV " + segundo_aux + "l, " + op1 + "\n");
                     cod.append("MOVSX " + registro_aux + ", " + segundo_aux + "l" + "\n");
                 }
-                cod.append("FLD " + op1 + "\n");
-                cod.append("FST " + op1 + "\n"); // esto causa problemas
+                cod.append("FILD " + "dword ptr [" + op1 + "] \n");
+                cod.append("FSTP " + "qword ptr [" + op1 + "] \n");
                 setear_VA(t, "DOUBLE");
                 setRegistroDisponible(registro_aux);
                 return " ";
@@ -524,7 +524,7 @@ public class Assembler {
                     else
                         op1 = datos.get_Simbolo(Integer.parseInt(op1)).get_Lex();
                 }
-                cod.append("FILD " + op1 + "\n");
+                cod.append("FILD " + "dword ptr [" + op1 + "] \n");
                 setear_VA(t, "DOUBLE");
                 return " ";
             default:
