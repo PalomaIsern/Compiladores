@@ -54,6 +54,7 @@ fin_sentencia : ','
 ;
 
 asignacion : ID simboloAsignacion expresion         {String conv = convertirTipoAsignacion($1.sval, $3.sval);
+                                                    System.out.println("Conv: " +conv);
                                                     if (conv != "-"){
                                                         $3.sval = "["+ Integer.toString(crear_terceto(conv, $3.sval, "-")) +"]";
                                                         CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(conv));
@@ -1303,7 +1304,7 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
 
     public String convertirTipoAsignacion(String id, String expresion){
         String tipoId = TS.get_Simbolo(TS.pertenece(id)).get_Tipo();
-        String tipoExpresion;
+        String tipoExpresion= "-";
         String conversion = "-";
         if (expresion.contains("[")){
             String refTerceto = borrarCorchetes(expresion);
@@ -1311,23 +1312,25 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
         }
         else
             tipoExpresion = TS.get_Simbolo(Integer.parseInt(expresion)).get_Tipo();
-        if (tipoId == "USHORT")
-                if (tipoExpresion != "USHORT"){
+        System.out.println("ID: " + id + " tipo : " + tipoId + " expresion: " + expresion + " Tipo expresion " + tipoExpresion);
+        if (tipoId.equals("USHORT")){
+                if (!tipoExpresion.equals("USHORT")){
                     System.out.println("ERROR: linea " + Linea.getLinea() + " Tipos incompatibles para realizar la asignacion. Se pretende convertir " + tipoExpresion + " a USHORT");
-                    error = true;}
-        else if (tipoId == "LONG")
-            if (tipoExpresion != "LONG")
+                    error = true;}}
+        else if (tipoId.equals("LONG")){
+            if (tipoExpresion.equals("LONG"))
                 if (tipoExpresion == "USHORT")
                     conversion = "UStoL";
                 else{
                     System.out.println("ERROR: linea " + Linea.getLinea() + " Tipos incompatibles para realizar la asignacion. Se pretende convertir " + tipoExpresion + " a USHORT");
-                    error = true;}
+                    error = true;}}
         else
-            if (tipoExpresion == "LONG")
+            if (tipoExpresion.equals("LONG"))
                 conversion = "LtoD";
             else
-                if (tipoExpresion == "USHORT")
+                if (tipoExpresion.equals("USHORT"))
                     conversion = "UStoD";
+        System.out.println("Conversion: " + conversion);
         return conversion;
     }
 

@@ -33,62 +33,49 @@ _y$main$m$n dd  ?
 _a$main$m$n dd  ?
 @cadena22 db "cadena1"
 @aux1 db  ?
-@aux2 db  ?
+@aux2 dq  ?
+@aux3 db  ?
 .code
  
 f2$main$clase1$f1: 
 MOV dl, 2
 ADD dl, _d$main$clase1$f1$f2
-MOV @aux3, dl
-FLD @aux3
+MOV @aux4, dl
+MOV dl, @aux4
+MOVSX edx, dl
+FLD @aux4
+FST @aux4
+FLD @aux5
 FSTP _y$main$clase1
 ret 
  
 f1$main$clase1: 
 MOV dl, 2
 ADD dl, _d$main$clase1$f1$f2
-MOV @aux4, dl
-FLD @aux4
+MOV @aux6, dl
+MOV dl, @aux6
+MOVSX edx, dl
+FLD @aux6
+FST @aux6
+FLD @aux7
 FSTP _y$main$clase1
 MOV dl, _x$main$clase1
 MOVSX edx, dl
 FLD _x$main$clase1
 FST _x$main$clase1
-MOV edx, @aux5
+MOV edx, @aux8
 CMP edx, _y$main$clase1
-JLE Label12
+JLE Label13
 MOV dl, _x$main$clase1
 MOV _d$main$clase1$f1$f2, dl
 CALL f2$main$clase1$f1
-JMP Label14
-Label12:
+JMP Label15
+Label13:
 invoke MessageBox, NULL, addr @cadena7, addr @cadena7, MB_OK
-Label14:
+Label15:
 ret 
  
 n$main$m: 
-FLD _zz$main$m$n
-FLD _xx$main$m$n
-FADD
-FSTP @aux6
-FSTSW aux_sumaDouble 
-MOV bx, aux_sumaDouble
-SAHF 
-JO OverFlowSuma 
-FLD _a$main$m$n
-FLD @aux6
-FLD @aux7
-FADD
-FSTP @aux8
-FSTSW aux_sumaDouble 
-MOV bx, aux_sumaDouble
-SAHF 
-JO OverFlowSuma 
-FLD @aux8
-FSTP _ww$main$m$n
-ret 
- 
-m$main: 
 FLD _zz$main$m$n
 FLD _xx$main$m$n
 FADD
@@ -108,10 +95,33 @@ SAHF
 JO OverFlowSuma 
 FLD @aux11
 FSTP _ww$main$m$n
-Label28:
-FLD -500
+ret 
+ 
+m$main: 
+FLD _zz$main$m$n
+FLD _xx$main$m$n
+FADD
+FSTP @aux12
+FSTSW aux_sumaDouble 
+MOV bx, aux_sumaDouble
+SAHF 
+JO OverFlowSuma 
+FLD _a$main$m$n
+FLD @aux12
+FLD @aux13
+FADD
+FSTP @aux14
+FSTSW aux_sumaDouble 
+MOV bx, aux_sumaDouble
+SAHF 
+JO OverFlowSuma 
+FLD @aux14
+FSTP _ww$main$m$n
+Label30:
+FLD _-
+FLD @aux15
 FSTP _y$main$clase1
-JLE Label28
+JLE Label30
 invoke MessageBox, NULL, addr @cadena22, addr @cadena22, MB_OK
 ret 
  
@@ -121,10 +131,14 @@ MOV dl, _x$main$clase1
 SUB dl, 40
 JC OverFlowResta 
 MOV @aux1, dl
+MOV dl, @aux1
+MOVSX edx, dl
+FLD @aux1
+FST @aux1
 MOV edx, _y$main$clase1
-ADD edx, @aux1
-MOV @aux2, edx
-FLD @aux2
+ADD edx, @aux2
+MOV @aux3, edx
+FLD @aux3
 FSTP _y$main$clase1
 CALL f1$main$clase1
 CALL m$main
