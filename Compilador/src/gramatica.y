@@ -487,6 +487,7 @@ invocacionFuncion : ID parametro_real  {
                                                     String tipo_formal = TS.get_Simbolo(aux).get_Tipo();
                                                     if (tipo_formal.equals(tipo_real)){
                                                         String auxiliar = Integer.toString(crear_terceto("=", Integer.toString(aux), $2.sval));
+                                                        CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(tipo_formal);
                                                         $$.sval = "[" + Integer.toString(crear_terceto ("CALL", Integer.toString(ref), $2.sval)) + "]";}
                                                     else
                                                         {
@@ -524,11 +525,7 @@ parametro_real  : '(' expresion ')' {$$.sval = $2.sval;}
                 | ')' error {System.out.println("ERROR: linea "+ Linea.getLinea() + " Falta el parentesis que abre");}
 ;
 
-parametro_formal: '(' tipo ID ')' { /*Simbolo s = new Simbolo(257, $3.sval, $2.sval);
-                                    s.set_Ambito($3.sval+ambito);
-                                    s.set_Uso("Parametro formal");
-                                    TS.agregar_sin_chequear(s);*/
-                                    agregar_ParametroTS($3.sval, $2.sval, $3.sval+ambito);
+parametro_formal: '(' tipo ID ')' { agregar_ParametroTS($3.sval, $2.sval, $3.sval+ambito);
                                     $$.sval = Integer.toString(TS.buscar_por_ambito($3.sval+ambito));}
                 | '(' ')' {$$.sval = "-";}
                 | '(' tipo ID error {System.out.println("ERROR: linea "+ Linea.getLinea()+ " Falta el parentesis que cierra"); setear_Uso("Parametro formal", $3.sval);}
