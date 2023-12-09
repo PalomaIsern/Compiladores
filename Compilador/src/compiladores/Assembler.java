@@ -231,6 +231,8 @@ public class Assembler {
         String registro = " ";
         String instruccion = devolverOperacion(cod, t);
         String operador = t.get_Operador();
+        String tipo = t.get_Tipo();
+        String reg;
         if (operador.startsWith("Label")) {
             cod.append(operador + ":" + "\n");
         }
@@ -240,7 +242,7 @@ public class Assembler {
 
             if ((operador == "+") || (operador == "-") || (operador == "*") || (operador == "/")) {
                 registro = getRegistroDisponible();
-                String tipo = t.get_Tipo();
+                char segundo = registro.charAt(1);
                 if (tipo == "DOUBLE") {
                     cod.append("FLD " + op1 + "\n");
                     cod.append("FLD " + op2 + "\n");
@@ -251,24 +253,33 @@ public class Assembler {
                         controlar_OverFlowSum(cod);
                     setRegistroDisponible(registro);
                 } else {
-                    cod.append("MOV " + registro + ", " + op1 + "\n");
-                    cod.append(instruccion + " " + registro + ", " + op2 + "\n");
-                    String vAux = setear_VA(t, tipo);
+                    if (tipo == "USHORT")
+                        reg = String.valueOf(segundo) + "l";
+                    else
+                        reg = registro;
+                    cod.append("MOV " + reg + ", " + op1 + "\n");
+                    cod.append(instruccion + " " + reg + ", " + op2 + "\n");
+                    String vAux = setear_VA(t);
                     if (operador == "-" && tipo == "USHORT")
                         controlar_OverFlowResta(cod);
                     else if (operador == "*")
                         controlar_OverFlowMul(cod, tipo);
-                    cod.append("MOV " + vAux + ", " + registro + "\n");
+                    cod.append("MOV " + vAux + ", " + reg + "\n");
                     setRegistroDisponible(registro);
                 }
             } else if (operador == "=") {
                 registro = getRegistroDisponible();
-                if (t.get_Tipo() == "DOUBLE") {
+                char segundo = registro.charAt(1);
+                if (tipo == "DOUBLE") {
                     cod.append("FLD " + op2 + "\n");
                     cod.append("FSTP " + op1 + "\n");
                 } else {
-                    cod.append("MOV " + registro + ", " + op2 + "\n");
-                    cod.append("MOV " + op1 + ", " + registro + "\n");
+                    if (tipo == "USHORT")
+                        reg = String.valueOf(segundo) + "l";
+                    else
+                        reg = registro;
+                    cod.append("MOV " + reg + ", " + op2 + "\n");
+                    cod.append("MOV " + op1 + ", " + reg + "\n");
                 }
                 setRegistroDisponible(registro);
             } else if (operador == ">" || operador == ">=" || operador == "<" || operador == "<=") {

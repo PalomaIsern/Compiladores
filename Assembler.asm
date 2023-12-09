@@ -37,17 +37,17 @@ _a$main$m$n dd  ?
 .code
  
 f2$main$clase1$f1: 
-MOV edx, 2
-ADD edx, _d$main$clase1$f1$f2
-MOV @aux3, edx
+MOV dl, 2
+ADD dl, _d$main$clase1$f1$f2
+MOV @aux3, dl
 FLD @aux3
 FSTP _y$main$clase1
 ret 
  
 f1$main$clase1: 
-MOV edx, 2
-ADD edx, _d$main$clase1$f1$f2
-MOV @aux4, edx
+MOV dl, 2
+ADD dl, _d$main$clase1$f1$f2
+MOV @aux4, dl
 FLD @aux4
 FSTP _y$main$clase1
 MOV dl, _x$main$clase1
@@ -57,8 +57,8 @@ FST _x$main$clase1
 MOV edx, @aux5
 CMP edx, _y$main$clase1
 JLE Label12
-MOV edx, _x$main$clase1
-MOV _d$main$clase1$f1$f2, edx
+MOV dl, _x$main$clase1
+MOV _d$main$clase1$f1$f2, dl
 CALL f2$main$clase1$f1
 JMP Label14
 Label12:
@@ -72,7 +72,7 @@ FLD _xx$main$m$n
 FADD
 FSTP @aux6
 FSTSW aux_sumaDouble 
-MOV b x, aux_sumaDouble
+MOV bx, aux_sumaDouble
 SAHF 
 JO OverFlowSuma 
 FLD _a$main$m$n
@@ -81,7 +81,7 @@ FLD @aux7
 FADD
 FSTP @aux8
 FSTSW aux_sumaDouble 
-MOV b x, aux_sumaDouble
+MOV bx, aux_sumaDouble
 SAHF 
 JO OverFlowSuma 
 FLD @aux8
@@ -94,7 +94,7 @@ FLD _xx$main$m$n
 FADD
 FSTP @aux9
 FSTSW aux_sumaDouble 
-MOV b x, aux_sumaDouble
+MOV bx, aux_sumaDouble
 SAHF 
 JO OverFlowSuma 
 FLD _a$main$m$n
@@ -103,7 +103,7 @@ FLD @aux10
 FADD
 FSTP @aux11
 FSTSW aux_sumaDouble 
-MOV b x, aux_sumaDouble
+MOV bx, aux_sumaDouble
 SAHF 
 JO OverFlowSuma 
 FLD @aux11
@@ -117,10 +117,10 @@ ret
  
 START:
 
-MOV edx, _x$main$clase1
-SUB edx, 40
+MOV dl, _x$main$clase1
+SUB dl, 40
 JC OverFlowResta 
-MOV @aux1, edx
+MOV @aux1, dl
 MOV edx, _y$main$clase1
 ADD edx, @aux1
 MOV @aux2, edx
