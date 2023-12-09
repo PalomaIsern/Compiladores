@@ -245,7 +245,7 @@ public class Assembler {
                     cod.append("FLD " + op1 + "\n");
                     cod.append("FLD " + op2 + "\n");
                     cod.append(instruccion + "\n");
-                    String vAux = setear_VA(t);
+                    String vAux = setear_VA(t, "DOUBLE");
                     cod.append("FSTP " + vAux + "\n");
                     if (operador == "+")
                         controlar_OverFlowSum(cod);
@@ -253,7 +253,7 @@ public class Assembler {
                 } else {
                     cod.append("MOV " + registro + ", " + op1 + "\n");
                     cod.append(instruccion + " " + registro + ", " + op2 + "\n");
-                    String vAux = setear_VA(t);
+                    String vAux = setear_VA(t, tipo);
                     if (operador == "-" && tipo == "USHORT")
                         controlar_OverFlowResta(cod);
                     else if (operador == "*")
@@ -319,9 +319,10 @@ public class Assembler {
         registros.put(reg, false);
     }
 
-    public String setear_VA(Terceto t) {
+    public String setear_VA(Terceto t, String tipo) {
         String vAux = t.set_VA();
         Simbolo sim = new Simbolo(280, vAux);
+        sim.set_Tipo(tipo);
         TablaSimbolos.agregar_sin_chequear(sim);
         return vAux;
     }
@@ -407,7 +408,7 @@ public class Assembler {
                             "MOV " + segundo + "l, " + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
                     cod.append("MOVSX " + registro + ", " + segundo + "l" + "\n");
                 }
-                setear_VA(t);
+                setear_VA(t, "LONG");
                 setRegistroDisponible(registro);
                 return " ";
             case "UStoD":
@@ -424,7 +425,7 @@ public class Assembler {
                 }
                 cod.append("FLD " + op1 + "\n");
                 cod.append("FST " + op1 + "\n");
-                setear_VA(t);
+                setear_VA(t, "DOUBLE");
                 setRegistroDisponible(registro_aux);
                 return " ";
             case "LtoD":
@@ -433,7 +434,7 @@ public class Assembler {
                 else
                     op1 = "_" + reemplazarPuntos(datos.get_Simbolo(Integer.parseInt(op1)).get_Ambito());
                 cod.append("FLD " + op1 + "\n");
-                setear_VA(t);
+                setear_VA(t, "DOUBLE");
                 return " ";
             default:
                 return " ";
