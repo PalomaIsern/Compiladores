@@ -13,6 +13,7 @@ public class Assembler {
     private HashMap<Integer, Terceto> CodIntermedio;
     private static StringBuilder codigo = new StringBuilder();
     private static StringBuilder instrucciones = new StringBuilder();
+    private static StringBuilder sbFunciones = new StringBuilder();
     private TablaSimbolos datos;
     private HashMap<String, Boolean> registros = new HashMap<String, Boolean>();
     private boolean seguir = true;
@@ -69,10 +70,11 @@ public class Assembler {
 
         HashMap<String, Integer> func = new HashMap<>(datos.getFuncionesAssembler());
         generarInstrucciones(instrucciones, func);
+        generarCodigoFunciones(sbFunciones, func);
 
         codigo.append(datos.getDatosAssembler());
         codigo.append(".code\n \n");
-        generarCodigoFunciones(codigo, func);
+        codigo.append(sbFunciones);
         // codigo
         codigo.append("START:\n\n");
         codigo.append(instrucciones);
