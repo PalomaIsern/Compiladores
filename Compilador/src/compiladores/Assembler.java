@@ -19,7 +19,8 @@ public class Assembler {
     private boolean seguir = true;
     private static String ultimoComparador;
     private ArrayList<String> operadores = new ArrayList<>(Arrays.asList("+", "-", "*", "/", "=", "<", "<=", ">", ">=",
-            "==", "!!", "CALL", "CALLMetodoClase", "BI", "BF", "PRINT", "UStoL", "UStoD", "LtoD", "RETURN"));
+            "==", "!!", "CALL", "CALLMetodoClase", "BI", "BF", "PRINT", "UStoL", "UStoD", "LtoD", "RETURN",
+            "atributo_objeto"));
     private Stack<String> pilaFunc = new Stack<>();
 
     public Assembler(HashMap<Integer, Terceto> ci, TablaSimbolos d) {
@@ -73,6 +74,7 @@ public class Assembler {
         generarCodigoFunciones(sbFunciones, func);
 
         codigo.append(datos.getDatosAssembler());
+        codigo.append("@aux_sumaDouble dq ? \n  \n");
         codigo.append(".code\n \n");
         codigo.append(sbFunciones);
         // codigo
@@ -169,8 +171,8 @@ public class Assembler {
     public void controlar_OverFlowSum(StringBuilder cod) {
         String registro = getRegistroDisponible();
         char segundo = registro.charAt(1);
-        cod.append("FSTSW aux_sumaDouble \n");
-        cod.append("MOV " + segundo + "x, aux_sumaDouble" + "\n");
+        cod.append("FSTSW @aux_sumaDouble \n");
+        cod.append("MOV " + segundo + "x, @aux_sumaDouble" + "\n");
         cod.append("SAHF " + "\n");
         cod.append("JO OFS \n");
         setRegistroDisponible(registro);
@@ -413,6 +415,9 @@ public class Assembler {
                         .append("invoke MessageBox, NULL, addr @cadena" + op1 + ", addr @cadena" + op1 + ", MB_OK"
                                 + "\n");
                 return " ";
+            case "atributo_objeto":
+                // completar
+                return " ";
             case "UStoL":
                 String registro = getRegistroDisponible();
                 char segundo = registro.charAt(1);
@@ -437,7 +442,7 @@ public class Assembler {
                     cod.append("MOVSX " + registro_aux + ", " + segundo_aux + "l" + "\n");
                 }
                 cod.append("FLD " + op1 + "\n");
-                cod.append("FST " + op1 + "\n");
+                cod.append("FST " + op1 + "\n"); // esto causa problemas
                 setear_VA(t, "DOUBLE");
                 setRegistroDisponible(registro_aux);
                 return " ";
