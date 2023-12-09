@@ -1318,13 +1318,12 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
                     System.out.println("ERROR: linea " + Linea.getLinea() + " Tipos incompatibles para realizar la asignacion. Se pretende convertir " + tipoExpresion + " a USHORT");
                     error = true;}}
         else if (tipoId.equals("LONG")){
-            if (tipoExpresion.equals("LONG"))
                 if (tipoExpresion == "USHORT")
                     conversion = "UStoL";
-                else{
+                else if (tipoExpresion != "LONG"){
                     System.out.println("ERROR: linea " + Linea.getLinea() + " Tipos incompatibles para realizar la asignacion. Se pretende convertir " + tipoExpresion + " a USHORT");
                     error = true;}}
-        else
+        else 
             if (tipoExpresion.equals("LONG"))
                 conversion = "LtoD";
             else
