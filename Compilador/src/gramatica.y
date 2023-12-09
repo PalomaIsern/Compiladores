@@ -360,23 +360,43 @@ comparador : '>' {$$.sval = ">";}
                     error = true;}
 ;
 
-condicion : '(' expresion comparador expresion ')' {//System.out.println("Se reconoció una condicion  en linea "+ Linea.getLinea());
+condicion : '(' expresion comparador expresion ')' {
                                                     realizar_Conversion($2.sval, $4.sval, $3.sval, $$);
                                                     int aux;
                                                     if ($$.sval == "")
                                                         aux = crear_terceto("BF", "-", "-");
-                                                    else
+                                                    else{
                                                         aux = crear_terceto("BF", $$.sval, "-");
+                                                        if ($$.sval.contains("["))
+                                                            {String ref = borrarCorchetes($$.sval);
+                                                            System.out.println(ref);
+                                                            CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(CodigoIntermedio.get(Integer.parseInt(ref)).get_Tipo());
+                                                            }
+                                                        else
+                                                            CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(CodigoIntermedio.get(Integer.parseInt($$.sval)).get_Tipo());
+                                                    }
                                                     pila.push(aux);}
           | '(' expresion comparador expresion error  {System.out.println("ERROR: linea" + Linea.getLinea() + " Falta el parentesis que cierra");
                                                         error = true;
                                                         $$.sval = '[' + Integer.toString(crear_terceto($3.sval, $2.sval, $4.sval)) + ']';
                                                         int aux = crear_terceto("BF", $$.sval, "-");
+                                                        if ($$.sval.contains("["))
+                                                            {String ref = borrarCorchetes($$.sval);
+                                                            CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(CodigoIntermedio.get(Integer.parseInt(ref)).get_Tipo());
+                                                            }
+                                                        else
+                                                            CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(CodigoIntermedio.get(Integer.parseInt($$.sval)).get_Tipo());
                                                         pila.push(aux); }
           |  expresion comparador expresion ')' error {System.out.println("ERROR: linea "+ Linea.getLinea() + " Falta el parentesis que abre");
                                                         error = true;
                                                       $$.sval = '[' + Integer.toString(crear_terceto($2.sval, $1.sval, $3.sval)) + ']';
                                                       int aux = crear_terceto("BF", $$.sval, "-");
+                                                      if ($$.sval.contains("["))
+                                                            {String ref = borrarCorchetes($$.sval);
+                                                            CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(CodigoIntermedio.get(Integer.parseInt(ref)).get_Tipo());
+                                                            }
+                                                      else
+                                                            CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(CodigoIntermedio.get(Integer.parseInt($$.sval)).get_Tipo());
                                                       pila.push(aux);}
 ;
 
