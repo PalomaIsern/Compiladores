@@ -312,11 +312,6 @@ public class Assembler {
                 if (op1.startsWith("_") || op1.startsWith("@"))
                     tipo = datos.get_Simbolo(Integer.parseInt(t.get_Op1())).get_Tipo();
             }
-
-            if (tipo == "-") {
-                if (op1.startsWith("_") || op1.startsWith("@"))
-                    tipo = datos.get_Simbolo(Integer.parseInt(t.get_Op1())).get_Tipo();
-            }
             if ((operador == "+") || (operador == "-") || (operador == "*") || (operador == "/")) {
                 registro = getRegistroDisponible();
                 char segundo = registro.charAt(1);
