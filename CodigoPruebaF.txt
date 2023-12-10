@@ -38,13 +38,77 @@
 	LONG aux, 
 	aux = 29999_l,
 
+	USHORT corto,
+	corto = 50_us,
+	corto += 1000_us,
+
+	IF (corto > 1000_us)
+		PRINT # mensaje uno #,
+	ELSE	
+		PRINT # mensaje uno #,
+	END_IF,
+
 	IF (aux < 40000_l)
 		PRINT # es menor a cuarenta mil #,
 	ELSE
-		PRINT # es mayor a cuarenta mil #,
+		PRINT # es mayor a cuarenta mil  #,
 	END_IF,
 
 	VOID prueba2() {
 		objeto1.largo = 50000_l,
 	},
+
+	CLASS ca {
+		USHORT a,
+		VOID m() {
+			PRINT # estoy en m #,
+		},
+	},
+
+	CLASS cb {
+		DOUBLE b,
+		DOUBLE c,
+		VOID n() {
+			PRINT # estoy en n #,
+		},
+		ca,
+	},	
+
+	ca a1; a2,
+	cb b1; b2; b3,
+
+	a1.a = 3_us,
+	b1.b = 1.2,
+	b2.a = a1.a,
+	b2.a = 5_us,
+	b1.m(),
+	b1.n(),
+	a2.m(),
+
+	VOID asigna_valor(LONG formal) {
+		formal = 60000_l,
+	},
+
+	LONG real, 
+	real = 100_l,
+	asigna_valor(real),
+
+	IF (real = 60000_l) 
+		PRINT # esta bien # ,
+	ELSE 
+		PRINT # esta mal #,
+	END_IF,
+
+	VOID main(){
+		LONG aux,
+		DOUBLE aux_2,
+		aux_2 = 0.5d-2,
+	},
+
+	VOID funcion_main() {
+		DOUBLE d,
+		USHORT us,
+	},
+
+	funcion_main(),
 }

@@ -150,7 +150,7 @@ public class TablaSimbolos {
                 // + " \n");
                 // funciones += 1;
             } else if (token == 273) {
-                sb.append("@cadena" + entry.getKey() + " db " + "\"" + s.get_Lex() + "\"\n");
+                sb.append("@cadena" + entry.getKey() + " db " + "\"" + s.get_Lex() + "\", 0\n");
             } else if (s.get_Uso() == "Clase") {
                 sb.append("_" + reemplazarPuntos(s.get_Ambito()) + " db  ?\n");
             } else {

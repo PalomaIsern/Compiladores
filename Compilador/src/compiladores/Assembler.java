@@ -100,7 +100,7 @@ public class Assembler {
         codigo.append("END START \n");
         codigo.append("invoke ExitProcess, 0" + "\n\n");
         generarArchivo();
-        imprimirCodigoIntermedio();
+        // imprimirCodigoIntermedio();
     }
 
     public void agregarFuncion(StringBuilder codigo, String op, int ref1, int ref2) {
@@ -358,13 +358,15 @@ public class Assembler {
             } else if (operador == ">" || operador == ">=" || operador == "<" || operador == "<=") {
                 registro = getRegistroDisponible();
                 if (tipo == "DOUBLE") {
-                    System.out.println("op1 " + op1 + " op2 " + op2);
                     cod.append("FILD " + op1 + "\n");
                     cod.append("FILD " + op2 + "\n");
                     cod.append("FCOM \n");
                 } else {
-                    cod.append("MOV " + registro + ", " + op1 + "\n");
-                    cod.append("CMP " + registro + ", " + op2 + "\n");
+                    String regAux = registro;
+                    if (tipo.equals("USHORT"))
+                        regAux = registro.charAt(1) + "l";
+                    cod.append("MOV " + regAux + ", " + op1 + "\n");
+                    cod.append("CMP " + regAux + ", " + op2 + "\n");
                 }
                 setRegistroDisponible(registro);
             } else if (instruccion == "JMP") {
