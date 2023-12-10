@@ -104,8 +104,12 @@ factor : ID     {
                 }
        | CTE    {chequearRangoPositivo($1.sval, $$);}
        | '-' CTE    {chequearRangoNegativo($2.sval, $$);}
-       | CTEPOS     {setear_Uso("ConstantePositiva", $1.sval+ambito);
-                    $$.sval = Integer.toString(TS.pertenece($1.sval));}
+       | CTEPOS     {$$.sval = Integer.toString(TS.buscarConstante($1.sval, "USHORT"));
+                    if ($$.sval != null)
+                        TS.get_Simbolo(Integer.parseInt($$.sval)).set_Uso("ConstantePositiva");
+                    //setear_Uso("ConstantePositiva", $1.sval+ambito);
+                    //$$.sval = Integer.toString(TS.pertenece($1.sval));
+                    }
 ;
 
 operadorMasMenos : '+' { $$.sval = "+";}
