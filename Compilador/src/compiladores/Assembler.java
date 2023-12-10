@@ -355,7 +355,8 @@ public class Assembler {
                     cod.append("MOV " + op1 + ", " + reg + "\n");
                 }
                 setRegistroDisponible(registro);
-            } else if (operador == ">" || operador == ">=" || operador == "<" || operador == "<=") {
+            } else if (operador == ">" || operador == ">=" || operador == "<" || operador == "<=" || operador == "=="
+                    || operador == "!!") {
                 registro = getRegistroDisponible();
                 if (tipo == "DOUBLE") {
                     cod.append("FILD " + op1 + "\n");
@@ -396,6 +397,11 @@ public class Assembler {
             cod.append("JGE Label" + nro + "\n");
         else if (ultimoComparador == "<=")
             cod.append("JG Label" + nro + "\n");
+        else if (ultimoComparador == "==")
+            cod.append("JNE Label" + nro + "\n");
+        else if (ultimoComparador == "!!")
+            cod.append("JE Label" + nro + "\n");
+
     }
 
     public String getRegistroDisponible() {
@@ -481,8 +487,10 @@ public class Assembler {
                 ultimoComparador = ">=";
                 return "JL";
             case "==":
+                ultimoComparador = "==";
                 return "JNE";
             case "!!":
+                ultimoComparador = "!!";
                 return "JE";
             case "CALL":
                 return "CALL";
@@ -500,9 +508,10 @@ public class Assembler {
             case "UStoL":
                 String registro = getRegistroDisponible();
                 char segundo = registro.charAt(1);
+                op1 = "_" + reemplazarPuntos(datos.get_Simbolo(Integer.parseInt(op1)).get_Ambito());
                 if (registro != " ") {
                     cod.append(
-                            "MOV " + segundo + "l, " + datos.get_Simbolo(Integer.parseInt(op1)).get_Lex() + "\n");
+                            "MOV " + segundo + "l, " + op1 + "\n");
                     cod.append("MOVSX " + registro + ", " + segundo + "l" + "\n");
                 }
                 setear_VA(t, "LONG");
