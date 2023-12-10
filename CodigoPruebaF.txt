@@ -19,7 +19,7 @@
 	},
 
 	clase2 objeto1; objeto2,
-	objeto1.largo = -3000000000_l,
+	objeto1.largo = 29999_l,
 	objeto2.func(200000_l),
 
 	IMPL FOR clase2: {
@@ -34,4 +34,13 @@
 		LONG variable_doble,
 		variable_doble = 5000_l,
 	},
+	
+	LONG aux, 
+	aux = 29999_l,
+	
+	IF (aux < 40000_l)
+		PRINT # es menor a cuarenta mil #,
+	ELSE
+		PRINT # es mayor a cuarenta mil #,
+	END_IF,
 }

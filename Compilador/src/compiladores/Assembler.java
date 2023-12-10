@@ -19,8 +19,7 @@ public class Assembler {
     private boolean seguir = true;
     private static String ultimoComparador;
     private ArrayList<String> operadores = new ArrayList<>(Arrays.asList("+", "-", "*", "/", "=", "<", "<=", ">", ">=",
-            "==", "!!", "CALL", "CALLMetodoClase", "BI", "BF", "PRINT", "UStoL", "UStoD", "LtoD", "RETURN",
-            "atributo_objeto"));
+            "==", "!!", "CALL", "CALLMetodoClase", "BI", "BF", "PRINT", "UStoL", "UStoD", "LtoD", "RETURN"));
     private Stack<String> pilaFunc = new Stack<>();
 
     public Assembler(HashMap<Integer, Terceto> ci, TablaSimbolos d) {
@@ -86,6 +85,7 @@ public class Assembler {
         codigo.append("START:\n\n");
         codigo.append(instrucciones);
         codigo.append("\n");
+        codigo.append("JMP fin \n");
         codigo.append("OFM: \n");
         codigo
                 .append("invoke  MessageBox, NULL, ADDR OverFlowMultiplicacion, ADDR OverFlowMultiplicacion, MB_OK \n");
@@ -96,7 +96,9 @@ public class Assembler {
         codigo.append("OFS: \n");
         codigo.append("invoke  MessageBox, NULL, ADDR OverFlowSuma, ADDR OverFlowSuma, MB_OK \n");
         codigo.append("invoke ExitProcess, 0" + "\n\n");
-        codigo.append("END START");
+        codigo.append("fin: \n");
+        codigo.append("END START \n");
+        codigo.append("invoke ExitProcess, 0" + "\n\n");
         generarArchivo();
         imprimirCodigoIntermedio();
     }
@@ -256,6 +258,10 @@ public class Assembler {
             if (op != "-" && s.get_Uso() != "Constante" && s.get_Uso() != "ConstantePositiva"
                     && s.get_Uso() != "Constante negativa")
                 return "_" + reemplazarPuntos(s.get_Ambito());
+            else if (op != "-" && s.get_Tipo() == "DOUBLE" && s.get_Uso() == "Constante")
+                op = "@cte" + Integer.parseInt(op);
+            else if (op != "-" && s.get_Tipo() == "DOUBLE" && s.get_Uso() == "Constante negativa")
+                op = "@cte" + Integer.parseInt(op);
             else if (op != "-" && s.get_Uso() == "Constante" || op != "-" && s.get_Uso() == "ConstantePositiva"
                     || op != "-" && s.get_Uso() == "Constante negativa")
                 return s.get_Lex();
@@ -301,6 +307,12 @@ public class Assembler {
         if (instruccion != "ERROR") {
             String op1 = obtenerOperando(t.get_Op1(), instruccion);
             String op2 = obtenerOperando(t.get_Op2(), instruccion);
+
+            if (tipo == "-") {
+                if (op1.startsWith("_") || op1.startsWith("@"))
+                    tipo = datos.get_Simbolo(Integer.parseInt(t.get_Op1())).get_Tipo();
+            }
+
             if (tipo == "-") {
                 if (op1.startsWith("_") || op1.startsWith("@"))
                     tipo = datos.get_Simbolo(Integer.parseInt(t.get_Op1())).get_Tipo();
@@ -417,6 +429,10 @@ public class Assembler {
         String op1 = t.get_Op1();
         String op2 = t.get_Op2();
         String uso1, uso2 = "-";
+        if (tipo == "-") {
+            if (op1 != "-" && !op1.contains("["))
+                tipo = datos.get_Simbolo(Integer.parseInt(t.get_Op1())).get_Tipo();
+        }
         if (op1.contains("["))
             uso1 = "terceto";
         else if (op1 != "-")
@@ -484,9 +500,6 @@ public class Assembler {
                         .append("invoke MessageBox, NULL, addr @cadena" + op1 + ", addr @cadena" + op1 + ", MB_OK"
                                 + "\n");
                 return " ";
-            case "atributo_objeto":
-                System.out.println("atributo obj");
-                return " ";
             case "UStoL":
                 String registro = getRegistroDisponible();
                 char segundo = registro.charAt(1);
@@ -524,6 +537,8 @@ public class Assembler {
                         op1 = "_" + reemplazarPuntos(datos.get_Simbolo(Integer.parseInt(op1)).get_Ambito());
                     else if (uso == "Constante negativa")
                         op1 = "@cteneg" + Integer.parseInt(op1);
+                    else if (uso == "Constante")
+                        op1 = "@cte" + Integer.parseInt(op1);
                     else
                         op1 = datos.get_Simbolo(Integer.parseInt(op1)).get_Lex();
                 }

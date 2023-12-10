@@ -54,7 +54,6 @@ fin_sentencia : ','
 ;
 
 asignacion : ID simboloAsignacion expresion         {String conv = convertirTipoAsignacion($1.sval, $3.sval);
-                                                    System.out.println("Conv: " +conv);
                                                     if (conv != "-"){
                                                         $3.sval = "["+ Integer.toString(crear_terceto(conv, $3.sval, "-")) +"]";
                                                         CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(conv));
@@ -75,6 +74,7 @@ asignacion : ID simboloAsignacion expresion         {String conv = convertirTipo
                                                         $$.sval = '[' + Integer.toString(crear_terceto("=", $1.sval, $3.sval))+']';}
             | atributo_objeto '=' factor            {if ($1.sval != null) 
                                                         $$.sval = '[' + Integer.toString(crear_terceto("=", $1.sval, $3.sval))+']';}
+            
 ;
 
 simboloAsignacion : '='     {$$.sval = "=";}
@@ -236,6 +236,7 @@ atributo_objeto : ID '.' ID {   int refObjeto = verObjetoDeclarado($1.sval);
                                 if (refObjeto != -1 && clase != -1) {
                                     if (! claseVacia(clase)) {
                                         int padre = -1;
+                                        setear_Ambito($3.sval+":"+TS.get_Simbolo(refObjeto).get_Ambito(),$3.sval);
                                         String tipo = TS.get_Simbolo(clase).get_Tipo();
                                         if ( tipo != " "); //hereda de otra clase
                                             padre = TS.buscar_por_ambito(tipo);
@@ -243,7 +244,11 @@ atributo_objeto : ID '.' ID {   int refObjeto = verObjetoDeclarado($1.sval);
                                         if (ref == -1 && padre != -1) 
                                             ref = verificarExistencia(padre, $3.sval, "atributo");
                                         if (ref != -1) { 
-                                            $$.sval = '[' + Integer.toString(crear_terceto("atributo_objeto", Integer.toString(refObjeto), Integer.toString(ref))) + ']';
+                                            int ref_atr = TS.buscar_por_ambito($3.sval+":"+TS.get_Simbolo(refObjeto).get_Ambito());
+                                            TS.get_Simbolo(ref_atr).set_Tipo(TS.get_Simbolo(ref).get_Tipo());
+                                            TS.get_Simbolo(ref_atr).set_Uso(TS.get_Simbolo(ref).get_Uso());
+                                            //$$.sval = '[' + Integer.toString(crear_terceto("atributo_objeto", Integer.toString(refObjeto), Integer.toString(ref))) + ']';
+                                            $$.sval = Integer.toString(ref);
                                         } else 
                                             {System.out.println("ERROR: linea "+ Linea.getLinea()+ " el atributo \""+$3.sval+ "\" no se encuentra al alcance o no fue declarado");
                                             error = true;
@@ -255,6 +260,7 @@ atributo_objeto : ID '.' ID {   int refObjeto = verObjetoDeclarado($1.sval);
 
                             }
 ;
+
 
 declaracionFuncion: funcion_VOID    {dentroFuncion = false;
                                     if ($1.sval != " ") {
@@ -369,7 +375,6 @@ condicion : '(' expresion comparador expresion ')' {
                                                         aux = crear_terceto("BF", $$.sval, "-");
                                                         if ($$.sval.contains("["))
                                                             {String ref = borrarCorchetes($$.sval);
-                                                            System.out.println(ref);
                                                             CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(CodigoIntermedio.get(Integer.parseInt(ref)).get_Tipo());
                                                             }
                                                         else
@@ -744,7 +749,8 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
                 if (s.get_Ambito()=="-")
                     s.set_Ambito(a);
                 else
-                    {Simbolo nuevo = new Simbolo(s.get_Token(), s.get_Lex());
+                    {
+                    Simbolo nuevo = new Simbolo(s.get_Token(), s.get_Lex());
                     nuevo.set_Ambito(a);
                     TS.agregar_sin_chequear(nuevo);}
             }
@@ -1332,7 +1338,6 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
         }
         else
             tipoExpresion = TS.get_Simbolo(Integer.parseInt(expresion)).get_Tipo();
-        System.out.println("ID: " + id + " tipo : " + tipoId + " expresion: " + expresion + " Tipo expresion " + tipoExpresion);
         if (tipoId.equals("USHORT")){
                 if (!tipoExpresion.equals("USHORT")){
                     System.out.println("ERROR: linea " + Linea.getLinea() + " Tipos incompatibles para realizar la asignacion. Se pretende convertir " + tipoExpresion + " a USHORT");
@@ -1349,7 +1354,6 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
             else
                 if (tipoExpresion.equals("USHORT"))
                     conversion = "UStoD";
-        System.out.println("Conversion: " + conversion);
         return conversion;
     }
 
