@@ -236,7 +236,7 @@ atributo_objeto : ID '.' ID {   int refObjeto = verObjetoDeclarado($1.sval);
                                 if (refObjeto != -1 && clase != -1) {
                                     if (! claseVacia(clase)) {
                                         int padre = -1;
-                                        setear_Ambito($3.sval+":"+TS.get_Simbolo(refObjeto).get_Ambito(),$3.sval);
+                                        setear_Ambito_atributo($3.sval+":"+TS.get_Simbolo(refObjeto).get_Ambito(),$3.sval);
                                         String tipo = TS.get_Simbolo(clase).get_Tipo();
                                         if ( tipo != " "); //hereda de otra clase
                                             padre = TS.buscar_por_ambito(tipo);
@@ -730,6 +730,23 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
             return true;
     }
 
+    public void setear_Ambito_atributo(String a, String lex) {
+        int clave = TS.buscar_por_ambito(a);
+        if (clave == -1) {
+            clave = TS.pertenece(lex);
+            if (clave != -1){
+                Simbolo s = TS.get_Simbolo(clave);
+                String amb= a.substring(a.indexOf(":")+1);
+                if (s.get_Ambito()=="-")
+                    s.set_Ambito(a);
+                else
+                    {
+                    Simbolo nuevo = new Simbolo(s.get_Token(), s.get_Lex());
+                    nuevo.set_Ambito(a);
+                    TS.agregar_sin_chequear(nuevo);}
+            }
+        }
+    }
     public boolean setear_Ambito(String a, String lex){
         int clave = TS.buscar_por_ambito(a);
         if (clave != -1){

@@ -675,6 +675,23 @@ final static String yyrule[] = {
             return true;
     }
 
+    public void setear_Ambito_atributo(String a, String lex) {
+        int clave = TS.buscar_por_ambito(a);
+        if (clave == -1) {
+            clave = TS.pertenece(lex);
+            if (clave != -1){
+                Simbolo s = TS.get_Simbolo(clave);
+                String amb= a.substring(a.indexOf(":")+1);
+                if (s.get_Ambito()=="-")
+                    s.set_Ambito(a);
+                else
+                    {
+                    Simbolo nuevo = new Simbolo(s.get_Token(), s.get_Lex());
+                    nuevo.set_Ambito(a);
+                    TS.agregar_sin_chequear(nuevo);}
+            }
+        }
+    }
     public boolean setear_Ambito(String a, String lex){
         int clave = TS.buscar_por_ambito(a);
         if (clave != -1){
@@ -1372,7 +1389,7 @@ public void verificarUso(String elemento){
         else
             CodigoAssembler.GenerarAssembler();
     }
-//#line 1304 "Parser.java"
+//#line 1321 "Parser.java"
 //###############################################################
 // method: yylexdebug : check lexer state
 //###############################################################
@@ -1766,7 +1783,7 @@ case 37:
                                 if (refObjeto != -1 && clase != -1) {
                                     if (! claseVacia(clase)) {
                                         int padre = -1;
-                                        setear_Ambito(val_peek(0).sval+":"+TS.get_Simbolo(refObjeto).get_Ambito(),val_peek(0).sval);
+                                        setear_Ambito_atributo(val_peek(0).sval+":"+TS.get_Simbolo(refObjeto).get_Ambito(),val_peek(0).sval);
                                         String tipo = TS.get_Simbolo(clase).get_Tipo();
                                         if ( tipo != " "); /*hereda de otra clase*/
                                             padre = TS.buscar_por_ambito(tipo);
@@ -2238,7 +2255,7 @@ case 104:
 {setear_Uso("Cadena", val_peek(0).sval);
                     int aux = crear_terceto("PRINT", Integer.toString(TS.pertenece(val_peek(0).sval)), "-");}
 break;
-//#line 2165 "Parser.java"
+//#line 2182 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####
