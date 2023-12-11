@@ -260,6 +260,8 @@ public class Assembler {
                 return "_" + reemplazarPuntos(s.get_Ambito());
             else if (op != "-" && s.get_Tipo() == "DOUBLE" && s.get_Uso() == "Constante")
                 op = "@cte" + Integer.parseInt(op);
+            else if (op != "-" && s.get_Tipo() == "DOUBLE" && s.get_Uso() == "ConstantePositiva")
+                op = "@ctePos" + Integer.parseInt(op);
             else if (op != "-" && s.get_Tipo() == "DOUBLE" && s.get_Uso() == "Constante negativa")
                 op = "@cte" + Integer.parseInt(op);
             else if (op != "-" && s.get_Uso() == "Constante" || op != "-" && s.get_Uso() == "ConstantePositiva"
@@ -529,8 +531,15 @@ public class Assembler {
                 char segundo_aux = registro_aux.charAt(1);
                 if (op1.startsWith("["))
                     op1 = CodIntermedio.get(Integer.parseInt(borrarCorchetes(op1))).get_VA();
-                else
-                    op1 = "_" + reemplazarPuntos(datos.get_Simbolo(Integer.parseInt(op1)).get_Ambito());
+                else {
+                    String uso = datos.get_Simbolo(Integer.parseInt(op1)).get_Uso();
+                    if (uso != "Constante" && uso != "ConstantePositiva" && uso != "Constante negativa")
+                        op1 = "_" + reemplazarPuntos(datos.get_Simbolo(Integer.parseInt(op1)).get_Ambito());
+                    else if (uso == "ConstantePositiva")
+                        op1 = "@ctePos" + Integer.parseInt(op1);
+                    else
+                        op1 = datos.get_Simbolo(Integer.parseInt(op1)).get_Lex();
+                }
                 if (registro_aux != " ") {
                     cod.append(
                             "MOV " + segundo_aux + "l, " + op1 + "\n");

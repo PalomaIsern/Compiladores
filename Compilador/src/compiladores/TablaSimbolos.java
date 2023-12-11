@@ -138,6 +138,8 @@ public class TablaSimbolos {
                     sb.append("_" + reemplazarPuntos(s.get_Ambito()) + " db " + " ?\n");
                 else if (token == 280)
                     sb.append(s.get_Lex() + " db " + " ?\n");
+                else if (token == 259 && s.get_Uso().equals("ConstantePositiva"))
+                    sb.append("@ctePos" + entry.getKey() + " db " + s.get_Lex() + "\n");
             } else if (tipo == "DOUBLE") {
                 if (token == 257)
                     sb.append("_" + reemplazarPuntos(s.get_Ambito()) + " dq " + " ?\n");
