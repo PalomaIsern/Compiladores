@@ -100,7 +100,7 @@ public class Assembler {
         codigo.append("END START \n");
         codigo.append("invoke ExitProcess, 0" + "\n\n");
         generarArchivo();
-        // imprimirCodigoIntermedio();
+        imprimirCodigoIntermedio();
     }
 
     public void agregarFuncion(StringBuilder codigo, String op, int ref1, int ref2) {
@@ -518,8 +518,10 @@ public class Assembler {
                     cod.append(
                             "MOV " + segundo + "l, " + op1 + "\n");
                     cod.append("MOVSX " + registro + ", " + segundo + "l" + "\n");
+                    String vAux = setear_VA(t, "LONG");
+                    cod.append("MOV " + vAux + ", e" + segundo + "x \n");
                 }
-                setear_VA(t, "LONG");
+
                 setRegistroDisponible(registro);
                 return " ";
             case "UStoD":
