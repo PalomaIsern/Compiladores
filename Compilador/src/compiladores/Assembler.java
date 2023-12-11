@@ -508,7 +508,12 @@ public class Assembler {
             case "UStoL":
                 String registro = getRegistroDisponible();
                 char segundo = registro.charAt(1);
-                op1 = "_" + reemplazarPuntos(datos.get_Simbolo(Integer.parseInt(op1)).get_Ambito());
+                if (op1.startsWith("["))
+                    op1 = CodIntermedio.get(Integer.parseInt(borrarCorchetes(op1))).get_VA();
+                else if (uso1 == "Constante" || uso1 == "ConstantePositiva" || uso1 == "Constante negativa")
+                    op1 = datos.get_Simbolo(Integer.parseInt(op1)).get_Lex();
+                else
+                    op1 = "_" + reemplazarPuntos(datos.get_Simbolo(Integer.parseInt(op1)).get_Ambito());
                 if (registro != " ") {
                     cod.append(
                             "MOV " + segundo + "l, " + op1 + "\n");
