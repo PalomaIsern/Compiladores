@@ -317,9 +317,17 @@ inicio_Void: VOID ID {
 
 clausula_IMPL : inicio_IMPL '{' funcion_VOID fin_sentencia '}'  {   int idClase =  $1.ival;
                                                                         String metodo = $3.sval.split(":")[0];
-                                                                        if (verificarExistencia(idClase, metodo, "metodoNoImpl") != -1) {
+                                                                        String clase = " ";
+                                                                        if (idClase != -1) 
+                                                                            clase = TS.get_Simbolo(idClase).get_Ambito();
+                                                                        if (verificarExistencia(idClase, metodo, "metodo") != -1) {
+                                                                            System.out.println("ERROR: Linea "+Linea.getLinea()+" -  el metodo "+$3.sval+" ya se encuentra implementado en la clase "+clase);
+                                                                            error = true;
+                                                                        } else if (verificarExistencia(idClase, metodo, "metodoNoImpl") != -1) {
                                                                             agregarMetodoImplementado(idClase, $3.sval);
-                                                                        }
+                                                                        } else { error = true;
+                                                                                System.out.println("ERROR: Linea "+Linea.getLinea()+" - no se puede implementar el metodo "+$3.sval+" en la clase "+clase);
+                                                                                }
                                                                         int aux = crear_terceto($3.sval, "-", "-");
                                                                         dentroIMPL = false;
                                                                         volver_Ambito();
@@ -792,7 +800,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
                 Integer i = iterator.next();
                 String nombre = TS.get_Simbolo(i).get_Lex();
                 if (metodosPadre.contains(nombre)) {
-                    System.out.println("ERROR: linea "+ funciones.get(i)+" no se puede sobrescribir el método \"" + nombre + "\"");
+                    System.out.println("ERROR: Linea "+ funciones.get(i)+" - no se puede sobrescribir el metodo \"" + nombre + "\" debido a que existe en la clase padre");
                     error = true;
                     TS.remove_Simbolo(i);
                     funciones.remove(i);
@@ -804,7 +812,7 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
                 Integer i = iterator.next();
                 String nombre = TS.get_Simbolo(i).get_Lex();
                 if (metodosPadre.contains(nombre)) {
-                    System.out.println("ERROR: linea "+ funciones.get(i)+" no se puede sobrescribir el método \"" + nombre + "\"");
+                    System.out.println("ERROR: linea "+ funciones.get(i)+" no se puede sobrescribir el método \"" + nombre + "\" debido a que existe en la clase padre");
                     error = true;
                     TS.remove_Simbolo(i);
                     funciones.remove(i);
