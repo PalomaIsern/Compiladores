@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Stack;
 
 public class Assembler {
-
     private HashMap<Integer, Terceto> CodIntermedio;
     private static StringBuilder codigo = new StringBuilder();
     private static StringBuilder instrucciones = new StringBuilder();
@@ -60,23 +59,21 @@ public class Assembler {
         codigo.append("includelib \\masm32\\lib\\user32.lib\n");
         codigo.append(".data\n");
         codigo.append("MaxNumUSHORT db 255\n");
-        codigo.append("@MinNumLong dd -2147483648\n");
-        codigo.append("@MaxNumLong dd 2147483647\n");
-        codigo.append("@MinNumDouble dq 2.2250738585072014d-308\n");
-        codigo.append("@MaxNumDouble dq 1.7976931348623157d+308\n");
-        codigo.append("OverFlowMultiplicacion db \"Overflow en multiplicacion de enteros\"" + ", 0 \n");
+        codigo.append("MinNumLong dd -2147483648\n");
+        codigo.append("MaxNumLong dd 2147483647\n");
+        codigo.append("MinNumDouble dq 2.2250738585072014e-308\n");
+        codigo.append("MaxNumDouble dq 1.7976931348623157e+308\n");
+        codigo.append("OverFlowMultiplicacionL db \"Overflow en multiplicacion de enteros largos con signo (LONG)\""
+                + ", 0 \n");
+        codigo.append("OverFlowMultiplicacionU db \"Overflow en multiplicacion de enteros cortos sin signo (USHORT)\""
+                + ", 0 \n");
         codigo.append("OverFlowResta db \"Resultado negativo en resta de enteros sin signo\"" + ", 0\n");
         codigo.append("OverFlowSuma db \"Overflow en suma de punto flotante\"" + ", 0 \n");
-
         HashMap<String, ArrayList<Integer>> func = new HashMap<>(datos.getFuncionesAssembler());
         determinarLimites(func);
-
         generarInstrucciones(instrucciones, func);
-
         generarCodigoFunciones(sbFunciones, func);
-
         // imprimirLimites(func);
-
         codigo.append(datos.getDatosAssembler());
         codigo.append("@aux_sumaDouble dw 0 \n  \n");
         codigo.append(".code\n \n");
@@ -86,9 +83,13 @@ public class Assembler {
         codigo.append(instrucciones);
         codigo.append("\n");
         codigo.append("JMP fin \n");
-        codigo.append("OFM: \n");
+        codigo.append("OFMU: \n");
         codigo
-                .append("invoke  MessageBox, NULL, ADDR OverFlowMultiplicacion, ADDR OverFlowMultiplicacion, MB_OK \n");
+                .append("invoke  MessageBox, NULL, ADDR OverFlowMultiplicacionU, ADDR OverFlowMultiplicacionU, MB_OK \n");
+        codigo.append("invoke ExitProcess, 0" + "\n\n");
+        codigo.append("OFML: \n");
+        codigo
+                .append("invoke  MessageBox, NULL, ADDR OverFlowMultiplicacionL, ADDR OverFlowMultiplicacionL, MB_OK \n");
         codigo.append("invoke ExitProcess, 0" + "\n\n");
         codigo.append("OFR: \n");
         codigo.append("invoke  MessageBox, NULL, ADDR OverFlowResta, ADDR OverFlowResta, MB_OK \n");
@@ -100,7 +101,6 @@ public class Assembler {
         codigo.append("END START \n");
         codigo.append("invoke ExitProcess, 0" + "\n\n");
         generarArchivo();
-        imprimirCodigoIntermedio();
     }
 
     public void agregarFuncion(StringBuilder codigo, String op, int ref1, int ref2) {
@@ -126,14 +126,11 @@ public class Assembler {
         for (HashMap.Entry<String, ArrayList<Integer>> entry : func.entrySet()) {
             String clave = entry.getKey();
             ArrayList<Integer> lista = entry.getValue();
-
             System.out.println("Clave: " + clave);
             System.out.println("Lista de valores:");
-
             for (Integer valor : lista) {
                 System.out.println("  " + valor);
             }
-
             System.out.println();
         }
     }
@@ -230,9 +227,9 @@ public class Assembler {
 
     public void controlar_OverFlowMul(StringBuilder cod, String tipo) {
         if (tipo == "LONG")
-            cod.append("JO OFM \n");
+            cod.append("JO OFML \n");
         else
-            cod.append("JC OFM \n");
+            cod.append("JC OFMU \n");
     }
 
     public void controlar_OverFlowResta(StringBuilder cod) {
@@ -309,7 +306,6 @@ public class Assembler {
         if (instruccion != "ERROR") {
             String op1 = obtenerOperando(t.get_Op1(), instruccion);
             String op2 = obtenerOperando(t.get_Op2(), instruccion);
-
             if (tipo == "-") {
                 if (op1.startsWith("_") || op1.startsWith("@"))
                     tipo = datos.get_Simbolo(Integer.parseInt(t.get_Op1())).get_Tipo();
@@ -327,12 +323,23 @@ public class Assembler {
                         controlar_OverFlowSum(cod);
                     setRegistroDisponible(registro);
                 } else {
+                    if (String.valueOf(segundo) == "a") {
+                        String registronuevo = getRegistroDisponible();
+                        setRegistroDisponible(registro);
+                        registro = registronuevo;
+                    }
                     if (tipo == "USHORT")
                         reg = String.valueOf(segundo) + "l";
                     else
                         reg = registro;
                     cod.append("MOV " + reg + ", " + op1 + "\n");
-                    cod.append(instruccion + " " + reg + ", " + op2 + "\n");
+                    if (instruccion == "MUL") {
+                        String registro2 = "al";
+                        registro2 = String.valueOf(segundo) + "l";
+                        cod.append("MOV al, " + op2 + "\n");
+                        cod.append(instruccion + " " + reg + "\n");
+                    } else
+                        cod.append(instruccion + " " + reg + ", " + op2 + "\n");
                     String vAux;
                     vAux = setear_VA(t, tipo);
                     if (operador == "-" && tipo == "USHORT")
@@ -403,7 +410,6 @@ public class Assembler {
             cod.append("JNE Label" + nro + "\n");
         else if (ultimoComparador == "!!")
             cod.append("JE Label" + nro + "\n");
-
     }
 
     public String getRegistroDisponible() {
@@ -523,7 +529,6 @@ public class Assembler {
                     String vAux = setear_VA(t, "LONG");
                     cod.append("MOV " + vAux + ", e" + segundo + "x \n");
                 }
-
                 setRegistroDisponible(registro);
                 return " ";
             case "UStoD":
