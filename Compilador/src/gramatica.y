@@ -260,7 +260,8 @@ atributo_objeto : ID '.' ID {   int refObjeto = verObjetoDeclarado($1.sval);
                                             $$.sval = null;}
                                     } else{
                                         System.out.println("ERROR: linea "+ Linea.getLinea()+ " - No se puede acceder al atributo \""+$3.sval+ "\"  porque la clase \""+TS.get_Simbolo(clase).get_Ambito()+"\" no se encuentra implementada");
-                                        error = true;}
+                                        error = true;
+                                        $$.sval = null;}
                                 } else {$$.sval = null;}
 
                             }
