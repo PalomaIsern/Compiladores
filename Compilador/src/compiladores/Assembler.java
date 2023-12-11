@@ -60,13 +60,13 @@ public class Assembler {
         codigo.append("includelib \\masm32\\lib\\user32.lib\n");
         codigo.append(".data\n");
         codigo.append("MaxNumUSHORT db 255\n");
-        codigo.append("MinNumLong dd -2147483648\n");
-        codigo.append("MaxNumLong dd 2147483647\n");
-        codigo.append("MinNumDouble dq 2.2250738585072014e-308\n");
-        codigo.append("MaxNumDouble dq 1.7976931348623157e+308\n");
-        codigo.append("OverFlowMultiplicacion db \"Overflow en multiplicacion de enteros\"" + "\n");
-        codigo.append("OverFlowResta db \"Resultado negativo en resta de enteros sin signo\"" + "\n");
-        codigo.append("OverFlowSuma db \"Overflow en suma de punto flotante\"" + "\n");
+        codigo.append("@MinNumLong dd -2147483648\n");
+        codigo.append("@MaxNumLong dd 2147483647\n");
+        codigo.append("@MinNumDouble dq 2.2250738585072014d-308\n");
+        codigo.append("@MaxNumDouble dq 1.7976931348623157d+308\n");
+        codigo.append("OverFlowMultiplicacion db \"Overflow en multiplicacion de enteros\"" + ", 0 \n");
+        codigo.append("OverFlowResta db \"Resultado negativo en resta de enteros sin signo\"" + ", 0\n");
+        codigo.append("OverFlowSuma db \"Overflow en suma de punto flotante\"" + ", 0 \n");
 
         HashMap<String, ArrayList<Integer>> func = new HashMap<>(datos.getFuncionesAssembler());
         determinarLimites(func);
@@ -78,7 +78,7 @@ public class Assembler {
         // imprimirLimites(func);
 
         codigo.append(datos.getDatosAssembler());
-        codigo.append("@aux_sumaDouble dw ? \n  \n");
+        codigo.append("@aux_sumaDouble dw 0 \n  \n");
         codigo.append(".code\n \n");
         codigo.append(sbFunciones);
         // codigo
@@ -361,8 +361,8 @@ public class Assembler {
                     || operador == "!!") {
                 registro = getRegistroDisponible();
                 if (tipo == "DOUBLE") {
-                    cod.append("FILD " + op1 + "\n");
-                    cod.append("FILD " + op2 + "\n");
+                    cod.append("FLD " + op1 + "\n");
+                    cod.append("FLD " + op2 + "\n");
                     cod.append("FCOM \n");
                 } else {
                     String regAux = registro;

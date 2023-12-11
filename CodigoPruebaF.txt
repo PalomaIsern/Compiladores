@@ -93,12 +93,6 @@
 	real = 100_l,
 	asigna_valor(real),
 
-	IF (real == 60000_l) 
-		PRINT # esta bien # ,
-	ELSE 
-		PRINT # esta mal #,
-	END_IF,
-
 	VOID main(){
 		LONG aux,
 		DOUBLE aux_2,
@@ -112,15 +106,19 @@
 
 	funcion_main(),
 
-	
-
 	USHORT xus,
-	xus = 100_us,
+	xus = 199_us,
 	LONG xl,
-	xl = 10000_l,
-	DOUBLE xd,
+	xl = 1000_l,
+	DOUBLE xd; xd2,
 	xd = 1000000.0,
+	xd2 = 2.0,
 
-	xl = xus + 10000_l,
+	USHORT auxiliar; aux_mayor; resul,
+	auxiliar = 5_us,
+	aux_mayor = 50_us,
+	resul = auxiliar - aux_mayor,
+
+
 	
 }
