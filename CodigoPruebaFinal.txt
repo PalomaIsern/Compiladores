@@ -1,0 +1,190 @@
+{
+ USHORT variablecuyonombre___esmayoralpermitido1; nombrecorto2; var,
+
+
+**TEMA 11 +=
+ VOID funcion_main (USHORT x){
+    IF (x <= 5_us){
+        x += 220_us,    
+        PRINT #Modifique la variable x#,
+    }
+    ELSE {
+        var = 3_us,
+    }
+    END_IF,
+    RETURN,
+ },
+
+var = 3_us,
+funcion_main(var),
+
+** Tema 14: DO UNTIL
+DOUBLE y,
+DO y += 1.0, UNTIL (y >= 133.0),
+
+
+
+
+** Tema 30: Conversion implicita
+
+CLASS clase_compatibilidad {
+	VOID func1 (LONG l1) {   
+		l1 += 120_l,
+        RETURN,
+	},
+
+	VOID func2 (DOUBLE d2) { 
+		d2 += 120.0,
+        RETURN,
+	},
+
+	VOID func4 (DOUBLE d4) { 
+		d4 = 1.2d+9,
+        RETURN,
+	},
+
+	VOID func6 (LONG l6) { 
+		l6 = 120000_l,
+        RETURN,
+	},
+
+    VOID func7(),
+
+},
+
+USHORT xus,
+xus = 100_us,
+LONG xl,
+xl = 10000_l,
+DOUBLE xd,
+xd = 1000000.0,
+
+xl = xus + 10000_l,
+IF (xl == 10100_l)
+   PRINT #Se pudo hacer la conversion#,
+ELSE PRINT #NO se pudo hacer la conversion#,
+END_IF,
+
+
+
+clase_compatibilidad objetoa,
+objetoa.func1(xus), **llamada cuyo parametro real es USHORT y el formal es LONG
+objetoa.func2(xus), **llamada cuyo parametro real es USHORT y el formal es DOUBLE
+objetoa.func4(xl),  **llamada cuyo parametro real es LONG y el formal es DOUBLE
+
+
+
+**Tema 17: Herencia por composicion - Uso Anonimo
+CLASS ca {
+    USHORT a, 
+    VOID m() { 
+        a = 3_us,
+        RETURN,
+    },
+},
+
+CLASS cb{
+    LONG b, 
+    LONG c, 
+    VOID n() {
+        b = 3_l,
+        c = 3_l,
+        RETURN,
+    },
+    ca, 
+},
+
+ca a1; a2,
+cb b1; b2; b3,
+
+a1.a = 3_us, **atributo declarado en ca
+b1.b = 12_l, ** atributo declarado en cb
+b2.a = a1.a, ** atributo heredado de ca
+b1.m(), ** metodo heredado de ca
+b1.n(), ** metodo declarado en cb
+a2.m(), ** método declarado en ca
+
+
+
+
+
+**Tema 20: Declaracion de metodos distribuida
+IMPL FOR clase_compatibilidad: {
+	VOID func7() {
+		xl = 7000000_l,
+        RETURN,
+	}, 
+},
+
+
+**Tema 21: Forward declaration
+CLASS c_c,
+
+CLASS cd {
+    c_c c1,
+},
+
+CLASS c_c { ** Forward declaration para clase c_c
+    USHORT c_c1,
+    VOID c_c_metodo1() {
+        PRINT #metodo implementado en clase c_c mediante Forward declaration#,
+        RETURN,
+    },
+},
+
+
+
+
+**Tema 27: Comprobacion de uso de variables
+VOID funcion27(){
+    DOUBLE tt,
+    VOID funcion28(){
+        tt = 5.0,
+        RETURN,
+    },
+    funcion28(),
+    RETURN,
+},
+
+funcion27(),
+
+
+
+**Funcion adentro de otra
+VOID func_aden_func(){
+	VOID n(){
+		LONG ll,
+		DOUBLE dd,
+		dd = ll * 3_us, **Debe convertir de USHORT a LONG y luego a DOUBLE
+        RETURN,
+	},
+    n(),
+    RETURN,
+},
+
+func_aden_func(),
+
+
+
+**Overflow en sumas de datos de punto flotante
+DOUBLE overflow_suma_double,
+overflow_suma_double = 1.7976931348623157d+308,
+overflow_suma_double = overflow_suma_double + 3000.0,
+
+**Overflow en productos de enteros long
+LONG overflow_mul_long,
+overflow_mul_long = 2147483647_l,
+overflow_mul_long = overflow_mul_long * 2_l,
+
+**Overflow en productos de enteros ushort
+USHORT overflow_mul_ushort,
+overflow_mul_ushort = 250_us,
+overflow_mul_ushort = overflow_mul_ushort * 2_us,
+
+**Resultados negativos en restas de enteros sin signo
+USHORT mayor; menor; resultadonegativo,
+mayor = 255_us,
+menor = 250_us,
+resultadonegativo = menor - mayor,
+
+}

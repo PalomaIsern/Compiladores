@@ -14,8 +14,6 @@
 			END_IF,
 		RETURN,
 		},
-		IF (f > t)
-			PRINT #anda#,
 		LONG t,
 		y += x-40_us,
 		f1(),

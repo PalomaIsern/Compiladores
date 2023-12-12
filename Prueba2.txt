@@ -1,5 +1,5 @@
 {
-    DOUBLE v_1; v_2; v_3; v_4; v_5,
+    DOUBLE v_1; v_2; v_3; v_4; v_5; v_6,
     LONG l1; l2,
     USHORT u1; u2,
     v_1= 5.,
@@ -7,7 +7,15 @@
     v_3= 3.d-5,
     v_4 = 2.5D-1,
     v_5 = 4.6D-2,
-    l1 = 2_l * 2147483648_l,
-    u1 = 200_us * 2_us,
-    u2 = 300_us * 1_us,
+    v_6 = 1.7976931348623157D+308,
+    v_3 = v_2 + v_1,
+    IF (v_3 == 5.650)
+        PRINT #Son iguales#,
+    ELSE
+        PRINT #No son iguales#,
+    END_IF,
+    v_2 += v_6,
+    l1 = 2_l * 2147483648_l, **overflow
+    u1 = 200_us * 2_us, **overflow
+    u2 = 300_us * 1_us, **overflow
 }

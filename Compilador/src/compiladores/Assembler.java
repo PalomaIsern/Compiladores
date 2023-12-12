@@ -239,12 +239,14 @@ public class Assembler {
     public void controlar_OverFlowSum(StringBuilder cod, String vaux) {
         String registro = getRegistroDisponible();
         char segundo = registro.charAt(1);
-
+        cod.append("PUSHF \n");
         cod.append("FLD MaxNumDouble" + "\n");
         cod.append("FCOM " + vaux + "\n");
         cod.append("FSTSW ax \n");
         cod.append("SAHF " + "\n");
         cod.append("JBE OFS \n");
+        cod.append("POPF \n");
+
         setRegistroDisponible(registro);
     }
 

@@ -14,203 +14,97 @@ MinNumLong dd -2147483648
 MaxNumLong dd 2147483647
 MinNumDouble dq 2.2250738585072014e-308
 MaxNumDouble dq 1.7976931348623157e+308
-OverFlowMultiplicacion db "Overflow en multiplicacion de enteros"
-OverFlowResta db "Resultado negativo en resta de enteros sin signo"
-OverFlowSuma db "Overflow en suma de punto flotante"
-_us$main db  ?
-_clase$main db  ?
-_largo$main$clase dd  ?
-@cte4 dd 1000099
-_l$main$clase$func dd  ?
-@cte7 dd 100000
-_clase2$main db  ?
-_dob1$main$clase2 dq  ?
-_dob2$main$clase2 dq  ?
-@cte11 dq 0.45
-@cte12 dq 0.006
-objeto1 db  ?
-objeto2 db  ?
-_largo$objeto1$main dd  ?
-@cte17 dd 29999
-@cte18 dd 200000
-@cadena19 db "cadena de prueba", 0
-_variable_doble$main dq  ?
-_variable_doble$main$prueba dd  ?
-@cte23 dd 5000
-_aux$main dd  ?
-_corto$main db  ?
-@cadena27 db "mensaje uno", 0
-@cte28 dd 40000
-@cadena29 db "es menor a cuarenta mil", 0
-@cadena30 db "es mayor a cuarenta mil", 0
-@cte32 dd 50000
-_ca$main db  ?
-_a$main$ca db  ?
-@cadena36 db "estoy en m", 0
-_cb$main db  ?
-_b$main$cb dq  ?
-_c$main$cb dq  ?
-@cadena41 db "estoy en n", 0
-a1 db  ?
-a2 db  ?
-b1 db  ?
-b2 db  ?
-b3 db  ?
-_a$a1$main db  ?
-_b$b1$main dq  ?
-@cte50 dq 1.2
-_a$b2$main db  ?
-_formal$main$asigna_valor dd  ?
-@cte55 dd 60000
-_real$main dd  ?
-@cte57 dd 100
-@cadena58 db "esta bien", 0
-@cadena59 db "esta mal", 0
-_aux$main$main dd  ?
-_aux_2$main$main dq  ?
-@cte63 dq 0.005
-_d$main$funcion_main dq  ?
-_us$main$funcion_main db  ?
-_xus$main db  ?
-_xl$main dd  ?
-@cte70 dd 10000
-_xd$main dq  ?
-@cte72 dq 1000000.0
-@aux1 db  ?
-@aux2 dd  ?
-@aux3 dd  ?
+OverFlowMultiplicacionL db "Overflow en multiplicacion de enteros largos con signo (LONG)", 0 
+OverFlowMultiplicacionU db "Overflow en multiplicacion de enteros cortos sin signo (USHORT)", 0 
+OverFlowResta db "Resultado negativo en resta de enteros sin signo", 0
+OverFlowSuma db "Overflow en suma de punto flotante", 0 
+_x$main dq  ?
+_y$main dd  ?
+_z$main db  ?
+@cte3 dq 4.0
+@cte4 dq 5.0
+@cadena5 db "InteriorIF", 0
+@cte6 dq 2.0
+@cte7 dq 1.0
+@cte8 dq 3.0
+@cte9 dq -5.0
+@cte10 dd 6
+@ctePos11 db 1
+@aux1 dq  ?
+@aux2 dq  ?
+@aux3 dq  ?
 @aux4 dq  ?
-@aux5 dd  ?
-@aux_sumaDouble dw ? 
+@aux5 dq  ?
+@aux_sumaDouble dw 0 
   
 .code
  
-main$main: 
-FLD @cte63
-FSTP _aux_2$main$main
-ret 
- 
-func2$main$clase2: 
-invoke MessageBox, NULL, addr @cadena19, addr @cadena19, MB_OK
-ret 
- 
-m$main$ca: 
-invoke MessageBox, NULL, addr @cadena36, addr @cadena36, MB_OK
-ret 
- 
-prueba$main: 
-FILD dword ptr [@cte23] 
-FLD @aux4
-FSTP _variable_doble$main
-ret 
- 
-prueba2$main: 
-MOV edx, 50000
-MOV _largo$main$clase, edx
-ret 
- 
-func$main$clase: 
-MOV edx, _l$main$clase$func
-ADD edx, 100000
-MOV @aux5, edx
-MOV edx, @aux5
-MOV _l$main$clase$func, edx
-ret 
- 
-n$main$cb: 
-invoke MessageBox, NULL, addr @cadena41, addr @cadena41, MB_OK
-ret 
- 
-asigna_valor$main: 
-MOV edx, 60000
-MOV _formal$main$asigna_valor, edx
-ret 
- 
-funcion_main$main: 
-ret 
- 
 START:
 
-MOV dl, 255
-MOV _us$main, dl
-MOV edx, 1000099
-MOV _largo$main$clase, edx
-FLD @cte11
-FSTP _dob1$main$clase2
-FLD @cte12
-FSTP _dob2$main$clase2
-MOV edx, 29999
-MOV _largo$main$clase, edx
-MOV edx, 200000
-MOV _l$main$clase$func, edx
-CALL func$main$clase
-MOV edx, 29999
-MOV _aux$main, edx
-MOV dl, 50
-MOV _corto$main, dl
-MOV dl, _corto$main
-ADD dl, 255
-MOV @aux1, dl
-MOV dl, @aux1
-MOV _corto$main, dl
-MOV dl, _corto$main
-CMP dl, 255
-JLE Label28
-invoke MessageBox, NULL, addr @cadena27, addr @cadena27, MB_OK
-JMP Label30
-Label28:
-invoke MessageBox, NULL, addr @cadena27, addr @cadena27, MB_OK
-Label30:
-MOV edx, _aux$main
-CMP edx, 40000
-JGE Label35
-invoke MessageBox, NULL, addr @cadena29, addr @cadena29, MB_OK
-JMP Label37
-Label35:
-invoke MessageBox, NULL, addr @cadena30, addr @cadena30, MB_OK
-Label37:
-MOV dl, 3
-MOV _a$main$ca, dl
-FLD @cte50
-FSTP _b$main$cb
-MOV dl, _a$main$ca
-MOV _a$main$ca, dl
-MOV dl, 5
-MOV _a$main$ca, dl
-CALL m$main$ca
-CALL n$main$cb
-CALL m$main$ca
-MOV edx, 100
-MOV _real$main, edx
-MOV edx, _real$main
-MOV _formal$main$asigna_valor, edx
-CALL asigna_valor$main
-MOV edx, _real$main
-CMP edx, 60000
-JNE Label64
-invoke MessageBox, NULL, addr @cadena58, addr @cadena58, MB_OK
-JMP Label66
-Label64:
-invoke MessageBox, NULL, addr @cadena59, addr @cadena59, MB_OK
-Label66:
-CALL funcion_main$main
-MOV dl, 100
-MOV _xus$main, dl
-MOV edx, 10000
-MOV _xl$main, edx
-FLD @cte72
-FSTP _xd$main
-MOV dl, _xus$main
+FLD @cte3
+FLD @cte4
+FCOM 
+JGE Label4
+invoke MessageBox, NULL, addr @cadena5, addr @cadena5, MB_OK
+JMP Label5
+Label4:
+Label5:
+FLD @cte6
+FLD @cte7
+FADD
+FSTP @aux1
+PUSHF 
+FLD MaxNumDouble
+FCOM @aux1
+FSTSW ax 
+SAHF 
+JBE OFS 
+POPF 
+FLD @aux1
+FSTP _x$main
+FLD _x$main
+FLD @cte8
+FDIV
+FSTP @aux2
+FLD @aux2
+FSTP _x$main
+FLD _x$main
+FLD _x$main
+FMUL
+FSTP @aux3
+FLD @aux3
+FSTP _x$main
+FLD @cte9
+FSTP _x$main
+MOV edx, 6
+MOV _y$main, edx
+MOV dl, 1
+MOV _z$main, dl
+MOV dl, _z$main
 MOVSX edx, dl
-MOV edx, @aux2
-ADD edx, 10000
-MOV @aux3, edx
-MOV edx, @aux3
-MOV _xl$main, edx
+FILD dword ptr [_z$main] 
+FSTP qword ptr [_z$main] 
+FLD _x$main
+FLD @aux4
+FADD
+FSTP @aux5
+PUSHF 
+FLD MaxNumDouble
+FCOM @aux5
+FSTSW ax 
+SAHF 
+JBE OFS 
+POPF 
+FLD @aux5
+FSTP _x$main
 
 JMP fin 
-OFM: 
-invoke  MessageBox, NULL, ADDR OverFlowMultiplicacion, ADDR OverFlowMultiplicacion, MB_OK 
+OFMU: 
+invoke  MessageBox, NULL, ADDR OverFlowMultiplicacionU, ADDR OverFlowMultiplicacionU, MB_OK 
+invoke ExitProcess, 0
+
+OFML: 
+invoke  MessageBox, NULL, ADDR OverFlowMultiplicacionL, ADDR OverFlowMultiplicacionL, MB_OK 
 invoke ExitProcess, 0
 
 OFR: 

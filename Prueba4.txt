@@ -1,6 +1,0 @@
-{   identificador_neg = -5.0,
-    identificador_neg2 = -6.0,
-    identificador_pos = 0.0,
-    long_pos = 2147483648_l,
-    long_neg = -2147483648_l,
-}

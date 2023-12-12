@@ -1308,7 +1308,7 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
                 if (tipoExpresion == "USHORT")
                     conversion = "UStoL";
                 else if (tipoExpresion != "LONG"){
-                    System.out.println("ERROR: linea " + Linea.getLinea() + " Tipos incompatibles para realizar la asignacion. Se pretende convertir " + tipoExpresion + " a USHORT");
+                    System.out.println("ERROR: linea " + Linea.getLinea() + " Tipos incompatibles para realizar la asignacion. Se pretende convertir " + tipoExpresion + " a LONG");
                     error = true;}}
         else 
             if (tipoExpresion.equals("LONG"))
