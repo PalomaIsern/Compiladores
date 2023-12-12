@@ -236,13 +236,15 @@ public class Assembler {
         cod.append("JC OFR \n");
     }
 
-    public void controlar_OverFlowSum(StringBuilder cod) {
+    public void controlar_OverFlowSum(StringBuilder cod, String vaux) {
         String registro = getRegistroDisponible();
         char segundo = registro.charAt(1);
-        cod.append("FSTSW @aux_sumaDouble \n");
-        cod.append("MOV " + segundo + "x, @aux_sumaDouble" + "\n");
+
+        cod.append("FLD MaxNumDouble" + "\n");
+        cod.append("FCOM " + vaux + "\n");
+        cod.append("FSTSW ax \n");
         cod.append("SAHF " + "\n");
-        cod.append("JO OFS \n");
+        cod.append("JBE OFS \n");
         setRegistroDisponible(registro);
     }
 
@@ -320,7 +322,7 @@ public class Assembler {
                     String vAux = setear_VA(t, "DOUBLE");
                     cod.append("FSTP " + vAux + "\n");
                     if (operador == "+")
-                        controlar_OverFlowSum(cod);
+                        controlar_OverFlowSum(cod, vAux);
                     setRegistroDisponible(registro);
                 } else {
                     if (String.valueOf(segundo) == "a") {
