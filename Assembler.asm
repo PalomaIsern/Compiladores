@@ -18,85 +18,41 @@ OverFlowMultiplicacionL db "Overflow en multiplicacion de enteros largos con sig
 OverFlowMultiplicacionU db "Overflow en multiplicacion de enteros cortos sin signo (USHORT)", 0 
 OverFlowResta db "Resultado negativo en resta de enteros sin signo", 0
 OverFlowSuma db "Overflow en suma de punto flotante", 0 
-_x$main dq  ?
-_y$main dd  ?
-_z$main db  ?
-@cte3 dq 4.0
-@cte4 dq 5.0
-@cadena5 db "InteriorIF", 0
-@cte6 dq 2.0
-@cte7 dq 1.0
-@cte8 dq 3.0
-@cte9 dq -5.0
-@cte10 dd 6
-@ctePos11 db 1
-@aux1 dq  ?
-@aux2 dq  ?
-@aux3 dq  ?
-@aux4 dq  ?
-@aux5 dq  ?
+_ca$main db  ?
+_a$main$ca db  ?
+@ctePos3 db 3
+_x$main db  ?
+_y$main dq  ?
+_z$main dq  ?
+c1 db  ?
+c2 db  ?
+_a$c1$main db  ?
+@ctePos10 db 1
+@cadena11 db "c1_a igual a 3", 0
 @aux_sumaDouble dw 0 
   
 .code
  
+m$main$ca: 
+MOV dl, 3
+MOV _a$main$ca, dl
+MOV dl, _a$main$ca
+MOV _a$main$ca, dl
+ret 
+ 
 START:
 
-FLD @cte3
-FLD @cte4
-FCOM 
-JGE Label4
-invoke MessageBox, NULL, addr @cadena5, addr @cadena5, MB_OK
-JMP Label5
-Label4:
-Label5:
-FLD @cte6
-FLD @cte7
-FADD
-FSTP @aux1
-PUSHF 
-FLD MaxNumDouble
-FCOM @aux1
-FSTSW ax 
-SAHF 
-JBE OFS 
-POPF 
-FLD @aux1
-FSTP _x$main
-FLD _x$main
-FLD @cte8
-FDIV
-FSTP @aux2
-FLD @aux2
-FSTP _x$main
-FLD _x$main
-FLD _x$main
-FMUL
-FSTP @aux3
-FLD @aux3
-FSTP _x$main
-FLD @cte9
-FSTP _x$main
-MOV edx, 6
-MOV _y$main, edx
+CALL m$main$ca
 MOV dl, 1
-MOV _z$main, dl
-MOV dl, _z$main
-MOVSX edx, dl
-FILD dword ptr [_z$main] 
-FSTP qword ptr [_z$main] 
-FLD _x$main
-FLD @aux4
-FADD
-FSTP @aux5
-PUSHF 
-FLD MaxNumDouble
-FCOM @aux5
-FSTSW ax 
-SAHF 
-JBE OFS 
-POPF 
-FLD @aux5
-FSTP _x$main
+MOV _a$c1$main, dl
+CALL m$main$ca
+MOV dl, _a$c1$main
+CMP dl, 3
+JNE Label12
+invoke MessageBox, NULL, addr @cadena11, addr @cadena11, MB_OK
+JMP Label13
+Label12:
+Label13:
 
 JMP fin 
 OFMU: 

@@ -15,6 +15,7 @@
 		RETURN,
 		},
 		LONG t,
+		x = 50_us,
 		y += x-40_us,
 		f1(),
 		CLASS clase2,

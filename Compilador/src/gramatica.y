@@ -71,10 +71,36 @@ asignacion : ID simboloAsignacion expresion         {String conv = convertirTipo
                                                     else
                                                         verificarUso($1.sval);
                                                     }
-            | atributo_objeto '=' atributo_objeto   {if (($1.sval != null) && ($3.sval != null))
-                                                        $$.sval = '[' + Integer.toString(crear_terceto("=", $1.sval, $3.sval))+']';}
-            | atributo_objeto '=' factor            {if ($1.sval != null) 
-                                                        $$.sval = '[' + Integer.toString(crear_terceto("=", $1.sval, $3.sval))+']';}
+            | atributo_objeto simboloAsignacion atributo_objeto   {
+                                                    String conv = convertirAsignacionAtributo($1.sval, $3.sval);
+                                                    if (conv != "-"){
+                                                        $3.sval = "["+ Integer.toString(crear_terceto(conv, $3.sval, "-")) +"]";
+                                                        CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(conv));
+                                                    }
+                                                    if ($2.sval == "+="){
+                                                        String aux = "[" + Integer.toString(crear_terceto("+", $1.sval, $3.sval)) + "]";
+                                                        CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(TS.get_Simbolo(Integer.parseInt($1.sval)).get_Tipo());
+                                                        $$.sval = '[' + Integer.toString(crear_terceto("=", $1.sval, aux)) + ']';}
+                                                    else 
+                                                        if (($1.sval != null) && ($3.sval != null))
+                                                            $$.sval = '[' + Integer.toString(crear_terceto("=", $1.sval, $3.sval))+']';
+                                                    CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(TS.get_Simbolo(Integer.parseInt($1.sval)).get_Tipo()));
+                                                    }
+            | atributo_objeto simboloAsignacion factor            {
+                                                    String conv = convertirAsignacionAtributo($1.sval, $3.sval);
+                                                    if (conv != "-"){
+                                                        $3.sval = "["+ Integer.toString(crear_terceto(conv, $3.sval, "-")) +"]";
+                                                        CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(conv));
+                                                    }
+                                                    if ($2.sval == "+="){
+                                                        String aux = "[" + Integer.toString(crear_terceto("+", $1.sval, $3.sval)) + "]";
+                                                        CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(TS.get_Simbolo(Integer.parseInt($1.sval)).get_Tipo());
+                                                        $$.sval = '[' + Integer.toString(crear_terceto("=", $1.sval, aux)) + ']';}
+                                                    else
+                                                        if ($1.sval != null)
+                                                            $$.sval = '[' + Integer.toString(crear_terceto("=", $1.sval, $3.sval))+']';
+                                                    CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(TS.get_Simbolo(Integer.parseInt($1.sval)).get_Tipo()));
+                                                    }
             
 ;
 
@@ -167,6 +193,7 @@ declaracionClase : inicioClase bloque_de_Sentencias {volver_Ambito();
                                 metodosTempNoImp = new ArrayList<Integer>();
                                 if (setear_Ambito($2.sval+ambito, $2.sval)) {
                                     $$.sval = $2.sval+ambito;
+                                    setear_Uso("Clase", $$.sval);
                                     clavePadre = -1;
                                 } else
                                     $$.sval = " ";
@@ -253,7 +280,7 @@ atributo_objeto : ID '.' ID {   int refObjeto = verObjetoDeclarado($1.sval);
                                             TS.get_Simbolo(ref_atr).set_Tipo(TS.get_Simbolo(ref).get_Tipo());
                                             TS.get_Simbolo(ref_atr).set_Uso(TS.get_Simbolo(ref).get_Uso());
                                             //$$.sval = '[' + Integer.toString(crear_terceto("atributo_objeto", Integer.toString(refObjeto), Integer.toString(ref))) + ']';
-                                            $$.sval = Integer.toString(ref);
+                                            $$.sval = Integer.toString(ref_atr);
                                         } else 
                                             {System.out.println("ERROR: linea "+ Linea.getLinea()+ " el atributo \""+$3.sval+ "\" no se encuentra al alcance o no fue declarado");
                                             error = true;
@@ -417,6 +444,49 @@ condicion : '(' expresion comparador expresion ')' {
                                                       else
                                                             CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(CodigoIntermedio.get(Integer.parseInt($$.sval)).get_Tipo());
                                                       pila.push(aux);}
+        | '(' atributo_objeto comparador expresion ')' {  realizar_Conversion($2.sval, $4.sval, $3.sval, $$);
+                                                            int aux;
+                                                            if ($$.sval == "")
+                                                                aux = crear_terceto("BF", "-", "-");
+                                                            else{
+                                                                aux = crear_terceto("BF", $$.sval, "-");
+                                                                if ($$.sval.contains("["))
+                                                                    {String ref = borrarCorchetes($$.sval);
+                                                                    CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(CodigoIntermedio.get(Integer.parseInt(ref)).get_Tipo());
+                                                                    }
+                                                                else
+                                                                    CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(CodigoIntermedio.get(Integer.parseInt($$.sval)).get_Tipo());
+                                                                }
+                                                        pila.push(aux);}
+                                                        
+          | '(' expresion comparador atributo_objeto ')' {  realizar_Conversion($2.sval, $4.sval, $3.sval, $$);
+                                                            int aux;
+                                                            if ($$.sval == "")
+                                                                aux = crear_terceto("BF", "-", "-");
+                                                            else{
+                                                                aux = crear_terceto("BF", $$.sval, "-");
+                                                                if ($$.sval.contains("["))
+                                                                    {String ref = borrarCorchetes($$.sval);
+                                                                    CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(CodigoIntermedio.get(Integer.parseInt(ref)).get_Tipo());
+                                                                    }
+                                                                else
+                                                                    CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(CodigoIntermedio.get(Integer.parseInt($$.sval)).get_Tipo());
+                                                                }
+                                                        pila.push(aux);}
+          | '(' atributo_objeto comparador atributo_objeto ')' {  realizar_Conversion($2.sval, $4.sval, $3.sval, $$);
+                                                            int aux;
+                                                    if ($$.sval == "")
+                                                                aux = crear_terceto("BF", "-", "-");
+                                                            else{
+                                                                aux = crear_terceto("BF", $$.sval, "-");
+                                                                if ($$.sval.contains("["))
+                                                                    {String ref = borrarCorchetes($$.sval);
+                                                                    CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(CodigoIntermedio.get(Integer.parseInt(ref)).get_Tipo());
+                                                                    }
+                                                                else
+                                                                    CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(CodigoIntermedio.get(Integer.parseInt($$.sval)).get_Tipo());
+                                                                }
+                                                        pila.push(aux);}
 ;
 
 clausula_seleccion : IF condicion bloque_IF ELSE bloque_ELSE END_IF {int primero = pila.pop();
@@ -486,6 +556,9 @@ declaracion: tipo lista_Variables {setear_Tipo();}
 
 lista_Variables : lista_Variables ';' ID {  boolean declarado = setear_Ambito($3.sval+ambito, $3.sval); 
                                             if (declarado) {
+                                                String ultimo = get_UltimoAmbito();
+                                                if (TS.buscarClase(ultimo))
+                                                    setear_Uso("Atributo", $1.sval+ambito);
                                                 setear_Uso("Variable", $3.sval+ambito); 
                                                 guardar_Var($3.sval+ambito);
                                                 if (! dentroFuncion) 
@@ -494,6 +567,9 @@ lista_Variables : lista_Variables ';' ID {  boolean declarado = setear_Ambito($3
                                         }
                 | ID {  boolean declarado = setear_Ambito($1.sval+ambito, $1.sval); 
                         if (declarado) {
+                            String ultimo = get_UltimoAmbito();
+                            if (TS.buscarClase(ultimo))
+                                setear_Uso("Atributo", $1.sval+ambito);
                             setear_Uso("Variable", $1.sval+ambito); 
                             guardar_Var($1.sval+ambito);
                             if (! dentroFuncion)
@@ -580,7 +656,7 @@ tipo : DOUBLE {guardar_Tipo("DOUBLE");
                 $$.sval = "USHORT";}
      | LONG {guardar_Tipo("LONG");
                 $$.sval = "LONG";}
-     | error {System.out.println("Error: linea " + Linea.getLinea() +  " No es un tipo definido");
+     | error {System.out.println("ERROR: linea " + Linea.getLinea() +  " No es un tipo definido");
             error = true;}
 ;
 
@@ -615,6 +691,13 @@ print : PRINT CADENA {setear_Uso("Cadena", $2.sval);
     Conversion convertible = new Conversion();
     Assembler CodigoAssembler;
     boolean error = false;
+
+
+    public String get_UltimoAmbito(){
+        String[] ambitos = ambito.split(":");
+        int cantidad = ambitos.length;
+        return ambitos[cantidad-1];
+    }
 
     public boolean ver_ElementoDeclarado(String elemento){
         int clave = TS.buscar_por_ambito(elemento+ambito);
@@ -1267,7 +1350,8 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
             clave = TS.pertenece(lexema);
         }
         Simbolo s = TS.get_Simbolo(clave);
-        s.set_Uso(uso);
+        if (s.get_Uso().equals(""))
+            s.set_Uso(uso);
     }
 
     public void guardar_Tipo(String t){
@@ -1359,6 +1443,35 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
         }
     }
 
+    public String convertirAsignacionAtributo(String objeto, String expresion){
+        String tipoObjeto = TS.get_Simbolo(Integer.parseInt(objeto)).get_Tipo();
+        String tipoExpresion= "-";
+        String conversion = "-";
+        if (expresion.contains("[")){
+            String refTerceto = borrarCorchetes(expresion);
+            tipoExpresion = CodigoIntermedio.get(Integer.parseInt(refTerceto)).get_Tipo();
+        }
+        else
+            tipoExpresion = TS.get_Simbolo(Integer.parseInt(expresion)).get_Tipo();
+        if (tipoObjeto.equals("USHORT")){
+                if (!tipoExpresion.equals("USHORT")){
+                    System.out.println("ERROR: linea " + Linea.getLinea() + " Tipos incompatibles para realizar la asignacion. Se pretende convertir " + tipoExpresion + " a USHORT");
+                    error = true;}}
+        else if (tipoObjeto.equals("LONG")){
+                if (tipoExpresion == "USHORT")
+                    conversion = "UStoL";
+                else if (tipoExpresion != "LONG"){
+                    System.out.println("ERROR: linea " + Linea.getLinea() + " Tipos incompatibles para realizar la asignacion. Se pretende convertir " + tipoExpresion + " a LONG");
+                    error = true;}}
+        else 
+            if (tipoExpresion.equals("LONG"))
+                conversion = "LtoD";
+            else
+                if (tipoExpresion.equals("USHORT"))
+                    conversion = "UStoD";
+        return conversion;
+    }
+
     public String convertirTipoAsignacion(String id, String expresion){
         String tipoId = TS.get_Simbolo(TS.pertenece(id)).get_Tipo();
         String tipoExpresion= "-";
@@ -1401,7 +1514,7 @@ public void verificarUso(String elemento){
             int cantidad = ambitos_Programa.length;
             while (cantidad > 1){
                 if (!s.get_Ambito().equals(elemento+aux)){
-                    if (!seUsoLadoDerecho(elemento)){
+                    if (!seUsoLadoDerecho(elemento) && TS.get_Simbolo(clave).get_Uso() != "Atributo"){
                          x = true;
                     }
                     String nuevo="";

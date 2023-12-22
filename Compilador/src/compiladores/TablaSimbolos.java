@@ -47,6 +47,15 @@ public class TablaSimbolos {
         }
     }
 
+    public boolean buscarClase(String clase) {
+        for (HashMap.Entry<Integer, Simbolo> entry : TS.entrySet()) {
+            Simbolo s = entry.getValue();
+            if ((s.get_Lex().equals(clase)) && (s.get_Uso().equals("Clase")))
+                return true;
+        }
+        return false;
+    }
+
     public static int buscarConstante(String valor, String tipo) {
         for (HashMap.Entry<Integer, Simbolo> entry : TS.entrySet()) {
             Simbolo s = entry.getValue();

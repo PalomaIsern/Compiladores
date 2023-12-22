@@ -1,0 +1,22 @@
+{
+CLASS ca {
+	USHORT a,
+	VOID m() {
+    	a = 3_us,
+    	a = a,
+    	RETURN,
+	},
+},
+
+USHORT x,
+DOUBLE y;z,
+ca c1; c2,
+c1.m(),
+c1.a = 1_us,
+c1.m(),
+IF (c1.a == 3_us)
+   PRINT #c1_a igual a 3#,
+END_IF,
+
+}
+
