@@ -21,11 +21,13 @@ public class Assembler {
             "==", "!!", "CALL", "CALLMetodoClase", "BI", "BF", "PRINT", "UStoL", "UStoD", "LtoD", "RETURN"));
     private Stack<String> pilaFunc = new Stack<>();
     private HashMap<String, ArrayList<Integer>> func;
+    private HashMap<Integer, Integer> referencias;
 
     public Assembler(HashMap<Integer, Terceto> ci, TablaSimbolos d) {
         CodIntermedio = new HashMap<Integer, Terceto>(ci);
         datos = d;
         func = new HashMap<>(datos.getFuncionesAssembler());
+        referencias = new HashMap<>();
         registros.put("edx", false);
         registros.put("ebx", false);
         registros.put("ecx", false);
@@ -74,7 +76,7 @@ public class Assembler {
         determinarLimites(func);
         generarInstrucciones(instrucciones, func);
         generarCodigoFunciones(sbFunciones, func);
-        imprimirLimites(func);
+        // imprimirLimites(func);
         codigo.append(datos.getDatosAssembler());
         codigo.append("@aux_sumaDouble dw 0 \n  \n");
         codigo.append(".code\n \n");
@@ -121,6 +123,14 @@ public class Assembler {
 
     private String reemplazarPuntos(String palabra) {
         return palabra.replace(":", "$");
+    }
+
+    private void imprimirReferencias(HashMap<Integer, Integer> ref) {
+        System.out.println("referencias ");
+        for (HashMap.Entry<Integer, Integer> entry : ref.entrySet()) {
+            System.out.println(entry.getKey() + " - " + entry.getValue());
+        }
+
     }
 
     private void imprimirLimites(HashMap<String, ArrayList<Integer>> func) {
@@ -299,6 +309,7 @@ public class Assembler {
     }
 
     public void generarInstruccionMetodoClase(StringBuilder cod, int inicio, int fin, String objeto) {
+        int cantRefs = referencias.get(Integer.parseInt(objeto));
         while (inicio + 1 < fin) {
             String registro = " ";
             Terceto t = CodIntermedio.get(inicio + 1);
@@ -307,7 +318,7 @@ public class Assembler {
             String tipo = t.get_Tipo();
             String reg;
             if (operador.startsWith("Label")) {
-                cod.append(operador + ":" + "\n");
+                cod.append(operador + objeto + cantRefs + ":" + "\n");
             }
             if (instruccion != "ERROR") {
                 String op1 = obtenerOperando(t.get_Op1(), instruccion);
@@ -326,8 +337,6 @@ public class Assembler {
                                     + ":" + datos.get_Simbolo(Integer.parseInt(objeto)).get_Ambito()));
                     op2 = "_" + reemplazarPuntos(datos.get_Simbolo(Integer.parseInt(op2)).get_Ambito());
                 }
-                System.out.println("Operador 1: " + op1);
-                System.out.println("Operador 2: " + op2);
                 if (tipo == "-") {
                     if (op1.startsWith("_") || op1.startsWith("@"))
                         tipo = datos.get_Simbolo(Integer.parseInt(t.get_Op1())).get_Tipo();
@@ -404,14 +413,22 @@ public class Assembler {
                     setRegistroDisponible(registro);
                 } else if (instruccion == "JMP") {
                     String destino = borrarCorchetes(op2);
-                    cod.append("JMP " + "Label" + destino + "\n");
+                    cod.append("JMP " + "Label" + destino + objeto + cantRefs + "\n");
                 } else if (instruccion == "BF") {
-                    generarSaltoCondicional(cod, t);
+                    generarSaltoCondicional(cod, t, objeto, Integer.toString(cantRefs));
                 } else if (instruccion == "CALL") {
                     cod.append("CALL " + reemplazarPuntos(op1.substring(1)) + "\n");
                 } else if (instruccion == "CALLMetodoClase") {
                     String metodo = reemplazarPuntos(datos.get_Simbolo(Integer.parseInt(t.get_Op1())).get_Ambito());
                     ArrayList<Integer> limites = func.get(metodo);
+                    if (referencias.containsKey(Integer.parseInt(t.get_Op2()))) {
+                        if (referencias.get(Integer.parseInt(t.get_Op2())) != null) {
+                            referencias.put(Integer.parseInt(t.get_Op2()),
+                                    referencias.get(Integer.parseInt(t.get_Op2())) + 1);
+                        }
+                    } else {
+                        referencias.put(Integer.parseInt(t.get_Op2()), Integer.valueOf(1));
+                    }
                     generarInstruccionMetodoClase(cod, limites.get(0), limites.get(1), t.get_Op2());
                 }
             } else {
@@ -511,12 +528,20 @@ public class Assembler {
                 String destino = borrarCorchetes(op2);
                 cod.append("JMP " + "Label" + destino + "\n");
             } else if (instruccion == "BF") {
-                generarSaltoCondicional(cod, t);
+                generarSaltoCondicional(cod, t, " ", " ");
             } else if (instruccion == "CALL") {
                 cod.append("CALL " + reemplazarPuntos(op1.substring(1)) + "\n");
             } else if (instruccion == "CALLMetodoClase") {
                 String metodo = reemplazarPuntos(datos.get_Simbolo(Integer.parseInt(t.get_Op1())).get_Ambito());
                 ArrayList<Integer> limites = func.get(metodo);
+                if (referencias.containsKey(Integer.parseInt(t.get_Op2()))) {
+                    if (referencias.get(Integer.parseInt(t.get_Op2())) != null) {
+                        referencias.put(Integer.parseInt(t.get_Op2()),
+                                referencias.get(Integer.parseInt(t.get_Op2())) + 1);
+                    }
+                } else {
+                    referencias.put(Integer.parseInt(t.get_Op2()), Integer.valueOf(1));
+                }
                 generarInstruccionMetodoClase(cod, limites.get(0), limites.get(1), t.get_Op2());
             }
         } else {
@@ -525,20 +550,20 @@ public class Assembler {
         }
     }
 
-    public void generarSaltoCondicional(StringBuilder cod, Terceto t) {
+    public void generarSaltoCondicional(StringBuilder cod, Terceto t, String o, String r) {
         String nro = borrarCorchetes(t.get_Op2());
         if (ultimoComparador == ">")
-            cod.append("JLE Label" + nro + "\n");
+            cod.append("JLE Label" + nro + o + r + "\n");
         else if (ultimoComparador == ">=")
-            cod.append("JL Label" + nro + "\n");
+            cod.append("JL Label" + nro + o + r + "\n");
         else if (ultimoComparador == "<")
-            cod.append("JGE Label" + nro + "\n");
+            cod.append("JGE Label" + nro + o + r + "\n");
         else if (ultimoComparador == "<=")
-            cod.append("JG Label" + nro + "\n");
+            cod.append("JG Label" + nro + o + r + "\n");
         else if (ultimoComparador == "==")
-            cod.append("JNE Label" + nro + "\n");
+            cod.append("JNE Label" + nro + o + r + "\n");
         else if (ultimoComparador == "!!")
-            cod.append("JE Label" + nro + "\n");
+            cod.append("JE Label" + nro + o + r + "\n");
     }
 
     public String getRegistroDisponible() {

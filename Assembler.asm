@@ -20,22 +20,78 @@ OverFlowResta db "Resultado negativo en resta de enteros sin signo", 0
 OverFlowSuma db "Overflow en suma de punto flotante", 0 
 _ca$main db  ?
 _a$main$ca db  ?
+_b$main$ca dd  ?
+_z$main$ca dq  ?
+_do$main$ca dq  ?
+_tre$main$ca dq  ?
 _b$main$ca$m dq  ?
-@ctePos4 db 3
-@cte5 dq 2.0
-@cadena6 db "b vale 2.0", 0
+@ctePos8 db 3
+@cte9 dq 2.0
+@cadena10 db "b vale 2.0", 0
+@cte12 dq 10.0
+@ctePos13 db 10
+@cadena14 db "si", 0
+@cadena15 db "no", 0
 _x$main db  ?
 _y$main dq  ?
 _z$main dq  ?
 c1 db  ?
 c2 db  ?
-@cte12 dq 3.5
 _a$c1$main db  ?
-@ctePos14 db 1
-@cadena15 db "c1_a igual a 3", 0
+_a$c2$main db  ?
+_b$c1$main dd  ?
+_b$c2$main dd  ?
+_z$c1$main dq  ?
+_z$c2$main dq  ?
+_do$c1$main dq  ?
+_do$c2$main dq  ?
+_tre$c1$main dq  ?
+_tre$c2$main dq  ?
+@cte31 dq 3.5
+@ctePos32 db 1
+@cadena33 db "c1_a igual a 3", 0
+objetonuevo db  ?
+_a$objetonuevo$main$preu db  ?
+_b$objetonuevo$main$preu dd  ?
+_z$objetonuevo$main$preu dq  ?
+_do$objetonuevo$main$preu dq  ?
+_tre$objetonuevo$main$preu dq  ?
+@cadena41 db "es 10.0", 0
+@cadena42 db "no es 10.0", 0
+@aux1 dq  ?
 @aux_sumaDouble dw 0 
   
 .code
+ 
+otro$main$ca: 
+MOV dl, @ctePos13
+MOVSX edx, dl
+FILD dword ptr [@ctePos13] 
+FSTP qword ptr [@ctePos13] 
+FLD @cte12
+FLD @aux1
+FCOM 
+JNE Label17  
+invoke MessageBox, NULL, addr @cadena14, addr @cadena14, MB_OK
+JMP Label19
+Label17:
+invoke MessageBox, NULL, addr @cadena15, addr @cadena15, MB_OK
+Label19:
+ret 
+ 
+preu$main: 
+FLD @cte12
+FSTP _tre$objetonuevo$main$preu
+FLD _tre$objetonuevo$main$preu
+FLD @cte12
+FCOM 
+JNE Label39  
+invoke MessageBox, NULL, addr @cadena41, addr @cadena41, MB_OK
+JMP Label41
+Label39:
+invoke MessageBox, NULL, addr @cadena42, addr @cadena42, MB_OK
+Label41:
+ret 
  
 m$main$ca: 
 MOV dl, 3
@@ -43,10 +99,10 @@ MOV _a$main$ca, dl
 MOV dl, _a$main$ca
 MOV _a$main$ca, dl
 FLD _b$main$ca$m
-FLD @cte5
+FLD @cte9
 FCOM 
-JNE Label7
-invoke MessageBox, NULL, addr @cadena6, addr @cadena6, MB_OK
+JNE Label7  
+invoke MessageBox, NULL, addr @cadena10, addr @cadena10, MB_OK
 JMP Label8
 Label7:
 Label8:
@@ -54,22 +110,22 @@ ret
  
 START:
 
-FLD @cte5
+FLD @cte9
 FSTP _y$main
-FLD @cte12
+FLD @cte31
 FSTP _b$main$ca$m
 MOV dl, 3
 MOV _a$c1$main, dl
 MOV dl, _a$c1$main
 MOV _a$c1$main, dl
 FLD _b$main$ca$m
-FLD @cte5
+FLD @cte9
 FCOM 
-JNE Label7
-invoke MessageBox, NULL, addr @cadena6, addr @cadena6, MB_OK
-JMP Label8
-Label7:
-Label8:
+JNE Label7191
+invoke MessageBox, NULL, addr @cadena10, addr @cadena10, MB_OK
+JMP Label8191
+Label7191:
+Label8191:
 MOV dl, 1
 MOV _a$c1$main, dl
 FLD _y$main
@@ -79,20 +135,21 @@ MOV _a$c1$main, dl
 MOV dl, _a$c1$main
 MOV _a$c1$main, dl
 FLD _b$main$ca$m
-FLD @cte5
+FLD @cte9
 FCOM 
-JNE Label7
-invoke MessageBox, NULL, addr @cadena6, addr @cadena6, MB_OK
-JMP Label8
-Label7:
-Label8:
+JNE Label7192
+invoke MessageBox, NULL, addr @cadena10, addr @cadena10, MB_OK
+JMP Label8192
+Label7192:
+Label8192:
 MOV dl, _a$c1$main
 CMP dl, 3
-JNE Label21
-invoke MessageBox, NULL, addr @cadena15, addr @cadena15, MB_OK
-JMP Label22
-Label21:
-Label22:
+JNE Label31  
+invoke MessageBox, NULL, addr @cadena33, addr @cadena33, MB_OK
+JMP Label32
+Label31:
+Label32:
+CALL preu$main
 
 JMP fin 
 OFMU: 
