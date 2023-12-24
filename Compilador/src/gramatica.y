@@ -235,7 +235,7 @@ metodo_objeto : ID '.' ID parametro_real {  int refObjeto = verObjetoDeclarado($
                                                                     tipo_formal = TS.get_Simbolo(Integer.parseInt(param)).get_Tipo();
                                                                     if (tipo_formal.equals(tipo_real)){
                                                                         String auxiliar = Integer.toString(crear_terceto("=", param, $4.sval));
-                                                                        $$.sval = "[" + Integer.toString(crear_terceto ("CALLMetodoClase", Integer.toString(ref), $4.sval)) + "]";}
+                                                                        $$.sval = "[" + Integer.toString(crear_terceto ("CALLMetodoClase", Integer.toString(ref), Integer.toString(refObjeto))) + "]";}
                                                                     else
                                                                     {
                                                                         if (tipo_formal == "USHORT" || (tipo_formal == "LONG" && tipo_real =="DOUBLE"))
@@ -245,10 +245,10 @@ metodo_objeto : ID '.' ID parametro_real {  int refObjeto = verObjetoDeclarado($
                                                                             String terceto1 = '['+ Integer.toString(crear_terceto(conversion, $4.sval, "-")) + ']';
                                                                             String auxiliar = Integer.toString(crear_terceto("=", param, terceto1));
                                                                             System.out.println("La conversión pudo realizarse y fue de " + tipo_real + " a " + tipo_formal );
-                                                                            $$.sval = "[" + Integer.toString(crear_terceto ("CALLMetodoClase", Integer.toString(ref), terceto1)) + "]";}
+                                                                            $$.sval = "[" + Integer.toString(crear_terceto ("CALLMetodoClase", Integer.toString(ref), Integer.toString(refObjeto))) + "]";}
                                                                     }}
                                                                 else
-                                                                    $$.sval = "[" + Integer.toString(crear_terceto ("CALLMetodoClase", Integer.toString(ref), "-")) + "]";
+                                                                    $$.sval = "[" + Integer.toString(crear_terceto ("CALLMetodoClase", Integer.toString(ref),Integer.toString(refObjeto))) + "]";
                                                             } else {
                                                                 System.out.println("ERROR: linea "+ Linea.getLinea() + " Los parámetros no coinciden");
                                                                 error = true;

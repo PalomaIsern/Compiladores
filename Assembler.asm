@@ -20,15 +20,19 @@ OverFlowResta db "Resultado negativo en resta de enteros sin signo", 0
 OverFlowSuma db "Overflow en suma de punto flotante", 0 
 _ca$main db  ?
 _a$main$ca db  ?
-@ctePos3 db 3
+_b$main$ca$m dq  ?
+@ctePos4 db 3
+@cte5 dq 2.0
+@cadena6 db "b vale 2.0", 0
 _x$main db  ?
 _y$main dq  ?
 _z$main dq  ?
 c1 db  ?
 c2 db  ?
+@cte12 dq 3.5
 _a$c1$main db  ?
-@ctePos10 db 1
-@cadena11 db "c1_a igual a 3", 0
+@ctePos14 db 1
+@cadena15 db "c1_a igual a 3", 0
 @aux_sumaDouble dw 0 
   
 .code
@@ -38,21 +42,57 @@ MOV dl, 3
 MOV _a$main$ca, dl
 MOV dl, _a$main$ca
 MOV _a$main$ca, dl
+FLD _b$main$ca$m
+FLD @cte5
+FCOM 
+JNE Label7
+invoke MessageBox, NULL, addr @cadena6, addr @cadena6, MB_OK
+JMP Label8
+Label7:
+Label8:
 ret 
  
 START:
 
-CALL m$main$ca
+FLD @cte5
+FSTP _y$main
+FLD @cte12
+FSTP _b$main$ca$m
+MOV dl, 3
+MOV _a$c1$main, dl
+MOV dl, _a$c1$main
+MOV _a$c1$main, dl
+FLD _b$main$ca$m
+FLD @cte5
+FCOM 
+JNE Label7
+invoke MessageBox, NULL, addr @cadena6, addr @cadena6, MB_OK
+JMP Label8
+Label7:
+Label8:
 MOV dl, 1
 MOV _a$c1$main, dl
-CALL m$main$ca
+FLD _y$main
+FSTP _b$main$ca$m
+MOV dl, 3
+MOV _a$c1$main, dl
+MOV dl, _a$c1$main
+MOV _a$c1$main, dl
+FLD _b$main$ca$m
+FLD @cte5
+FCOM 
+JNE Label7
+invoke MessageBox, NULL, addr @cadena6, addr @cadena6, MB_OK
+JMP Label8
+Label7:
+Label8:
 MOV dl, _a$c1$main
 CMP dl, 3
-JNE Label12
-invoke MessageBox, NULL, addr @cadena11, addr @cadena11, MB_OK
-JMP Label13
-Label12:
-Label13:
+JNE Label21
+invoke MessageBox, NULL, addr @cadena15, addr @cadena15, MB_OK
+JMP Label22
+Label21:
+Label22:
 
 JMP fin 
 OFMU: 

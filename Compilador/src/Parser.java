@@ -1922,7 +1922,7 @@ public class Parser {
                                             String auxiliar = Integer
                                                     .toString(crear_terceto("=", param, val_peek(0).sval));
                                             yyval.sval = "[" + Integer.toString(crear_terceto("CALLMetodoClase",
-                                                    Integer.toString(ref), val_peek(0).sval)) + "]";
+                                                    Integer.toString(ref), Integer.toString(refObjeto))) + "]";
                                         } else {
                                             if (tipo_formal == "USHORT"
                                                     || (tipo_formal == "LONG" && tipo_real == "DOUBLE"))
@@ -1935,15 +1935,15 @@ public class Parser {
                                                 String auxiliar = Integer.toString(crear_terceto("=", param, terceto1));
                                                 System.out.println("La conversión pudo realizarse y fue de " + tipo_real
                                                         + " a " + tipo_formal);
-                                                yyval.sval = "[" + Integer.toString(crear_terceto("CALLMetodoClase",
-                                                        Integer.toString(ref), terceto1)) + "]";
+                                                yyval.sval = "["
+                                                        + Integer.toString(crear_terceto("CALLMetodoClase",
+                                                                Integer.toString(ref), Integer.toString(refObjeto)))
+                                                        + "]";
                                             }
                                         }
                                     } else
-                                        yyval.sval = "["
-                                                + Integer.toString(
-                                                        crear_terceto("CALLMetodoClase", Integer.toString(ref), "-"))
-                                                + "]";
+                                        yyval.sval = "[" + Integer.toString(crear_terceto("CALLMetodoClase",
+                                                Integer.toString(ref), Integer.toString(refObjeto))) + "]";
                                 } else {
                                     System.out.println(
                                             "ERROR: linea " + Linea.getLinea() + " Los parámetros no coinciden");

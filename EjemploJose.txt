@@ -1,19 +1,23 @@
 {
 CLASS ca {
 	USHORT a,
-	VOID m() {
+	VOID m(DOUBLE b) {
     	a = 3_us,
     	a = a,
+		IF (b == 2.0)
+			PRINT #b vale 2.0#,
+		END_IF,
     	RETURN,
 	},
 },
 
 USHORT x,
 DOUBLE y;z,
+y = 2.0,
 ca c1; c2,
-c1.m(),
+c1.m(3.5),
 c1.a = 1_us,
-c1.m(),
+c1.m(y),
 IF (c1.a == 3_us)
    PRINT #c1_a igual a 3#,
 END_IF,
