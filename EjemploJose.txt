@@ -6,6 +6,8 @@ CLASS ca {
     	a = a,
 		IF (b == 2.0)
 			PRINT #b vale 2.0#,
+		ELSE
+			PRINT #b no vale 2.0#,
 		END_IF,
     	RETURN,
 	},

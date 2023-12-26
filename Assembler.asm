@@ -18,138 +18,186 @@ OverFlowMultiplicacionL db "Overflow en multiplicacion de enteros largos con sig
 OverFlowMultiplicacionU db "Overflow en multiplicacion de enteros cortos sin signo (USHORT)", 0 
 OverFlowResta db "Resultado negativo en resta de enteros sin signo", 0
 OverFlowSuma db "Overflow en suma de punto flotante", 0 
-_ca$main db  ?
-_a$main$ca db  ?
-_b$main$ca dd  ?
-_z$main$ca dq  ?
-_do$main$ca dq  ?
-_tre$main$ca dq  ?
-_b$main$ca$m dq  ?
-@ctePos8 db 3
-@cte9 dq 2.0
-@cadena10 db "b vale 2.0", 0
-@cte12 dq 10.0
-@ctePos13 db 10
-@cadena14 db "si", 0
-@cadena15 db "no", 0
-_x$main db  ?
-_y$main dq  ?
-_z$main dq  ?
-c1 db  ?
-c2 db  ?
-_a$c1$main db  ?
-_a$c2$main db  ?
-_b$c1$main dd  ?
-_b$c2$main dd  ?
-_z$c1$main dq  ?
-_z$c2$main dq  ?
-_do$c1$main dq  ?
-_do$c2$main dq  ?
-_tre$c1$main dq  ?
-_tre$c2$main dq  ?
-@cte31 dq 3.5
-@ctePos32 db 1
-@cadena33 db "c1_a igual a 3", 0
-objetonuevo db  ?
-_a$objetonuevo$main$preu db  ?
-_b$objetonuevo$main$preu dd  ?
-_z$objetonuevo$main$preu dq  ?
-_do$objetonuevo$main$preu dq  ?
-_tre$objetonuevo$main$preu dq  ?
-@cadena41 db "es 10.0", 0
-@cadena42 db "no es 10.0", 0
-@aux1 dq  ?
+_clase1$main db  ?
+_x$main$clase1 db  ?
+_y$main$clase1 dq  ?
+_d$main$clase1$f1$f2 db  ?
+@ctePos6 db 2
+@cadena7 db "Hola", 0
+_t$main$clase1 dd  ?
+@ctePos9 db 50
+@ctePos10 db 40
+_clase2$main$clase1 db  ?
+_y$main$m dq  ?
+_z$main$m dq  ?
+@cte15 dq 2.5
+@cadena16 db "z es igual a y", 0
+@cadena17 db "son distintos", 0
+_l$main$m dd  ?
+@cadena19 db "Se hizo bien la conversion", 0
+@cadena20 db "NO se hizo bien", 0
+_zz$main$m$n dq  ?
+_xx$main$m$n dq  ?
+_ww$main$m$n dq  ?
+_y$main$m$n dd  ?
+_a$main$m$n dd  ?
+@cteneg28 dd -500
+@cadena29 db "cadena1", 0
+@aux1 db  ?
+@aux2 dq  ?
+@aux3 dq  ?
+@aux4 dq  ?
+@aux5 dq  ?
+@aux6 dq  ?
+@aux7 db  ?
+@aux8 dq  ?
+@aux9 dq  ?
+@aux10 dq  ?
+@aux11 dq  ?
+@aux12 dq  ?
 @aux_sumaDouble dw 0 
+  
+@auxComp dw 0 
   
 .code
  
-otro$main$ca: 
-MOV dl, @ctePos13
+n$main$m: 
+FLD _zz$main$m$n
+FLD _xx$main$m$n
+FADD
+FSTP @aux4
+PUSHF 
+FLD MaxNumDouble
+FCOM @aux4
+FSTSW ax 
+SAHF 
+JBE OFS 
+POPF 
+FILD dword ptr [_a$main$m$n] 
+FLD @aux4
+FLD @aux5
+FADD
+FSTP @aux6
+PUSHF 
+FLD MaxNumDouble
+FCOM @aux6
+FSTSW ax 
+SAHF 
+JBE OFS 
+POPF 
+FLD @aux6
+FSTP _ww$main$m$n
+ret 
+ 
+f2$main$clase1$f1: 
+MOV dl, 2
+ADD dl, _d$main$clase1$f1$f2
+MOV @aux7, dl
+MOV dl, @aux7
 MOVSX edx, dl
-FILD dword ptr [@ctePos13] 
-FSTP qword ptr [@ctePos13] 
-FLD @cte12
-FLD @aux1
-FCOM 
-JNE Label17  
-invoke MessageBox, NULL, addr @cadena14, addr @cadena14, MB_OK
-JMP Label19
-Label17:
-invoke MessageBox, NULL, addr @cadena15, addr @cadena15, MB_OK
-Label19:
+FILD dword ptr [@aux7] 
+FSTP qword ptr [@aux7] 
+FLD @aux8
+FSTP _y$main$clase1
 ret 
  
-preu$main: 
-FLD @cte12
-FSTP _tre$objetonuevo$main$preu
-FLD _tre$objetonuevo$main$preu
-FLD @cte12
+f1$main$clase1: 
+CALL f2$main$clase1$f1
+MOV dl, _x$main$clase1
+MOVSX edx, dl
+FILD dword ptr [_x$main$clase1] 
+FSTP qword ptr [_x$main$clase1] 
+FLD @aux9
+FLD _y$main$clase1
 FCOM 
-JNE Label39  
-invoke MessageBox, NULL, addr @cadena41, addr @cadena41, MB_OK
-JMP Label41
-Label39:
-invoke MessageBox, NULL, addr @cadena42, addr @cadena42, MB_OK
+FSTSW @auxComp 
+MOV ax, @auxComp 
+SAHF 
+JLE Label13  
+MOV dl, _x$main$clase1
+MOV _d$main$clase1$f1$f2, dl
+CALL f2$main$clase1$f1
+JMP Label15
+Label13:
+invoke MessageBox, NULL, addr @cadena7, addr @cadena7, MB_OK
+Label15:
+ret 
+ 
+m$main: 
+FLD @cte15
+FSTP _z$main$m
+FLD @cte15
+FSTP _y$main$m
+FLD _z$main$m
+FLD _y$main$m
+FCOM 
+FSTSW @auxComp 
+MOV ax, @auxComp 
+SAHF 
+JNE Label31  
+invoke MessageBox, NULL, addr @cadena16, addr @cadena16, MB_OK
+JMP Label33
+Label31:
+invoke MessageBox, NULL, addr @cadena17, addr @cadena17, MB_OK
+Label33:
+FILD dword ptr [_l$main$m] 
+FLD @aux10
+FSTP _y$main$m
+FILD dword ptr [_l$main$m] 
+FLD _y$main$m
+FLD @aux11
+FCOM 
+FSTSW @auxComp 
+MOV ax, @auxComp 
+SAHF 
+JNE Label41  
+invoke MessageBox, NULL, addr @cadena19, addr @cadena19, MB_OK
+JMP Label43
 Label41:
-ret 
- 
-m$main$ca: 
-MOV dl, 3
-MOV _a$main$ca, dl
-MOV dl, _a$main$ca
-MOV _a$main$ca, dl
-FLD _b$main$ca$m
-FLD @cte9
+invoke MessageBox, NULL, addr @cadena20, addr @cadena20, MB_OK
+Label43:
+CALL n$main$m
+Label50:
+FILD dword ptr [@cteneg28] 
+FLD @aux12
+FSTP _y$main$m
+FLD _y$main$m
+FLD _z$main$m
 FCOM 
-JNE Label7  
-invoke MessageBox, NULL, addr @cadena10, addr @cadena10, MB_OK
-JMP Label8
-Label7:
-Label8:
+FSTSW @auxComp 
+MOV ax, @auxComp 
+SAHF 
+JE Label50  
+invoke MessageBox, NULL, addr @cadena29, addr @cadena29, MB_OK
 ret 
  
 START:
 
-FLD @cte9
-FSTP _y$main
-FLD @cte31
-FSTP _b$main$ca$m
-MOV dl, 3
-MOV _a$c1$main, dl
-MOV dl, _a$c1$main
-MOV _a$c1$main, dl
-FLD _b$main$ca$m
-FLD @cte9
-FCOM 
-JNE Label7191
-invoke MessageBox, NULL, addr @cadena10, addr @cadena10, MB_OK
-JMP Label8191
-Label7191:
-Label8191:
-MOV dl, 1
-MOV _a$c1$main, dl
-FLD _y$main
-FSTP _b$main$ca$m
-MOV dl, 3
-MOV _a$c1$main, dl
-MOV dl, _a$c1$main
-MOV _a$c1$main, dl
-FLD _b$main$ca$m
-FLD @cte9
-FCOM 
-JNE Label7192
-invoke MessageBox, NULL, addr @cadena10, addr @cadena10, MB_OK
-JMP Label8192
-Label7192:
-Label8192:
-MOV dl, _a$c1$main
-CMP dl, 3
-JNE Label31  
-invoke MessageBox, NULL, addr @cadena33, addr @cadena33, MB_OK
-JMP Label32
-Label31:
-Label32:
-CALL preu$main
+MOV dl, 50
+MOV _x$main$clase1, dl
+MOV dl, _x$main$clase1
+SUB dl, 40
+JC OFR 
+MOV @aux1, dl
+MOV dl, @aux1
+MOVSX edx, dl
+FILD dword ptr [@aux1] 
+FSTP qword ptr [@aux1] 
+FLD _y$main$clase1
+FLD @aux2
+FADD
+FSTP @aux3
+PUSHF 
+FLD MaxNumDouble
+FCOM @aux3
+FSTSW ax 
+SAHF 
+JBE OFS 
+POPF 
+FLD @aux3
+FSTP _y$main$clase1
+CALL f1$main$clase1
+CALL m$main
 
 JMP fin 
 OFMU: 

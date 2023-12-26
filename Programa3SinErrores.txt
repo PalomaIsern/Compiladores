@@ -23,6 +23,20 @@
 	VOID m()
 	{
     DOUBLE y; z,
+	z = 2.5,
+	y = 2.5,
+	IF (z == y)
+		PRINT #z es igual a y#,
+	ELSE
+		PRINT #son distintos#,
+	END_IF,
+	LONG l,
+	y = l,
+	IF (y == l)
+		PRINT #Se hizo bien la conversion#,
+	ELSE
+		PRINT #NO se hizo bien#,
+	END_IF,
 		VOID n(){
 			DOUBLE zz; xx;ww,
 			LONG y;a,

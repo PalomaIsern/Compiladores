@@ -79,6 +79,7 @@ public class Assembler {
         // imprimirLimites(func);
         codigo.append(datos.getDatosAssembler());
         codigo.append("@aux_sumaDouble dw 0 \n  \n");
+        codigo.append("@auxComp dw 0 \n  \n");
         codigo.append(".code\n \n");
         codigo.append(sbFunciones);
         // codigo
@@ -400,9 +401,18 @@ public class Assembler {
                         || operador == "!!") {
                     registro = getRegistroDisponible();
                     if (tipo == "DOUBLE") {
+                        char segundo = registro.charAt(1);
+                        if (String.valueOf(segundo) == "a") {
+                            String registronuevo = getRegistroDisponible();
+                            setRegistroDisponible(registro);
+                            registro = registronuevo;
+                        }
                         cod.append("FLD " + op1 + "\n");
                         cod.append("FLD " + op2 + "\n");
                         cod.append("FCOM \n");
+                        cod.append("FSTSW @auxComp \n");
+                        cod.append("MOV ax, @auxComp \n");
+                        cod.append("SAHF \n");
                     } else {
                         String regAux = registro;
                         if (tipo.equals("USHORT"))
@@ -513,9 +523,18 @@ public class Assembler {
                     || operador == "!!") {
                 registro = getRegistroDisponible();
                 if (tipo == "DOUBLE") {
+                    char segundo = registro.charAt(1);
+                    if (String.valueOf(segundo) == "a") {
+                        String registronuevo = getRegistroDisponible();
+                        setRegistroDisponible(registro);
+                        registro = registronuevo;
+                    }
                     cod.append("FLD " + op1 + "\n");
                     cod.append("FLD " + op2 + "\n");
                     cod.append("FCOM \n");
+                    cod.append("FSTSW @auxComp \n");
+                    cod.append("MOV ax, @auxComp \n");
+                    cod.append("SAHF \n");
                 } else {
                     String regAux = registro;
                     if (tipo.equals("USHORT"))

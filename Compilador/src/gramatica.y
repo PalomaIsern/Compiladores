@@ -59,11 +59,11 @@ asignacion : ID simboloAsignacion expresion         {String conv = convertirTipo
                                                         CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(conv));
                                                     }
                                                     if ($2.sval == "+="){
-                                                        String aux = "[" + Integer.toString(crear_terceto("+", Integer.toString(TS.pertenece($1.sval)), $3.sval)) + "]";
+                                                        String aux = "[" + Integer.toString(crear_terceto("+", Integer.toString(TS.buscar_por_ambito(AlcanceMayor($1.sval))), $3.sval)) + "]";
                                                         CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(TS.get_Simbolo(TS.buscar_por_ambito($1.sval+ambito)).get_Tipo());
-                                                        $$.sval = '[' + Integer.toString(crear_terceto("=", Integer.toString(TS.pertenece($1.sval)), aux)) + ']';}
+                                                        $$.sval = '[' + Integer.toString(crear_terceto("=", Integer.toString(TS.buscar_por_ambito(AlcanceMayor($1.sval))), aux)) + ']';}
                                                     else 
-                                                        $$.sval = '[' + Integer.toString(crear_terceto($2.sval, Integer.toString(TS.pertenece($1.sval)), $3.sval)) + ']';
+                                                        $$.sval = '[' + Integer.toString(crear_terceto($2.sval, Integer.toString(TS.buscar_por_ambito(AlcanceMayor($1.sval))), $3.sval)) + ']';
                                                     CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(TS.get_Simbolo(TS.pertenece($1.sval)).get_Tipo()));
                                                     if (!ver_ElementoDeclarado($1.sval)){
                                                         System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + $1.sval + " no fue declarado");
@@ -71,24 +71,7 @@ asignacion : ID simboloAsignacion expresion         {String conv = convertirTipo
                                                     else
                                                         verificarUso($1.sval);
                                                     }
-            | atributo_objeto simboloAsignacion atributo_objeto   {
-                                                    if (($1.sval != null) && ($3.sval != null)) {
-                                                        String conv = convertirAsignacionAtributo($1.sval, $3.sval);
-                                                        if (conv != "-"){
-                                                            $3.sval = "["+ Integer.toString(crear_terceto(conv, $3.sval, "-")) +"]";
-                                                            CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(conv));
-                                                        }
-                                                        if ($2.sval == "+="){
-                                                            String aux = "[" + Integer.toString(crear_terceto("+", $1.sval, $3.sval)) + "]";
-                                                            CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(TS.get_Simbolo(Integer.parseInt($1.sval)).get_Tipo());
-                                                            $$.sval = '[' + Integer.toString(crear_terceto("=", $1.sval, aux)) + ']';}
-                                                        else 
-                                                            if (($1.sval != null) && ($3.sval != null))
-                                                                $$.sval = '[' + Integer.toString(crear_terceto("=", $1.sval, $3.sval))+']';
-                                                        CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(TS.get_Simbolo(Integer.parseInt($1.sval)).get_Tipo()));
-                                                        }
-                                                    } 
-            | atributo_objeto simboloAsignacion factor            {
+            | atributo_objeto simboloAsignacion expresion            {
                                                     if ($1.sval != null && $3.sval != null) {
                                                         String conv = convertirAsignacionAtributo($1.sval, $3.sval);
                                                         if (conv != "-"){
@@ -105,7 +88,6 @@ asignacion : ID simboloAsignacion expresion         {String conv = convertirTipo
                                                         CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(TS.get_Simbolo(Integer.parseInt($1.sval)).get_Tipo()));
                                                         }
                                                     }
-            
 ;
 
 simboloAsignacion : '='     {$$.sval = "=";}
@@ -141,6 +123,7 @@ factor : ID     {
                     //setear_Uso("ConstantePositiva", $1.sval+ambito);
                     //$$.sval = Integer.toString(TS.pertenece($1.sval));
                     }
+       | atributo_objeto {$$.sval = $1.sval;}
 ;
 
 operadorMasMenos : '+' { $$.sval = "+";}
@@ -450,49 +433,6 @@ condicion : '(' expresion comparador expresion ')' {
                                                       else
                                                             CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(CodigoIntermedio.get(Integer.parseInt($$.sval)).get_Tipo());
                                                       pila.push(aux);}
-        | '(' atributo_objeto comparador expresion ')' {  realizar_Conversion($2.sval, $4.sval, $3.sval, $$);
-                                                            int aux;
-                                                            if ($$.sval == "")
-                                                                aux = crear_terceto("BF", "-", "-");
-                                                            else{
-                                                                aux = crear_terceto("BF", $$.sval, "-");
-                                                                if ($$.sval.contains("["))
-                                                                    {String ref = borrarCorchetes($$.sval);
-                                                                    CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(CodigoIntermedio.get(Integer.parseInt(ref)).get_Tipo());
-                                                                    }
-                                                                else
-                                                                    CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(CodigoIntermedio.get(Integer.parseInt($$.sval)).get_Tipo());
-                                                                }
-                                                        pila.push(aux);}
-                                                        
-          | '(' expresion comparador atributo_objeto ')' {  realizar_Conversion($2.sval, $4.sval, $3.sval, $$);
-                                                            int aux;
-                                                            if ($$.sval == "")
-                                                                aux = crear_terceto("BF", "-", "-");
-                                                            else{
-                                                                aux = crear_terceto("BF", $$.sval, "-");
-                                                                if ($$.sval.contains("["))
-                                                                    {String ref = borrarCorchetes($$.sval);
-                                                                    CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(CodigoIntermedio.get(Integer.parseInt(ref)).get_Tipo());
-                                                                    }
-                                                                else
-                                                                    CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(CodigoIntermedio.get(Integer.parseInt($$.sval)).get_Tipo());
-                                                                }
-                                                        pila.push(aux);}
-          | '(' atributo_objeto comparador atributo_objeto ')' {  realizar_Conversion($2.sval, $4.sval, $3.sval, $$);
-                                                            int aux;
-                                                    if ($$.sval == "")
-                                                                aux = crear_terceto("BF", "-", "-");
-                                                            else{
-                                                                aux = crear_terceto("BF", $$.sval, "-");
-                                                                if ($$.sval.contains("["))
-                                                                    {String ref = borrarCorchetes($$.sval);
-                                                                    CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(CodigoIntermedio.get(Integer.parseInt(ref)).get_Tipo());
-                                                                    }
-                                                                else
-                                                                    CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(CodigoIntermedio.get(Integer.parseInt($$.sval)).get_Tipo());
-                                                                }
-                                                        pila.push(aux);}
 ;
 
 clausula_seleccion : IF condicion bloque_IF ELSE bloque_ELSE END_IF {int primero = pila.pop();
@@ -1462,7 +1402,8 @@ public void chequearRangoNegativo(String numero, ParserVal factor) {
     }
 
     public String convertirTipoAsignacion(String id, String expresion){
-        String tipoId = TS.get_Simbolo(TS.pertenece(id)).get_Tipo();
+        String buscador = AlcanceMayor(id);
+        String tipoId = TS.get_Simbolo(TS.buscar_por_ambito(buscador)).get_Tipo();
         String tipoExpresion= "-";
         String conversion = "-";
         if (expresion.contains("[")){
