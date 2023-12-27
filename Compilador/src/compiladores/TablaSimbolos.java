@@ -142,6 +142,8 @@ public class TablaSimbolos {
                     sb.append("@cteneg" + entry.getKey() + " dd " + s.get_Lex() + "\n");
                 else if (token == 258 && s.get_Uso().equals("Constante"))
                     sb.append("@cte" + entry.getKey() + " dd " + s.get_Lex() + "\n");
+                else if (token == 259 && s.get_Uso().equals("ConstantePositiva"))
+                    sb.append("@ctePos" + entry.getKey() + " dd " + s.get_Lex() + "\n");
             } else if (tipo == "USHORT") {
                 if (token == 257)
                     sb.append("_" + reemplazarPuntos(s.get_Ambito()) + " db " + " ?\n");

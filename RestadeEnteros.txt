@@ -1,0 +1,10 @@
+{
+    USHORT u1; u2; u3,
+    u2 = 20_us,
+    u3 = u2 -1_us,
+    IF (u3 == 19_us)
+        PRINT #La resta se hizo bien#,
+    END_IF,
+    u2 = u2 - 20_us,
+    u1 = 5_us - 6_us,
+}

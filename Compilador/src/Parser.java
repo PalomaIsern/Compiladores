@@ -1615,7 +1615,7 @@ case 13:
                                                         yyval.sval = '[' + Integer.toString(crear_terceto("=", Integer.toString(TS.buscar_por_ambito(AlcanceMayor(val_peek(2).sval))), aux)) + ']';}
                                                     else 
                                                         yyval.sval = '[' + Integer.toString(crear_terceto(val_peek(1).sval, Integer.toString(TS.buscar_por_ambito(AlcanceMayor(val_peek(2).sval))), val_peek(0).sval)) + ']';
-                                                    CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(TS.get_Simbolo(TS.pertenece(val_peek(2).sval)).get_Tipo()));
+                                                    CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(TS.get_Simbolo(TS.buscar_por_ambito(AlcanceMayor(val_peek(2).sval))).get_Tipo()));
                                                     if (!ver_ElementoDeclarado(val_peek(2).sval)){
                                                         System.out.println("ERROR: linea "+ Linea.getLinea() + " - " + val_peek(2).sval + " no fue declarado");
                                                         error = true;}
@@ -1626,21 +1626,21 @@ break;
 case 14:
 //#line 74 "gramatica.y"
 {
-                                                    if (val_peek(2).sval != null && val_peek(0).sval != null) {
-                                                        String conv = convertirAsignacionAtributo(val_peek(2).sval, val_peek(0).sval);
-                                                        if (conv != "-"){
-                                                            val_peek(0).sval = "["+ Integer.toString(crear_terceto(conv, val_peek(0).sval, "-")) +"]";
-                                                            CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(conv));
-                                                        }
-                                                        if (val_peek(1).sval == "+="){
-                                                            String aux = "[" + Integer.toString(crear_terceto("+", val_peek(2).sval, val_peek(0).sval)) + "]";
-                                                            CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(TS.get_Simbolo(Integer.parseInt(val_peek(2).sval)).get_Tipo());
-                                                            yyval.sval = '[' + Integer.toString(crear_terceto("=", val_peek(2).sval, aux)) + ']';}
-                                                        else
-                                                            if (val_peek(2).sval != null)
-                                                                yyval.sval = '[' + Integer.toString(crear_terceto("=", val_peek(2).sval, val_peek(0).sval))+']';
-                                                        CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(TS.get_Simbolo(Integer.parseInt(val_peek(2).sval)).get_Tipo()));
-                                                        }
+                                                                    if (val_peek(2).sval != null && val_peek(0).sval != null) {
+                                                                    String conv = convertirAsignacionAtributo(val_peek(2).sval, val_peek(0).sval);
+                                                                    if (conv != "-"){
+                                                                        val_peek(0).sval = "["+ Integer.toString(crear_terceto(conv, val_peek(0).sval, "-")) +"]";
+                                                                        CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(conv));
+                                                                    }
+                                                                    if (val_peek(1).sval == "+="){
+                                                                        String aux = "[" + Integer.toString(crear_terceto("+", val_peek(2).sval, val_peek(0).sval)) + "]";
+                                                                        CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(TS.get_Simbolo(Integer.parseInt(val_peek(2).sval)).get_Tipo());
+                                                                        yyval.sval = '[' + Integer.toString(crear_terceto("=", val_peek(2).sval, aux)) + ']';}
+                                                                    else
+                                                                        if (val_peek(2).sval != null)
+                                                                            yyval.sval = '[' + Integer.toString(crear_terceto("=", val_peek(2).sval, val_peek(0).sval))+']';
+                                                                    CodigoIntermedio.get(puntero_Terceto-1).set_Tipo(convertible.devolverTipoAConvertir(TS.get_Simbolo(Integer.parseInt(val_peek(2).sval)).get_Tipo()));
+                                                                    }
                                                     }
 break;
 case 15:

@@ -30,19 +30,13 @@
 	ELSE
 		PRINT #son distintos#,
 	END_IF,
-	LONG l,
-	y = l,
-	IF (y == l)
-		PRINT #Se hizo bien la conversion#,
-	ELSE
-		PRINT #NO se hizo bien#,
-	END_IF,
-		VOID n(){
-			DOUBLE zz; xx;ww,
-			LONG y;a,
-			ww = zz + xx + a,
-		},
-	DO y=-500_l, UNTIL (y!!z),
+	VOID n(){
+		DOUBLE zz; xx;ww,
+		LONG y;a,
+		ww = zz + xx + a,
+	},
+	DO {y=-500_l,
+		PRINT #entro#,} UNTIL (y!!z),
 	** comentario
 	PRINT #cadena1#,
 	},

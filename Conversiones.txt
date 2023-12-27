@@ -1,0 +1,36 @@
+
+{
+    DOUBLE d1; d2,
+    USHORT u1; u2,
+    LONG l1; l2,
+
+    d1 = 1.0,
+    u1 = 10_us,
+    l1 = 50_l,
+
+    d2 = l1-u1,
+    IF (d2 == 40.0)
+        PRINT #Bien#,
+    END_IF,
+
+    l1 = u1 + l1 - 2_us,
+
+    IF ( l1 == 58_l)
+        PRINT #bien#,
+    END_IF,
+
+    IF ( l1 == 59.0 - 1.0)
+        PRINT #bien#,
+    END_IF,
+
+    d2 = 20_us,
+    IF ( d2 == 20.0)
+        PRINT #USHORT to DOUBLE anda#,
+    END_IF,
+
+    d2 = 20_us * 2_l,
+    IF ( d1 == d2)
+        PRINT #bien#,
+    END_IF,
+
+}

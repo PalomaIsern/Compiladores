@@ -14,7 +14,7 @@
     ELSE
         PRINT #No son iguales#,
     END_IF,
-    v_2 += v_6,
+    v_2 += v_6, **overflow
     l1 = 2_l * 2147483648_l, **overflow
     u1 = 200_us * 2_us, **overflow
     u2 = 300_us * 1_us, **overflow

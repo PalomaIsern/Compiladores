@@ -80,10 +80,12 @@ public class Assembler {
         codigo.append(datos.getDatosAssembler());
         codigo.append("@aux_sumaDouble dw 0 \n  \n");
         codigo.append("@auxComp dw 0 \n  \n");
+        codigo.append("@auxConversion dq 0 \n");
         codigo.append(".code\n \n");
         codigo.append(sbFunciones);
         // codigo
         codigo.append("START:\n\n");
+        codigo.append("FINIT \n");
         codigo.append(instrucciones);
         codigo.append("\n");
         codigo.append("JMP fin \n");
@@ -199,7 +201,6 @@ public class Assembler {
                 String op = reemplazarPuntos(t.get_Operador());
                 if (!operadorValido(op) && !op.equals(funcion)) {
                     index = funciones.get(op).get(1) + 1;
-                    codigo.append("CALL " + op + "\n");
                 } else {
                     generarInstruccion(codigo, t);
                     index++;
@@ -271,11 +272,11 @@ public class Assembler {
             if (op != "-" && s.get_Uso() != "Constante" && s.get_Uso() != "ConstantePositiva"
                     && s.get_Uso() != "Constante negativa")
                 return "_" + reemplazarPuntos(s.get_Ambito());
-            else if (op != "-" && s.get_Tipo() == "DOUBLE" && s.get_Uso() == "Constante")
+            else if (op != "-" && s.get_Uso() == "Constante")
                 op = "@cte" + Integer.parseInt(op);
-            else if (op != "-" && s.get_Tipo() == "DOUBLE" && s.get_Uso() == "ConstantePositiva")
+            else if (op != "-" && s.get_Uso() == "ConstantePositiva")
                 op = "@ctePos" + Integer.parseInt(op);
-            else if (op != "-" && s.get_Tipo() == "DOUBLE" && s.get_Uso() == "Constante negativa")
+            else if (op != "-" && s.get_Uso() == "Constante negativa")
                 op = "@cte" + Integer.parseInt(op);
             else if (op != "-" && s.get_Uso() == "Constante" || op != "-" && s.get_Uso() == "ConstantePositiva"
                     || op != "-" && s.get_Uso() == "Constante negativa")
@@ -364,14 +365,23 @@ public class Assembler {
                             reg = String.valueOf(segundo) + "l";
                         else
                             reg = registro;
-                        cod.append("MOV " + reg + ", " + op1 + "\n");
                         if (instruccion == "MUL") {
+                            cod.append("MOV " + reg + ", " + op1 + "\n");
                             String registro2 = "al";
                             registro2 = String.valueOf(segundo) + "l";
                             cod.append("MOV al, " + op2 + "\n");
                             cod.append(instruccion + " " + reg + "\n");
-                        } else
+                        } else if (instruccion == "DIV" || instruccion == "IDIV") {
+                            if (tipo == "LONG")
+                                cod.append("MOV eax, " + op1 + "\n");
+                            else
+                                cod.append("MOV ax, " + op1 + "\n");
+                            cod.append(instruccion + " " + op2 + "\n");
+
+                        } else {
+                            cod.append("MOV " + reg + ", " + op1 + "\n");
                             cod.append(instruccion + " " + reg + ", " + op2 + "\n");
+                        }
                         String vAux;
                         vAux = setear_VA(t, tipo);
                         if (operador == "-" && tipo == "USHORT")
@@ -478,6 +488,8 @@ public class Assembler {
                         controlar_OverFlowSum(cod, vAux);
                     setRegistroDisponible(registro);
                 } else {
+                    String vAux;
+                    vAux = setear_VA(t, tipo);
                     if (String.valueOf(segundo) == "a") {
                         String registronuevo = getRegistroDisponible();
                         setRegistroDisponible(registro);
@@ -487,21 +499,33 @@ public class Assembler {
                         reg = String.valueOf(segundo) + "l";
                     else
                         reg = registro;
-                    cod.append("MOV " + reg + ", " + op1 + "\n");
                     if (instruccion == "MUL") {
+                        cod.append("MOV " + reg + ", " + op1 + "\n");
                         String registro2 = "al";
                         registro2 = String.valueOf(segundo) + "l";
                         cod.append("MOV al, " + op2 + "\n");
                         cod.append(instruccion + " " + reg + "\n");
-                    } else
+                        cod.append("MOV " + vAux + ", " + reg + "\n");
+                    } else if (instruccion == "DIV" || instruccion == "IDIV") {
+                        cod.append("XOR edx, edx \n");
+                        if (tipo == "LONG") {
+                            cod.append("MOV eax, " + op1 + "\n");
+                            cod.append(instruccion + " " + op2 + "\n");
+                            cod.append("MOV " + vAux + ", eax" + "\n");
+                        } else {
+                            cod.append("MOV al, " + op1 + "\n");
+                            cod.append(instruccion + " " + op2 + "\n");
+                            cod.append("MOV " + vAux + ", al" + "\n");
+                        }
+                    } else {
+                        cod.append("MOV " + reg + ", " + op1 + "\n");
                         cod.append(instruccion + " " + reg + ", " + op2 + "\n");
-                    String vAux;
-                    vAux = setear_VA(t, tipo);
+                        cod.append("MOV " + vAux + ", " + reg + "\n");
+                    }
                     if (operador == "-" && tipo == "USHORT")
                         controlar_OverFlowResta(cod);
                     else if (operador == "*")
                         controlar_OverFlowMul(cod, tipo);
-                    cod.append("MOV " + vAux + ", " + reg + "\n");
                     setRegistroDisponible(registro);
                 }
             } else if (operador == "=") {
@@ -724,8 +748,8 @@ public class Assembler {
                     cod.append("MOVSX " + registro_aux + ", " + segundo_aux + "l" + "\n");
                 }
                 cod.append("FILD " + "dword ptr [" + op1 + "] \n");
-                cod.append("FSTP " + "qword ptr [" + op1 + "] \n");
-                setear_VA(t, "DOUBLE");
+                String vAuxConversion = setear_VA(t, "DOUBLE");
+                cod.append("FSTP qword ptr [" + vAuxConversion + "] \n");
                 setRegistroDisponible(registro_aux);
                 return " ";
             case "LtoD":
@@ -743,7 +767,8 @@ public class Assembler {
                         op1 = datos.get_Simbolo(Integer.parseInt(op1)).get_Lex();
                 }
                 cod.append("FILD " + "dword ptr [" + op1 + "] \n");
-                setear_VA(t, "DOUBLE");
+                String vAuxConversionLTOD = setear_VA(t, "DOUBLE");
+                cod.append("FSTP qword ptr [" + vAuxConversionLTOD + "] \n");
                 return " ";
             default:
                 return " ";

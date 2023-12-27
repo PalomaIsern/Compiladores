@@ -1,0 +1,36 @@
+{
+    DOUBLE d,
+    LONG l,
+    USHORT u,
+    d = 10.0,
+    l = 20_l,
+    u = 18_us,
+
+    d = d / 2.0,
+
+    IF ( d == 2.0)
+        PRINT #el double dividio bien#,
+    END_IF,
+
+    l = l / 2_l,
+
+    IF ( l == 5_l)
+        PRINT #el long dividio bien#,
+    END_IF,
+
+    u = u / 3_us,
+    
+    IF ( u == 6_us)
+        PRINT #el ushort dividio bien#,
+    END_IF,
+    
+    LONG l1; l2,
+	l1 = 100_l,
+	l2 = l1 / 2_l,
+	IF (l2 == 50_l)
+		PRINT # esta bien #,
+	ELSE
+		PRINT #esta mal#,
+	END_IF,
+    
+}
